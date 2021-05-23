@@ -1,0 +1,667 @@
+/* Universal Classes */
+.clear {
+  clear: both;
+}
+body {
+  color: #666;
+  font-family: 'Gamja Flower', cursive;
+}
+.window {
+  position: fixed;
+  height: 100vh;
+  width: 100vw;
+}
+.screen {
+  height: 100%;
+  width: 100%;
+}
+.invisible {
+  opacity: 0 !important;
+}
+.hidden {
+  display: none !important;
+}
+.button {
+  cursor:pointer;
+  z-index: 100;
+}
+.UI {
+  z-index: 101;
+}
+/* Universal Classes END */
+
+
+.object_egg_container {
+  /* background-color: rgba(255,33,33,.4); */
+  width: 15%;
+  min-width: 150px;
+  max-width: 200px;
+  /* height: 200px; */
+  position: absolute;
+  /* position: relative; */
+}
+#object_egg {
+  /* background-color: rgba(255,33,33,.4); */
+  width: 15%;
+  min-width: 150px;
+  max-width: 200px;
+  /* height: 200px; */
+  position: absolute;
+}
+.svg_egg {
+  /* background-color: rgba(255,33,33,.4); */
+  width: 100%;
+  position: absolute;
+  overflow: visible;
+}
+.playEggFillAnimation {
+  -webkit-animation: dash_cover 1s linear forwards !important;
+  animation: dash_cover 1s linear forwards !important;
+}
+.playBubbleAnimation {
+  -webkit-animation: bubble 1.2s ease;
+  animation: bubble 1.2s ease;
+}
+
+.storyElementParagraph_container {
+  /* background-color: rgba(255,33,33,.4); */
+  color: #555;
+  font-size: 48px;
+  text-align: center;
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+  /* border: solid 2px #000; */
+  border-radius: 25px;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+}
+.storyElementParagraph {
+  /* background-color: rgba(255,33,33,.4); */
+  width: 100%;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+}
+.storyElementParagraph div {
+  display: flex;
+  flex-flow: row nowrap;
+}
+.storyElementParagraph p {
+  /* background-color: rgba(255,33,33,.4); */
+  position: relative;
+  -webkit-transition: font-size .5s;
+  transition: font-size .5s;
+}
+.storyElementParagraph p:hover {
+  /* font-size: 64px; */
+  color: #777;
+}
+.anchorTop {
+  top:10vh;
+}
+.anchorBottom {
+  top:80vh;
+}
+
+
+/* ------------ */
+/* INTRO SCREEN */
+.intro {
+  background-color: rgba(255,255,255,1);
+  position: fixed;
+  z-index: 101;
+}
+.title_container {
+  /* background-color: rgba(255,33,33,.4); */
+  color: #555;
+  font-size: 64px;
+  text-align: center;
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  position: relative;
+  top:10vh;
+  cursor:default;
+}
+.title_container p {
+  /* background-color: rgba(255,33,33,.4); */
+  -webkit-transition: font-size .5s;
+  transition: font-size .5s;
+}
+.title_container p:hover {
+  /* background-color: rgba(255,33,33,.4); */
+  font-size: 70px;
+  color: #777;
+}
+#eggCounter_container {
+  /* background-color: rgba(255,33,33,.4); */
+  color: #aaa;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+  text-align: center;
+  justify-content: center;
+}
+#eggCounter {
+  font-size: 64px;
+  display: none;
+}
+#eggCounter_description {
+  font-size: 18px;
+}
+/* SVG Arrow pointing down */
+.arrow_down_container {
+  display: flex;
+  justify-content: center;
+  flex-flow: column;
+  width: 85px;
+  height: 120px;
+  position: absolute;
+  left:  50%;
+  bottom: 10px;
+    -webkit-animation: label_hover 2s linear infinite;
+    animation: label_hover 2s linear infinite;
+}
+.arrow_down_description {
+}
+.svg_arrowdown {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+}
+.path_arrowdown {
+    fill: none;
+    stroke: #666;
+    stroke-miterlimit: 10;
+    stroke-width: 3px;
+}
+
+/** INTRO EGGS **/
+#eggCounter_container {
+  /* background-color: rgba(255,33,33,.4); */
+  color: #aaa;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+  text-align: center;
+  justify-content: center;
+}
+#eggCounter {
+  font-size: 64px;
+  display: none;
+}
+#eggCounter_description {
+  font-size: 18px;
+}
+#svg_egg_01 .path_egg {
+  fill: none;
+  stroke: #bbb;
+  stroke-miterlimit: 50;
+  stroke-width: 30px;
+  width: 100%;
+  height: 100%;
+
+  stroke-dasharray: 100;
+
+  -webkit-animation: dash 5s linear infinite;
+  animation: dash 5s linear infinite;
+}
+#svg_egg_02 .path_egg {
+  fill: none;
+  stroke: #333;
+  stroke-miterlimit: 50;
+  stroke-width: 33px;
+  width: 100%;
+  height: 100%;
+
+  stroke-dasharray: 4000;
+  stroke-dashoffset: -3200;
+}
+.eggComplete .path_egg {
+  stroke: #999 !important;
+}
+#object_egg:hover:active {
+  /* transform:scale(1.1); */
+}
+#object_egg:hover #svg_egg_01 .path_egg {
+  stroke: #999 !important;
+}
+.object_falling_egg {
+  width: 15%;
+  min-width: 150px;
+  max-width: 200px;
+  /* height: 200px; */
+  position: absolute;
+  z-index: -10;
+  opacity: 0;
+
+  -webkit-animation-timing-function: ease-in-out;
+  -webkit-animation-name: falling_egg;
+  -webkit-animation-duration: 2s;
+  -webkit-animation-iteration-count: 1;
+  -webkit-animation-fill-mode: forwards;
+  animation-timing-function: ease-in-out;
+  animation-name: falling_egg;
+  animation-duration: 2s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+
+  -webkit-transition: scale 1s;
+  transition: scale 1s;
+}
+.object_falling_egg:active {
+  transform: scale(1.1);
+}
+.preventFalling {
+  animation: pause;
+  opacity: 1;
+  z-index: 10000;
+}
+.svg_egg_03 .path_egg {
+  fill: #D6B883;
+  stroke: #222;
+  stroke-miterlimit: 50;
+  stroke-width: 33px;
+  width: 100%;
+  height: 100%;
+}
+.slideRight {transform:translateX(50px);}
+.slideLeft {transform:translateX(-50px);}
+/* INTRO SCREEN END */
+/* ---------------- */
+
+/* ---------------- */
+/* THE FIRST SCREEN */
+.one {
+  /* background-color: rgba(255,00,255,.4); */
+  position: relative;
+}
+.fallen_egg {
+  cursor: move !important;
+  margin-top: -100vh;
+}
+#svg_eggolution {
+  pointer-events: none;
+}
+#svg_eggolution .path_letter {
+  fill: none;
+  stroke: #222;
+  stroke-miterlimit: 10;
+  stroke-linecap:round;
+  stroke-width: 20px;
+  width: 100%;
+  height: 100%;
+}
+#svg_egg_04 .path_egg {
+  fill: #D6B883;
+  stroke: #222;
+  stroke-miterlimit: 50;
+  stroke-width: 33px;
+  width: 100%;
+  height: 100%;
+}
+
+.friend_egg {
+  /* background-color: #f00; */
+  max-width: 180px !important;
+  position: fixed;
+  margin-top: -100vh;
+}
+.friend_egg:active .svg_egg{
+  animation: bubble 1.2s ease;
+}
+#friend_egg_01 {
+  top: 50%;
+  left: 50%;
+}
+#svg_egg_05 {
+  transform:scale(0.9);
+  pointer-events: none;
+}
+#svg_egg_05_egg {
+  transform:scale(0.9);
+}
+#svg_egg_05_egg .path_egg {
+  fill: #D6B883;
+  stroke: #222;
+  stroke-miterlimit: 50;
+  stroke-width: 33px;
+  width: 100%;
+  height: 100%;
+}
+#svg_egg_05 .path_letter {
+  fill: none;
+  stroke: #222;
+  stroke-miterlimit: 10;
+  stroke-linecap:round;
+  stroke-width: 20px;
+  width: 100%;
+  height: 100%;
+}
+#friend_egg_02 {
+  top: 50%;
+  left: 50%;
+}
+#svg_egg_06 {
+  transform:scale(0.9);
+  pointer-events: none;
+}
+#svg_egg_06_egg {
+  transform:scale(0.9);
+}
+#svg_egg_06_egg .path_egg {
+  fill: #D6B883;
+  stroke: #222;
+  stroke-miterlimit: 50;
+  stroke-width: 33px;
+  width: 100%;
+  height: 100%;
+}
+#svg_egg_06 .path_letter {
+  fill: none;
+  stroke: #222;
+  stroke-miterlimit: 10;
+  stroke-linecap:round;
+  stroke-width: 20px;
+  width: 100%;
+  height: 100%;
+}
+#friend_egg_03 {
+  top: 50%;
+  left: 50%;
+}
+#svg_egg_07 {
+  transform:scale(0.9);
+  pointer-events: none;
+}
+#svg_egg_07_egg {
+  transform:scale(0.9);
+}
+#svg_egg_07_egg .path_egg {
+  fill: #D6B883;
+  stroke: #222;
+  stroke-miterlimit: 50;
+  stroke-width: 33px;
+  width: 100%;
+  height: 100%;
+}
+#svg_egg_07 .path_letter {
+  fill: none;
+  stroke: #222;
+  stroke-miterlimit: 10;
+  stroke-linecap:round;
+  stroke-width: 20px;
+  width: 100%;
+  height: 100%;
+}
+.nextLineIndicator_container {
+  /* background-color: rgba(255,0,0,0.5); */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.nextLineIndicator {
+  /* background-color: #f00; */
+  width: 30px;
+  height: 30px;
+  animation: label_hover 1s infinite;
+  overflow: visible;
+}
+#svg_indicator {
+}
+#svg_indicator .path_indicator {
+    fill: #fff;
+    stroke: #333;
+    stroke-miterlimit: 10;
+    stroke-width: 6px;
+    width: 100%;
+    height: 100%;
+}
+/* END OF THE FIRST SCREEN */
+/* ----------------------- */
+
+/* ----------------- */
+/* THE SECOND SCREEN */
+.two {
+  /* background-color: rgba(33,33,255,.4); */
+  margin-top: 100vh;
+}
+.restart_container {
+  /* background-color: rgba(255,33,33,.4); */
+  color: #555;
+  font-size: 64px;
+  text-align: center;
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  position: relative;
+  top:10vh;
+  cursor:pointer;
+}
+.restart_container div{
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+}
+.restart_container p {
+  /* background-color: rgba(255,33,33,.4); */
+  -webkit-transition: font-size .5s;
+  transition: font-size .5s;
+  pointer-events: none;
+}
+.egg_ground_container {
+  width: 105%;
+  position:relative;
+  top: 60%;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+}
+.egg_ground {
+  width: 100%;
+  border-top: solid 5px #333;
+}
+.object_bird_container {
+  /* background-color: rgba(255,33,33,.4); */
+  width: 15%;
+  min-width: 150px;
+  max-width: 200px;
+  /* height: 200px; */
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+}
+#svg_bird .path_bird_body {
+  fill:#E2E254;
+  stroke: #222;
+  stroke-miterlimit: 50;
+  stroke-width: 33px;
+  width: 100%;
+  height: 100%;
+}
+#svg_bird .path_bird_beak {
+  fill:#fff;
+  stroke: #222;
+  stroke-miterlimit: 50;
+  stroke-width: 33px;
+  width: 100%;
+  height: 100%;
+}
+#svg_bird .path_egg_hatched {
+  fill: #D6B883;
+  stroke: #222;
+  stroke-miterlimit: 50;
+  stroke-width: 33px;
+  width: 100%;
+  height: 100%;
+}
+/* END OF THE SECOND SCREEN */
+/* ----------------------- */
+
+#world {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+}
+#worldCanvas {
+  min-width: 100%;
+  /* height:cover; */
+}
+
+/* --------------- Animations -------------- */
+@keyframes dash {
+  to {
+    stroke-dashoffset: -2000;
+  }
+}
+@keyframes dash_cover {
+  to {
+    stroke-dashoffset: 0;
+    stroke-dasharray: -4000;
+  }
+}
+@keyframes falling_egg {
+  0% {
+    opacity: 1;
+    z-index: 10000;
+  }
+  5% {
+    transform: translate(0px, -20px);
+  }
+  8% {
+    transform: translate(0px, -30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(100px, 2000px) rotateZ(30deg);
+  }
+}
+
+.label_transition {
+  -webkit-animation:
+      label_slideIn 1s,
+      label_hover 3s 1.2s infinite; /* Safari 4.0 - 8.0 */
+  animation:
+      label_slideIn 1s ,
+      label_hover 3s 1.2s infinite;
+  transform: translateY(0px)!important;
+}
+.label_transition_bottom {
+  -webkit-animation:
+      label_slideIn_bottom 1s,
+      label_hover 3s 1.2s infinite; /* Safari 4.0 - 8.0 */
+  animation:
+      label_slideIn_bottom 1s ,
+      label_hover 3s 1.2s infinite;
+  transform: translateY(0px)!important;
+}
+/* Safari 4.0 - 8.0 */
+@-webkit-keyframes bubble {
+    0% {transform: scale(.97);}
+    50% {transform: scale(.90);}
+    100% {transform: scale(1.0);}
+}
+/* Standard syntax */
+@keyframes bubble {
+    0% {transform: scale(.97);}
+    50% {transform: scale(.90);}
+    100% {transform: scale(1.0);}
+}
+/* Safari 4.0 - 8.0 */
+@-webkit-keyframes wiggle {
+    25% {transform: rotateZ(2deg);}
+    75% {transform: rotateZ(-2deg);}
+}
+/* Standard syntax */
+@keyframes wiggle {
+    25% {transform: rotateZ(2deg);}
+    75% {transform: rotateZ(-2deg);}
+}
+/* Safari 4.0 - 8.0 */
+@-webkit-keyframes wiggleFalling {
+    25% {transform: rotateZ(10deg);}
+    75% {transform: rotateZ(-10deg);}
+}
+/* Standard syntax */
+@keyframes wiggle {
+    25% {transform: rotateZ(10deg);}
+    75% {transform: rotateZ(-10deg);}
+}
+
+/* Safari 4.0 - 8.0 */
+@-webkit-keyframes label_slideIn {
+    0% {transform: translateY(-200px);}
+    40% {transform: translateY(20px);}
+    100% {
+      transform: translateY(0px);
+    }
+}
+/* Standard syntax */
+@keyframes label_slideIn {
+    0% {transform: translateY(-200px);}
+    40% {transform: translateY(20px);}
+    100% {
+      transform: translateY(0px);
+    }
+}
+/* Safari 4.0 - 8.0 */
+@-webkit-keyframes label_slideIn_bottom {
+    0% {transform: translateY(200px);}
+    40% {transform: translateY(-20px);}
+    100% {
+      transform: translateY(0px);
+    }
+}
+/* Standard syntax */
+@keyframes label_slideIn_bottom {
+    0% {transform: translateY(200px);}
+    40% {transform: translateY(-20px);}
+    100% {
+      transform: translateY(0px);
+    }
+}
+/* Safari 4.0 - 8.0 */
+@-webkit-keyframes label_hover {
+    50% {transform: translateY(5px);}
+}
+/* Standard syntax */
+@keyframes label_hover {
+    50% {transform: translateY(5px);}
+}
+
+/* MOBILE STYLES ////////////////////////////////////////////////////////////////////////////////////////////////*/
+@media only screen and (max-width: 560px) {
+	.container {
+		width:87.5%; /* 280 pixels at a 320 pixel screen width (iPhone 3 / 4 / 5) */
+	}
+  .title_container {
+    font-size: 12vw !important;
+  }
+  .storyElementParagraph {
+    font-size: 8vw !important;
+  }
+}
+
+/* TABLET STYLES ////////////////////////////////////////////////////////////////////////////////////////////////*/
+@media only screen and (min-width: 768px) and (max-width: 1023px) {
+	.container {
+		width:93.75%; /* 720 pixels at a 768 pixel screen width (iPads) */
+	}
+}
+
+/* DESKTOP STYLES ////////////////////////////////////////////////////////////////////////////////////////////////*/
+@media only screen and (min-width: 1024px) {
+	.container {
+		/*width:95.5%;*/
+		width:978px;
+	}
+}

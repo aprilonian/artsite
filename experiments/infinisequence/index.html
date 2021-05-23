@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width" / >
+        <title>Infini-Sequence</title>
+        <link href="css/reset.css" rel="stylesheet" type="text/css" />
+        <link href="css/styles.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+        <script type="text/javascript" src="js/jquery.easing.1.3.js" ></script>
+        <script type="text/javascript" src="js/velocity.min.js" ></script>
+        <script type="text/javascript" src="js/Tone.min.js" ></script>
+        <!-- <script type="text/javascript" src="js/stats-min.js"></script> -->
+
+    </head>
+    <body>
+        <!-- Overlayed Buttons -->
+        <div class="title_button hide"><h1>INFINISEQUENCE</h1></div>
+        <a href="https://www.twitter.com/aprilonian" class="twitter button hide" target="_blank">@aprilonian</a>
+        <!-- <div class="restart_button button hide"></div> -->
+        <div class="menuHoverZone">
+            <div class="more_button slideOutBottom button"></div>
+            <div class="submenu_container">
+              <div class="submenu_up arrow button"></div>
+              <div class="submenu_pitch">
+                <div class="pitch_button button p_2"><h1>C2</h1></div>
+                <div class="pitch_button button p_2"><h1>D2</h1></div>
+                <div class="pitch_button button p_2"><h1>E2</h1></div>
+                <div class="pitch_button button p_2"><h1>F2</h1></div>
+                <div class="pitch_button button p_2"><h1>G2</h1></div>
+                <div class="pitch_button button p_2"><h1>A2</h1></div>
+                <div class="pitch_button button p_2"><h1>B2</h1></div>
+                <div class="pitch_button button p_3"><h1>C3</h1></div>
+                <div class="pitch_button button p_3"><h1>D3</h1></div>
+                <div class="pitch_button button p_3"><h1>E3</h1></div>
+                <div class="pitch_button button p_3"><h1>F3</h1></div>
+                <div class="pitch_button button p_3"><h1>G3</h1></div>
+                <div class="pitch_button button p_3"><h1>A3</h1></div>
+                <div class="pitch_button button p_3"><h1>B3</h1></div>
+                <div class="pitch_button button p_4"><h1>C4</h1></div>
+                <div class="pitch_button button p_4"><h1>D4</h1></div>
+                <div class="pitch_button button p_4"><h1>E4</h1></div>
+                <div class="pitch_button button p_4"><h1>F4</h1></div>
+                <div class="pitch_button button p_4"><h1>G4</h1></div>
+                <div class="pitch_button button p_4"><h1>A4</h1></div>
+                <div class="pitch_button button p_4"><h1>B4</h1></div>
+                <div class="pitch_button button p_5 selectedPitch"><h1>C5</h1></div>
+                <div class="pitch_button button p_5"><h1>D5</h1></div>
+                <div class="pitch_button button p_5"><h1>E5</h1></div>
+                <div class="pitch_button button p_5"><h1>F5</h1></div>
+                <div class="pitch_button button p_5"><h1>G5</h1></div>
+                <div class="pitch_button button p_5"><h1>A5</h1></div>
+                <div class="pitch_button button p_5"><h1>B5</h1></div>
+                <div class="pitch_button button p_5"><h1>C6</h1></div>
+            </div>
+              <div class="submenu_down arrow button"></div>
+            </div>
+        </div>
+        <!-- /////////////// -->
+
+        <!-- Featured Content -->
+        <section class="feature unselectable">
+            <!-- Intro Screen -->
+            <div class="intro screen">
+              <div class="intro_title_button"><h1>INFINISEQUENCE</h1></div>
+            </div>
+            <!-- //////////// -->
+            <!-- Main Screen -->
+            <div class="main screen">
+
+              <!-- Sequencer can hold infinite tracks -->
+              <div class="sequencer">
+                <div class="track_container">
+                    <div class="note_indicator button"><h1>C5</h1></div>
+                    <!-- Tracks can hold 8 notes -->
+                    <div class="track">
+                      <!-- Notes hold pitch, sound, key, color -->
+                      <div class="note button activeNote"></div>
+                      <div class="note button"></div>
+                      <div class="note button"></div>
+                      <div class="note button"></div>
+                      <div class="note button"></div>
+                      <div class="note button"></div>
+                      <div class="note button"></div>
+                      <div class="note button"></div>
+                    </div>
+                    <div class="trash_can button"></div>
+                    <div class='clear'></div>
+                </div>
+              </div>
+              <!-- ////// End of Squencer ////// -->
+
+            </div>
+            <!-- /////////// -->
+        </section>
+
+        <div id="preload-image-1"></div>
+        <div id="preload-image-2"></div>
+        <div id="preload-image-3"></div>
+        <div id="preload-image-4"></div>
+        <div id="preload-image-5"></div>
+
+        <script type="text/javascript" src="js/custom_behaviors.js"></script>
+    </body>
+</html>

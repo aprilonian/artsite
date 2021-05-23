@@ -1,0 +1,163 @@
+{
+    "accessors" : [
+        {
+            "bufferView" : 0, 
+            "componentType" : 5121, 
+            "count" : 240, 
+            "max" : [
+                239
+            ], 
+            "min" : [
+                0
+            ], 
+            "type" : "SCALAR"
+        }, 
+        {
+            "bufferView" : 1, 
+            "componentType" : 5126, 
+            "count" : 240, 
+            "max" : [
+                0.5344724655151367, 
+                0.5619773864746094, 
+                0.5619783401489258
+            ], 
+            "min" : [
+                -0.5344725847244263, 
+                -0.561976432800293, 
+                -0.561976432800293
+            ], 
+            "type" : "VEC3"
+        }, 
+        {
+            "bufferView" : 2, 
+            "componentType" : 5126, 
+            "count" : 240, 
+            "max" : [
+                0.9920774102210999, 
+                0.9435242414474487, 
+                0.9435213208198547
+            ], 
+            "min" : [
+                -0.9920774698257446, 
+                -0.9435237050056458, 
+                -0.9435208439826965
+            ], 
+            "type" : "VEC3"
+        }, 
+        {
+            "bufferView" : 3, 
+            "componentType" : 5126, 
+            "count" : 240, 
+            "max" : [
+                1.0, 
+                0.6509804129600525, 
+                0.7215686440467834, 
+                1.0
+            ], 
+            "min" : [
+                1.0, 
+                0.6509804129600525, 
+                0.7215686440467834, 
+                1.0
+            ], 
+            "type" : "VEC4"
+        }
+    ], 
+    "asset" : {
+        "generator" : "Khronos Blender glTF 2.0 exporter", 
+        "version" : "2.0"
+    }, 
+    "bufferViews" : [
+        {
+            "buffer" : 0, 
+            "byteLength" : 240, 
+            "byteOffset" : 0, 
+            "target" : 34963
+        }, 
+        {
+            "buffer" : 0, 
+            "byteLength" : 2880, 
+            "byteOffset" : 240, 
+            "target" : 34962
+        }, 
+        {
+            "buffer" : 0, 
+            "byteLength" : 2880, 
+            "byteOffset" : 3120, 
+            "target" : 34962
+        }, 
+        {
+            "buffer" : 0, 
+            "byteLength" : 3840, 
+            "byteOffset" : 6000, 
+            "target" : 34962
+        }
+    ], 
+    "buffers" : [
+        {
+            "byteLength" : 9840, 
+            "uri" : "pn_moon_02.bin"
+        }
+    ], 
+    "materials" : [
+        {
+            "name" : "Material.003", 
+            "pbrMetallicRoughness" : {
+                "baseColorFactor" : [
+                    0.800000011920929, 
+                    0.800000011920929, 
+                    0.800000011920929, 
+                    1.0
+                ], 
+                "metallicFactor" : 0.0
+            }
+        }
+    ], 
+    "meshes" : [
+        {
+            "name" : "Icosphere.004", 
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "COLOR_0" : 3, 
+                        "NORMAL" : 2, 
+                        "POSITION" : 1
+                    }, 
+                    "indices" : 0, 
+                    "material" : 0
+                }
+            ]
+        }
+    ], 
+    "nodes" : [
+        {
+            "mesh" : 0, 
+            "name" : "moon_02", 
+            "rotation" : [
+                0.0321340449154377, 
+                -0.9168486595153809, 
+                0.3026934266090393, 
+                0.25832661986351013
+            ], 
+            "scale" : [
+                -0.18850556015968323, 
+                -0.18850556015968323, 
+                -0.18850556015968323
+            ], 
+            "translation" : [
+                1.44577956199646, 
+                0.47690534591674805, 
+                1.9692829847335815
+            ]
+        }
+    ], 
+    "scene" : 0, 
+    "scenes" : [
+        {
+            "name" : "Scene", 
+            "nodes" : [
+                0
+            ]
+        }
+    ]
+}

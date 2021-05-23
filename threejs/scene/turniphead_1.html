@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js-embed</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="../examples/main.css">
+	</head>
+	<body>
+		<div id="container"></div>
+
+		<script type="module">
+						
+
+			import * as THREE from '../build/three.module.js';
+			import { GLTFLoader } from '../examples/jsm/loaders/GLTFLoader.js';
+			import { DRACOLoader } from '../examples/jsm/loaders/DRACOLoader.js';
+
+			import { GUI } from '../examples/jsm/libs/dat.gui.module.js';
+
+			import { OrbitControls } from '../examples/jsm/controls/OrbitControls.js';
+			import { EffectComposer } from '../examples/jsm/postprocessing/EffectComposer.js';
+			import { RenderPass } from '../examples/jsm/postprocessing/RenderPass.js';
+			import { ShaderPass } from '../examples/jsm/postprocessing/ShaderPass.js';
+			import { PixelShader } from '../examples/jsm/shaders/PixelShader.js';
+			import { OutlineEffect } from '../examples/jsm/effects/OutlineEffect.js';
+			import { GeoOutlineShader } from '../examples/jsm/shaders/GeoOutlineShader.js';			
+			
+			import { BufferGeometryUtils } from '../examples/jsm/utils/BufferGeometryUtils.js';
+			import dat from '//unpkg.com/dat.gui/build/dat.gui.module.js';
+						
+			import { LineSegmentsGeometry } from '../examples/jsm/lines/LineSegmentsGeometry.js';
+			import { LineSegments2 } from '../examples/jsm/lines/LineSegments2.js';
+			import { LineMaterial } from '../examples/jsm/lines/LineMaterial.js';
+
+			import { OutsideEdgesGeometry } from '../examples/sandbox/conditional-lines/src/OutsideEdgesGeometry.js';
+			import { ConditionalEdgesGeometry } from '../examples/sandbox/conditional-lines/src/ConditionalEdgesGeometry.js';
+			import { ConditionalEdgesShader } from '../examples/sandbox/conditional-lines/src/ConditionalEdgesShader.js';
+			import { ConditionalLineSegmentsGeometry } from '../examples/sandbox/conditional-lines/src/Lines2/ConditionalLineSegmentsGeometry.js';
+			import { ConditionalLineMaterial } from '../examples/sandbox/conditional-lines/src/Lines2/ConditionalLineMaterial.js';
+
+			let requestId;
+			
+			let camera, scene, renderer, effect, gui, composer, controls, mixer;
+			let pixelPass, outlinePass, params;
+
+			let meshScene, line, line2, thickLines, thresholdLines;
+
+			let defaultMat;
+			
+			const clock = new THREE.Clock();
+
+			window.onload = function() {
+				init(); 
+			};
+
+			function init() {
+				// DEFINE PARAMETERS
+				params = {
+					pixelSize: 8,
+					color: "#00187b",
+					geoOpacity: 1.0,
+					thickness: 0.016,
+					threshold: 90.0,
+					animate: true,
+					postprocessing: true, 
+				};
+
+				// DEFINE RENDERER
+				const container = document.getElementById( 'container' );
+				renderer = new THREE.WebGLRenderer( { antialias: false } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+
+				// DEFINE CAMERA
+				camera = new THREE.PerspectiveCamera( 22, window.innerWidth / window.innerHeight, 1, 10000 );
+				camera.position.set( 0, 3.2, 15 );
+				
+				// DEFINE CONTROLS
+				controls = new OrbitControls( camera, renderer.domElement );
+				controls.target.set( 0, 4, 0 );
+				controls.update();
+				controls.enablePan = true;
+				controls.enableDamping = true;
+				controls.rotateSpeed = 1.5;
+				controls.panSpeed = 1.5;
+				controls.zoomSpeed = 1.5;
+
+				// DEFINE SCENE
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color(0xd3678d);
+
+				// DEFINE GROUPS
+				// grpLines = new THREE.Group();
+
+				// DEFINE LIGHTS
+				const hemisphereLight = new THREE.HemisphereLight( 0xfceafc, 0x000000, .8 );
+				scene.add( hemisphereLight );
+
+				const dirLight = new THREE.DirectionalLight( 0xffffff, .5 );
+				dirLight.position.set( 150, 75, 150 );
+				scene.add( dirLight );
+
+				const dirLight2 = new THREE.DirectionalLight( 0xffffff, .2 );
+				dirLight2.position.set( - 150, 75, - 150 );
+				scene.add( dirLight2 );
+
+				const dirLight3 = new THREE.DirectionalLight( 0xffffff, .1 );
+				dirLight3.position.set( 125, 125, 0 );
+				scene.add( dirLight3 );
+
+				// DEFINE TEXTURES
+				const grad_width = 4;
+				const grad_height = 4;
+
+				const grad_size = grad_width * grad_height;
+				const grad_data = new Uint8Array(16);
+				const grad_color = new THREE.Color( 0xffffff );
+
+				const grad_r = Math.floor( grad_color.r * 255 );
+				const grad_g = Math.floor( grad_color.g * 255 );
+				const grad_b = Math.floor( grad_color.b * 255 );
+
+				for ( let i = 0; i < grad_size; i ++ ) {
+
+					const grad_stride = i * 3;
+
+					grad_data[ grad_stride ] = grad_r;
+					grad_data[ grad_stride + 1 ] = grad_g;
+					grad_data[ grad_stride + 2 ] = grad_b;
+
+				}
+
+				const gradientMap = new THREE.DataTexture(grad_data, grad_width, grad_height, THREE.LuminanceFormat );
+				gradientMap.minFilter = THREE.NearestFilter;
+				gradientMap.magFilter = THREE.NearestFilter;
+				gradientMap.generateMipmaps = false;							
+
+				// DEFINE COLORS
+				const HSL_color_turnipBody = new THREE.Color().setHSL(.9,.9,.9);
+				// const HSL_color_greenGrass = ;
+					
+				// DEFINE MATERIALS
+				defaultMat = new THREE.MeshToonMaterial( {
+					color: HSL_color_turnipBody,
+					gradientMap: gradientMap,
+					transparent: true,
+					opacity: 1.,
+				} );
+
+				const M_turnip_body = new THREE.MeshToonMaterial( {
+					color: HSL_color_turnipBody,
+					gradientMap: gradientMap,
+					transparent: true,
+					opacity: 1.,
+				} );
+
+				const M_turnip_leaf = new THREE.MeshToonMaterial( {
+					color: new THREE.Color(0x5fdf46),
+					gradientMap: gradientMap,
+					transparent: true,
+					opacity: 1.,
+				} );
+				
+				const M_turnip_eyes = new THREE.MeshToonMaterial( {
+					color: new THREE.Color(0x222233),
+					gradientMap: gradientMap,
+					transparent: true,
+					opacity: 1.,
+					morphNormals: true,
+					morphTargets: true,
+				} );
+
+				// DEFINE GEOMETRIES
+				const dracoLoader = new DRACOLoader();
+				dracoLoader.setDecoderPath( '../examples/js/libs/draco/gltf/' );
+
+				// DEFINE NAMES OF OBJECTS FROM THE GLTF TO ASSIGN MATERIALS
+				let GEO_body_names = [
+					"head",
+					"foot_R",
+					"foot_L",
+				]
+
+				let GEO_leaf_names = [
+					"leaf_01",
+					"leaf_02",
+					"leaf_03",
+					"grass"
+				]
+
+				let GEO_skip_outline_effect_names = [					
+					"leaf_01",
+					"leaf_02",
+					"leaf_03",
+					"eye_R",
+					"eye_L",
+					"mouth",
+				]
+
+
+				// ADD LOADER AND GEO
+				const loader = new GLTFLoader();
+				loader.setDRACOLoader( dracoLoader );
+				loader.load( '../models/turnip.gltf', function ( gltf ) {
+
+					// IMPORT THE SCENE
+					const model = gltf.scene;
+					model.position.set( 0, 0, 0 );
+					// model.scale.set( 0.01, 0.01, 0.01 );
+
+					meshScene=model;
+					console.log(meshScene);
+					
+					// ADD THE SCENE
+					scene.add( meshScene );
+
+					// ADD MATERIALS
+					meshScene.traverse( c => {
+						if ( c.isMesh ) {
+							let mesh = c;
+							for(let i=0; i<GEO_body_names.length; i++){
+								if(mesh.name == GEO_body_names[i]){
+									mesh.material = M_turnip_body;
+								}
+							}	
+							for(let i=0; i<GEO_leaf_names.length; i++){
+								if(mesh.name == GEO_leaf_names[i]){
+									mesh.material = M_turnip_leaf;
+								}
+							}							
+							if(mesh.name == "eye_R" || mesh.name == "eye_L" || mesh.name == "mouth"){
+								mesh.material = M_turnip_eyes;
+							}
+							
+							for(let i=0; i<GEO_skip_outline_effect_names.length; i++){
+								if(mesh.name == GEO_skip_outline_effect_names[i]){
+									mesh.skipOutlineEffect=true;
+								}
+							}
+							
+						}
+					});
+					
+					// this will generate Threshold Lines
+					meshScene.traverse( c => {
+						if ( c.isMesh ) {
+							console.log(c);
+							let mesh = c;
+							if(mesh.name == "leaf_01" || mesh.name == "leaf_02" || mesh.name == "leaf_03"){
+								initGeo(mesh);
+							}
+						}
+					});
+
+					// Add an animation mixer to take care of mesh animations
+					mixer = new THREE.AnimationMixer( meshScene );
+
+					let i;
+					for(i=0; i<gltf.animations.length; i++){
+						const clip = gltf.animations[i];
+
+						if ( clip ) {
+
+							const action = mixer.clipAction( clip );
+							action.play();
+							
+						}
+					}
+
+					animate();
+					initOutlineEffect();
+					
+
+				}, function() {
+					console.log("complete!");
+				}, function ( e ) {
+
+					console.error( e );
+
+				} );
+
+				// ADD CAMERA EFFECTS
+				renderer.outputEncoding = THREE.sRGBEncoding;
+				
+				composer = new EffectComposer( renderer );
+				composer.addPass( new RenderPass( scene, camera ) );
+
+				pixelPass = new ShaderPass( PixelShader );
+				pixelPass.uniforms[ "resolution" ].value = new THREE.Vector2( window.innerWidth, window.innerHeight );
+				pixelPass.uniforms[ "resolution" ].value.multiplyScalar( window.devicePixelRatio );
+				composer.addPass( pixelPass );
+				
+
+				// ADD WINDOW LISTENERS
+				window.addEventListener( 'resize', onWindowResize );
+
+				// ADD GUI INTERFACES & PARAMETERS				
+				initGUI();
+
+			}
+
+			function initGeo(mesh) {
+				let pThreshold 					= params.threshold;
+				let pColor 						= params.color;				
+					pColor 						= pColor.replace( '#','0x' );
+					// pColor 						= new THREE.Color( pColor );
+				let pthickness 					= (params.thickness/2);
+				let pGeoOpacity 				= params.geoOpacity;
+				let parent 						= mesh.parent;
+				// console.log(parent)
+				
+				
+				const meshClone = mesh.geometry.clone();
+				// THRESHOLD LINES ----------------------------------------------------------------------------------
+				const lineGeom2 = new THREE.EdgesGeometry( meshClone, pThreshold);				
+				const thresholdLineGeom = new LineSegmentsGeometry().fromEdgesGeometry( lineGeom2 );
+				const thresholdMaterial = new LineMaterial({ 
+						color: pColor, 
+						linewidth: pthickness,
+						transparent: true,
+				});
+				thresholdMaterial.uniforms.diffuse.value.set( params.color );
+				thresholdLines = new LineSegments2( thresholdLineGeom, thresholdMaterial);
+				thresholdLines.position.copy( mesh.position );
+				thresholdLines.scale.copy( mesh.scale );
+				thresholdLines.rotation.copy( mesh.rotation );		
+				thresholdLines.name = mesh.name;
+
+				// CONDITIONAL LINES ----------------------------------------------------------------------------------
+				// Create the conditional edges geometry and associated material
+				// const lineGeom = new ConditionalEdgesGeometry( meshClone );
+					
+				// const thickLineGeom = new ConditionalLineSegmentsGeometry().fromConditionalEdgesGeometry( lineGeom );
+				// const clinemat = new THREE.ShaderMaterial(ConditionalLineMaterial);				
+				// clinemat.uniforms[ "linewidth" ].value = pthickness;
+				// clinemat.uniforms.diffuse.value.set( params.color );
+				// clinemat.transparent = true;		
+
+				// thickLines = new LineSegments2( thickLineGeom, clinemat );
+				// thickLines.position.copy( mesh.position );
+				// thickLines.scale.copy( mesh.scale );
+				// thickLines.rotation.copy( mesh.rotation );
+				// thickLines.name = mesh.name;
+
+				// parent.remove( mesh );
+				// parent.add( line );
+				// parent.add( line2 );
+				// console.log(line2)
+				// parent.add( thickLines );			
+				parent.add( thresholdLines );
+			}
+
+			function initOutlineEffect(){
+				let newColor = new THREE.Color(params.color);
+				effect = new OutlineEffect( renderer, {
+					defaultThickness: params.thickness,
+					defaultColor: [newColor.r,newColor.g,newColor.b],
+					defaultAlpha: 0.8,
+					defaultKeepAlive: true // keeps outline material in cache even if material is removed from scene
+				} );
+
+				let renderingOutline = false;
+				scene.onAfterRender = function () {
+
+					if ( renderingOutline ) return;
+
+					renderingOutline = true;
+					
+					effect.renderOutline( scene, camera );
+					
+					renderingOutline = false;
+				}
+			}
+
+			function initGUI() {
+				gui = new GUI();
+
+				
+				// GEO OUTLINE GUI
+				gui.addColor( params, 'color' ).onChange( function(colorValue)
+				{
+					if(meshScene) {
+						meshScene.traverse( c => {
+							if ( c.isMesh ) {		
+								let mesh = c;
+
+								if(mesh.type == "LineSegments2") {
+									mesh.material.uniforms.diffuse.value.set( new THREE.Color( params.color ) );
+								}									
+							}
+						});
+					}
+					initOutlineEffect();
+				
+				});
+				gui.add( params, 'geoOpacity' ).min( 0.0 ).max( 1.0 ).step( 0.1 ).onChange( function(opacityVal)
+				{			
+					if(meshScene) {
+						meshScene.traverse( c => {
+							if ( c.isMesh ) {		
+								let mesh = c;
+
+								if(mesh.type == "LineSegments2") {
+									mesh.material.uniforms[ "opacity" ].value = opacityVal;
+								}									
+							}
+						});
+					}				
+				});		;
+				gui.add( params, 'thickness' ).min( 0.00 ).max( 0.05 ).step( 0.001 ).onChange( function(thiccValue)
+				{
+					// updateGEO();				
+					if(meshScene) {
+						meshScene.traverse( c => {
+							if ( c.isMesh ) {		
+								let mesh = c;
+
+								if(mesh.type == "LineSegments2") {
+									mesh.material.uniforms[ "linewidth" ].value = thiccValue/2;
+								}									
+							}
+						});
+					}		
+					initOutlineEffect();		
+				});		
+				gui.add( params, 'threshold' ).min( 0.0 ).max( 90.0 ).step( 1 ).onChange( function(thresValue)
+				{
+					updateGEO();
+				});	
+				gui.add( params, 'animate' );
+				gui.add( params, 'postprocessing' );
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				pixelPass.uniforms[ "resolution" ].value.set( window.innerWidth, window.innerHeight ).multiplyScalar( window.devicePixelRatio );
+			}
+			
+			function updateGEO() {
+				
+				if(meshScene) {
+					meshScene.traverse( c => {
+						if ( c.isMesh ) {		
+							let mesh = c;
+
+							if(mesh.type == "LineSegments2") {
+								mesh.parent.remove(mesh);
+							}									
+						}
+					});
+					// for some reason it doesn't erase them with one pass, so here's another
+					meshScene.traverse( c => {
+						if ( c.isMesh ) {		
+							let mesh = c;
+
+							if(mesh.type == "LineSegments2") {
+								mesh.parent.remove(mesh);
+							}									
+						}
+					});
+					
+					meshScene.traverse( c => {
+						if ( c.isMesh ) {	
+							let mesh = c;
+							if(mesh.type !== "LineSegments2") {
+								if(mesh.name == "leaf_01" || mesh.name == "leaf_02" || mesh.name == "leaf_03"){
+									initGeo(mesh);
+								}	
+							}								
+						}
+					});
+				}
+			}
+
+			function updateGUI() {
+
+				pixelPass.uniforms[ "pixelSize" ].value = params.pixelSize;
+
+			}
+			
+			function update() {
+
+				controls.update();
+				updateGUI();
+
+				if(params.animate){
+					const delta = clock.getDelta();
+					mixer.update( delta );
+
+					if(meshScene) {
+						meshScene.traverse( c => {
+							if ( c.isMesh ) {		
+								let mesh = c;
+
+								if(mesh.type == "LineSegments2") {
+									meshScene.traverse( c2 => {
+										if ( c2.isMesh ) {	
+
+											let mesh2 = c2;
+											if(mesh2.type !== "LineSegments2" && mesh2.name == mesh.name)
+											{													
+												mesh.position.copy( mesh2.position );
+												mesh.scale.copy( mesh2.scale );
+												mesh.rotation.copy( mesh2.rotation );
+												
+											}
+										}
+									});
+								}									
+							}
+						});
+					}
+				}		
+
+
+			}			
+
+			function animate() {
+				requestId = undefined;
+
+				update();
+
+				if ( params.postprocessing ) {
+
+					composer.render();
+
+				} else {
+
+					renderer.render( scene, camera );
+					// effect.render( scene, camera );
+
+				}
+
+				start();
+
+			}
+
+			function start() {
+				if (!requestId) {
+					requestId = window.requestAnimationFrame(animate);
+				}
+			}
+
+			function stop() {
+				if (requestId) {
+					window.cancelAnimationFrame(requestId);
+					requestId = undefined;
+				}
+			}
+
+		</script>
+	</body>
+</html>

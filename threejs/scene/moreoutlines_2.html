@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js-embed</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="../examples/main.css">
+	</head>
+	<body>
+
+		<div id="container"></div>
+
+		<!-- <div id="info">
+			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - pixel shader by <a href="http://wongbryan.github.io">wongbryan</a>
+		</div> -->
+
+		<script type="module">
+						
+
+			import * as THREE from '../build/three.module.js';
+			import { GLTFLoader } from '../examples/jsm/loaders/GLTFLoader.js';
+
+			import { GUI } from '../examples/jsm/libs/dat.gui.module.js';
+
+			import { TrackballControls } from '../examples/jsm/controls/TrackballControls.js';
+			import { EffectComposer } from '../examples/jsm/postprocessing/EffectComposer.js';
+			import { RenderPass } from '../examples/jsm/postprocessing/RenderPass.js';
+			import { ShaderPass } from '../examples/jsm/postprocessing/ShaderPass.js';
+			import { PixelShader } from '../examples/jsm/shaders/PixelShader.js';
+			import { OutlineEffect } from '../examples/jsm/effects/OutlineEffect.js';
+			import { GeoOutlineShader } from '../examples/jsm/shaders/GeoOutlineShader.js';			
+			
+			import { BufferGeometryUtils } from '../examples/jsm/utils/BufferGeometryUtils.js';
+			import dat from '//unpkg.com/dat.gui/build/dat.gui.module.js';
+						
+			import { LineSegmentsGeometry } from '../examples/jsm/lines/LineSegmentsGeometry.js';
+			import { LineSegments2 } from '../examples/jsm/lines/LineSegments2.js';
+			import { LineMaterial } from '../examples/jsm/lines/LineMaterial.js';
+
+			import { OutsideEdgesGeometry } from '../examples/sandbox/conditional-lines/src/OutsideEdgesGeometry.js';
+			import { ConditionalEdgesGeometry } from '../examples/sandbox/conditional-lines/src/ConditionalEdgesGeometry.js';
+			import { ConditionalEdgesShader } from '../examples/sandbox/conditional-lines/src/ConditionalEdgesShader.js';
+			import { ConditionalLineSegmentsGeometry } from '../examples/sandbox/conditional-lines/src/Lines2/ConditionalLineSegmentsGeometry.js';
+			import { ConditionalLineMaterial } from '../examples/sandbox/conditional-lines/src/Lines2/ConditionalLineMaterial.js';
+
+			let camera, scene, renderer, effect, gui, composer, controls;
+			let pixelPass, outlinePass, params;
+
+			let grp_origin, mesh, line, line2, thickLines;
+
+			window.onload = function() {
+				init(); 
+				animate();
+
+				// effect = new OutlineEffect( renderer, {
+				// 	defaultThickness: 0.01,
+				// 	defaultColor: [ 0, 0, 0 ],
+				// 	defaultAlpha: 0.8,
+				// 	defaultKeepAlive: true // keeps outline material in cache even if material is removed from scene
+				// } );
+
+				// let renderingOutline = false;
+				// scene.onAfterRender = function () {
+
+				// 	if ( renderingOutline ) return;
+
+				// 	renderingOutline = true;
+					
+				// 	effect.renderOutline( scene, camera );
+					
+				// 	renderingOutline = false;
+				// }
+			};
+
+			function updateGUI() {
+
+				pixelPass.uniforms[ "pixelSize" ].value = params.pixelSize;
+
+			}
+
+			function init() {
+
+				// DEFINE RENDERER
+				const container = document.getElementById( 'container' );
+				renderer = new THREE.WebGLRenderer( { antialias: false } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+
+				// DEFINE CAMERA
+				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
+				camera.position.set( 0, 0, 5 );
+				controls = new TrackballControls( camera, renderer.domElement );
+				controls.rotateSpeed = 2.0;
+				controls.panSpeed = 0.8;
+				controls.zoomSpeed = 1.5;
+
+				// DEFINE SCENE
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color(0xdddddd);
+
+				// DEFINE LIGHTS
+				const hemisphereLight = new THREE.HemisphereLight( 0xfceafc, 0x000000, .8 );
+				scene.add( hemisphereLight );
+
+				const dirLight = new THREE.DirectionalLight( 0xffffff, .5 );
+				dirLight.position.set( 150, 75, 150 );
+				scene.add( dirLight );
+
+				const dirLight2 = new THREE.DirectionalLight( 0xffffff, .2 );
+				dirLight2.position.set( - 150, 75, - 150 );
+				scene.add( dirLight2 );
+
+				const dirLight3 = new THREE.DirectionalLight( 0xffffff, .1 );
+				dirLight3.position.set( 125, 125, 0 );
+				scene.add( dirLight3 );
+
+				// DEFINE TEXTURES
+				const grad_width = 4;
+				const grad_height = 4;
+
+				const grad_size = grad_width * grad_height;
+				const grad_data = new Uint8Array(16);
+				const grad_color = new THREE.Color( 0xffffff );
+
+				const grad_r = Math.floor( grad_color.r * 255 );
+				const grad_g = Math.floor( grad_color.g * 255 );
+				const grad_b = Math.floor( grad_color.b * 255 );
+
+				for ( let i = 0; i < grad_size; i ++ ) {
+
+					const grad_stride = i * 3;
+
+					grad_data[ grad_stride ] = grad_r;
+					grad_data[ grad_stride + 1 ] = grad_g;
+					grad_data[ grad_stride + 2 ] = grad_b;
+
+				}
+
+				const gradientMap = new THREE.DataTexture(grad_data, grad_width, grad_height, THREE.LuminanceFormat );
+				gradientMap.minFilter = THREE.NearestFilter;
+				gradientMap.magFilter = THREE.NearestFilter;
+				gradientMap.generateMipmaps = false;							
+
+				// DEFINE COLORS
+				const HSL_color_01 = new THREE.Color().setHSL( Math.random(), 0.7 + 0.2 * Math.random(), 0.5 + 0.1 * Math.random() );
+					
+				// DEFINE MATERIALS
+				const mat = new THREE.MeshToonMaterial( {
+					color: HSL_color_01,
+					gradientMap: gradientMap
+				} );
+
+				// const mat = new THREE.ShaderMaterial( {
+
+				// 	uniforms: GeoOutlineShader.uniforms,
+				// 	vertexShader: GeoOutlineShader.vertexShader,
+				// 	fragmentShader: GeoOutlineShader.fragmentShader
+
+				// } );
+
+
+				// DEFINE GEOMETRIES
+				const geometries = [
+					// new THREE.SphereGeometry( 1, 64, 64 ),
+					// new THREE.BoxGeometry( 2, 2, 2 ),
+					// new THREE.ConeGeometry( 1, 1, 32 ),
+					// new THREE.TetrahedronGeometry( 1 ),
+					new THREE.TorusKnotGeometry( 1, .4 )
+				];							
+				
+				// UPDATE UNIFORMS
+				// mat.uniforms[ "thickness" ].value = 0.01
+				// mat.uniforms[ "smoothness" ].value = 0.01;
+				
+				// CREATE NEW GROUPS
+				grp_origin = new THREE.Group();	
+
+				// Randomly pick a mesh and add it to the origin group
+				const geom = geometries[ Math.floor( Math.random() * geometries.length ) ];
+				mesh = new THREE.Mesh( geom, mat );
+
+				// mesh.scale.set( 1, 1, 1 );
+				// mesh.position.set( 0, 0, 0 ).normalize();
+				mesh.scale.multiplyScalar(1);
+				// mesh.rotation.set( Math.random() * 2, Math.random() * 2, Math.random() * 2 );
+				grp_origin.add( mesh );
+
+				/////////////////////////////////////////////////////////////////////////////////////////////////////
+				const parent = mesh.parent;
+
+				// const lineGeom2 = new THREE.EdgesGeometry( mesh.geometry, 30 );
+					
+				// const mergeGeom2 = mesh.geometry.clone();
+				// mergeGeom2.deleteAttribute( 'uv' );
+				// mergeGeom2.deleteAttribute( 'uv2' );
+				// const lineGeom2 = new OutsideEdgesGeometry( mergeGeom2 );
+
+				// line2 = new THREE.LineSegments( lineGeom2, 
+				// 	new THREE.LineBasicMaterial( 
+				// 	{ 
+				// 		color: 0x613879,
+				// 		linewidth: 1,
+				// 		linecap: 'round', //ignored by WebGLRenderer
+				// 		linejoin:  'round' //ignored by WebGLRenderer
+				// 	} ));
+				// line2.position.copy( mesh.position );
+				// line2.scale.copy( mesh.scale );
+				// line2.rotation.copy( mesh.rotation );
+
+				// Remove everything but the position attribute
+				const mergedGeom = mesh.geometry.clone();
+				// for ( const key in mergedGeom.attributes ) {
+
+				// 	if ( key !== 'position' ) {
+
+				// 		mergedGeom.deleteAttribute( key );
+
+				// 	}
+
+				// }
+				
+				// Create the conditional edges geometry and associated material
+				const lineGeom = new ConditionalEdgesGeometry( mergedGeom );
+				const material = new THREE.ShaderMaterial( ConditionalEdgesShader );
+				material.uniforms[ "opacity" ].value = 0.4;
+				material.uniforms.diffuse.value.set( 0x000000 );
+				material.transparent = true;
+
+				// Create the line segments objects and replace the mesh
+				line = new THREE.LineSegments( lineGeom, material );
+				line.position.copy( mesh.position );
+				line.scale.copy( mesh.scale );
+				line.rotation.copy( mesh.rotation );
+
+				const thickLineGeom = new ConditionalLineSegmentsGeometry().fromConditionalEdgesGeometry( lineGeom );
+				const clinemat = new THREE.ShaderMaterial(ConditionalLineMaterial);				
+				clinemat.uniforms[ "linewidth" ].value = 0.01;
+				clinemat.uniforms.diffuse.value.set( 0x000000 );
+				clinemat.transparent = true;
+
+				thickLines = new LineSegments2( thickLineGeom, clinemat );
+				thickLines.position.copy( mesh.position );
+				thickLines.scale.copy( mesh.scale );
+				thickLines.rotation.copy( mesh.rotation );
+
+				// parent.remove( mesh );
+				// parent.add( line );
+				// parent.add( line2 );
+				// console.log(line2)
+				parent.add( thickLines );				
+				/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+				// ADD MESHES & GROUPS TO SCENE
+				scene.add( grp_origin );
+
+				// ADD CAMERA EFFECTS
+				renderer.outputEncoding = THREE.sRGBEncoding;
+				
+				composer = new EffectComposer( renderer );
+				composer.addPass( new RenderPass( scene, camera ) );
+
+				pixelPass = new ShaderPass( PixelShader );
+				pixelPass.uniforms[ "resolution" ].value = new THREE.Vector2( window.innerWidth, window.innerHeight );
+				pixelPass.uniforms[ "resolution" ].value.multiplyScalar( window.devicePixelRatio );
+				composer.addPass( pixelPass );
+				
+
+				// ADD WINDOW LISTENERS
+				window.addEventListener( 'resize', onWindowResize );
+
+				// ADD GUI INTERFACES & PARAMETERS
+				params = {
+					color: "#555555",
+					pixelSize: 4,
+					geoThickness: 0.1,
+					geoOpacity: 1.0,
+					threshold: 40.0,
+					autorotate: true,
+					postprocessing: true, // RIGHT HERRREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+				};
+				gui = new GUI();
+				gui.addColor( params, 'color' ).onChange( function(colorValue)
+				{
+      				// colorValue=colorValue.replace( '#','0x' );
+					thickLines.material.uniforms.diffuse.value.set( new THREE.Color( colorValue ) );
+				});
+				gui.add( params, 'geoOpacity' ).min( 0.0 ).max( 1.0 ).step( 0.1 );
+				// gui.add( params, 'threshold' ).min( 0.0 ).max( 90.0 ).step( 1 ).onChange( function(thresValue)
+				// {
+				// 	const parent = mesh.parent;		
+				// 	parent.remove( line2 );
+				// 	const lineGeom2 = new THREE.EdgesGeometry( mesh.geometry, thresValue );
+
+				// 	line2 = new THREE.LineSegments( lineGeom2, 
+				// 		new THREE.LineBasicMaterial( 
+				// 		{ 
+				// 			color: 0x613879,
+				// 			linewidth: 1,
+				// 			linecap: 'round', //ignored by WebGLRenderer
+				// 			linejoin:  'round' //ignored by WebGLRenderer
+				// 		} ));					
+				// 	parent.add( line2 );
+				// });
+				gui.add( params, 'autorotate' );
+				gui.add( params, 'postprocessing' );
+
+			}
+			
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				pixelPass.uniforms[ "resolution" ].value.set( window.innerWidth, window.innerHeight ).multiplyScalar( window.devicePixelRatio );
+				// pixelPass.uniforms[ "resolution" ].value.set( 600, 600 ).multiplyScalar( window.devicePixelRatio );
+
+			}
+			
+			function update() {
+
+				controls.update();
+				updateGUI();
+
+				if(params.autorotate){
+					grp_origin.rotation.y += .002;
+					grp_origin.rotation.z += .003;	
+				}
+
+				if (thickLines) {
+					thickLines.material.uniforms[ "opacity" ].value = params.geoOpacity;
+				}
+
+			}			
+
+			function animate() {
+
+				update();
+
+				if ( params.postprocessing ) {
+
+					composer.render();
+
+				} else {
+
+					renderer.render( scene, camera );
+					// effect.render( scene, camera );
+
+				}
+
+				window.requestAnimationFrame( animate );
+
+			}
+
+		</script>
+	</body>
+</html>

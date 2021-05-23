@@ -1,0 +1,214 @@
+{
+    "accessors" : [
+        {
+            "bufferView" : 0, 
+            "componentType" : 5121, 
+            "count" : 240, 
+            "max" : [
+                239
+            ], 
+            "min" : [
+                0
+            ], 
+            "type" : "SCALAR"
+        }, 
+        {
+            "bufferView" : 1, 
+            "componentType" : 5126, 
+            "count" : 240, 
+            "max" : [
+                0.702854335308075, 
+                0.739022970199585, 
+                0.7390232086181641
+            ], 
+            "min" : [
+                -0.702854335308075, 
+                -0.7390246391296387, 
+                -0.7390251159667969
+            ], 
+            "type" : "VEC3"
+        }, 
+        {
+            "bufferView" : 2, 
+            "componentType" : 5126, 
+            "count" : 240, 
+            "max" : [
+                0.9920773506164551, 
+                0.9435237646102905, 
+                0.9435214400291443
+            ], 
+            "min" : [
+                -0.9920773506164551, 
+                -0.9435238242149353, 
+                -0.9435214400291443
+            ], 
+            "type" : "VEC3"
+        }, 
+        {
+            "bufferView" : 3, 
+            "componentType" : 5126, 
+            "count" : 240, 
+            "max" : [
+                0.9992474317550659, 
+                0.748598575592041, 
+                0.6614299416542053, 
+                1.0
+            ], 
+            "min" : [
+                -0.7946555614471436, 
+                -0.6070605516433716, 
+                -0.8603324294090271, 
+                -1.0
+            ], 
+            "type" : "VEC4"
+        }, 
+        {
+            "bufferView" : 4, 
+            "componentType" : 5126, 
+            "count" : 240, 
+            "max" : [
+                0.9997479915618896, 
+                0.9997480823658407
+            ], 
+            "min" : [
+                0.00025191763415932655, 
+                0.06797957420349121
+            ], 
+            "type" : "VEC2"
+        }, 
+        {
+            "bufferView" : 5, 
+            "componentType" : 5126, 
+            "count" : 240, 
+            "max" : [
+                0.9921568632125854, 
+                1.0, 
+                0.6000000238418579, 
+                1.0
+            ], 
+            "min" : [
+                0.8235294222831726, 
+                0.8823529481887817, 
+                0.5058823823928833, 
+                1.0
+            ], 
+            "type" : "VEC4"
+        }
+    ], 
+    "asset" : {
+        "generator" : "Khronos Blender glTF 2.0 exporter", 
+        "version" : "2.0"
+    }, 
+    "bufferViews" : [
+        {
+            "buffer" : 0, 
+            "byteLength" : 240, 
+            "byteOffset" : 0, 
+            "target" : 34963
+        }, 
+        {
+            "buffer" : 0, 
+            "byteLength" : 2880, 
+            "byteOffset" : 240, 
+            "target" : 34962
+        }, 
+        {
+            "buffer" : 0, 
+            "byteLength" : 2880, 
+            "byteOffset" : 3120, 
+            "target" : 34962
+        }, 
+        {
+            "buffer" : 0, 
+            "byteLength" : 3840, 
+            "byteOffset" : 6000, 
+            "target" : 34962
+        }, 
+        {
+            "buffer" : 0, 
+            "byteLength" : 1920, 
+            "byteOffset" : 9840, 
+            "target" : 34962
+        }, 
+        {
+            "buffer" : 0, 
+            "byteLength" : 3840, 
+            "byteOffset" : 11760, 
+            "target" : 34962
+        }
+    ], 
+    "buffers" : [
+        {
+            "byteLength" : 15600, 
+            "uri" : "pn_moon_01.bin"
+        }
+    ], 
+    "materials" : [
+        {
+            "emissiveFactor" : [
+                0.019999999552965164, 
+                0.019999999552965164, 
+                0.019999999552965164
+            ], 
+            "name" : "Material.001", 
+            "pbrMetallicRoughness" : {
+                "baseColorFactor" : [
+                    0.800000011920929, 
+                    0.800000011920929, 
+                    0.800000011920929, 
+                    1.0
+                ], 
+                "metallicFactor" : 0.0
+            }
+        }
+    ], 
+    "meshes" : [
+        {
+            "name" : "Icosphere.005", 
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "COLOR_0" : 5, 
+                        "NORMAL" : 2, 
+                        "POSITION" : 1, 
+                        "TANGENT" : 3, 
+                        "TEXCOORD_0" : 4
+                    }, 
+                    "indices" : 0, 
+                    "material" : 0
+                }
+            ]
+        }
+    ], 
+    "nodes" : [
+        {
+            "mesh" : 0, 
+            "name" : "moon_01", 
+            "rotation" : [
+                0.016864990815520287, 
+                -0.6651442646980286, 
+                -0.012887354008853436, 
+                0.7464132308959961
+            ], 
+            "scale" : [
+                -0.18850554525852203, 
+                -0.18850553035736084, 
+                -0.18850554525852203
+            ], 
+            "translation" : [
+                2.422255516052246, 
+                -0.4224110543727875, 
+                -0.29745689034461975
+            ]
+        }
+    ], 
+    "scene" : 0, 
+    "scenes" : [
+        {
+            "name" : "Scene", 
+            "nodes" : [
+                0
+            ]
+        }
+    ]
+}

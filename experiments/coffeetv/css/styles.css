@@ -1,0 +1,353 @@
+/* Font-Family: neutonregular */
+@font-face {
+    font-family: 'neutonregular';
+    src: url('../fonts/neuton-regular-webfont.woff2') format('woff2'),
+         url('../fonts/neuton-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+/* Font-Family: neutonitalic */
+@font-face {
+    font-family: 'neutonitalic';
+    src: url('../fonts/neuton-italic-webfont.woff2') format('woff2'),
+         url('../fonts/neuton-italic-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+/* Font-Family: neutonbold */
+@font-face {
+    font-family: 'neutonbold';
+    src: url('../fonts/neuton-bold-webfont.woff2') format('woff2'),
+         url('../fonts/neuton-bold-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+/* Font-Family: neutonlight */
+@font-face {
+    font-family: 'neutonlight';
+    src: url('../fonts/neuton-light-webfont.woff2') format('woff2'),
+         url('../fonts/neuton-light-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+.nowPlaying {
+  /* background-color: rgba(222,0,0,.5); */
+  color: #666;
+  font-size: 18px;
+  font-family: neutonbold;
+  text-align: center;
+  position: absolute;
+  bottom: 30px;
+  width: 50%;
+  border-bottom: solid 2px;
+  border-color: rgba(222,0,0,.5);
+  z-index: 1200;
+}
+.nowPlaying a {
+  text-decoration: none;
+}
+.nowPlaying a:visited {
+  color: #333;
+}
+.restartButton {
+  display: block;
+  background-color: rgba(0,0,222,.5);
+  background-image: url(../images/repeat.png);
+  background-size: contain;
+  background-repeat: no-repeat;
+  color: #fff;
+  font-size: 10px;
+  font-family: neutonbold;
+  text-align: center;
+  text-decoration: none;
+  line-height: 60px;
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  z-index: 1200;
+    -webkit-transition: transform .4s;
+    transition: transform .4s;
+}
+#preload-image{ background: url(../images/repeat_active.png) no-repeat -9999px -9999px; }
+.restartButton:hover {
+  background-color: rgba(50,0,222,.7);
+  background-image: url(../images/repeat_active.png);
+  transform: rotateZ(180deg);
+}
+.restartButton:active {
+  transform: rotateZ(360deg);
+  background-image: url(../images/repeat_active.png);
+}
+.restartButton:visited {
+  color: #fff;
+}
+#feature {
+  background-color: rgba(0,0,0,1);
+  height: 100vh;
+  position: relative;
+  /* z-index: -100; */
+/* Any grid items outside of the window will be hidden */
+  overflow: hidden;
+}
+
+/*//////////////////// Facial Tracking Classes //////////////////  */
+.facebox {
+  /* background-color: rgba(225,0,20,.3); */
+  background-image: url(../images/ms.png);
+  background-size: contain;
+  background-position: bottom;
+  background-repeat: no-repeat;
+  position:absolute;
+  width: 100px;
+  height: 100px;
+  /* left: 50px !important;
+  top: 250px !important; */
+  z-index: 1000;
+}
+
+/* -------------- Universal Classes --------------  */
+.screen {
+  /* background-color: rgba(255,0,0,.25); */
+  width: 100%;
+  height: 100%;
+  position: fixed;
+}
+/* BLUR STUFF */
+.blur {
+  filter: blur(10px);
+}
+/* MASK STUFF */
+.mask {
+  overflow: hidden;
+}
+.slideIn{}
+.slideOut{}
+/* -------------- Universal END -------------- */
+/* ------------------------------------------- */
+
+/* -------------- INTRO SCREEN -------------- */
+.intro {
+  background-color: rgba(255,255,255,.75);
+  z-index: 1;
+}
+.intro_title_bg {
+  /* background-color: rgba(255,0,0,.2); */
+  background-size: cover;
+  height: 100%;
+  width: 30%;
+  min-width: 306px;
+  position: absolute;
+  left: 0;
+
+  /* transform: translateX(-600px); */
+}
+.intro_title_box {
+  /* background-color: rgba(255,0,0,.5); */
+  color: #333;
+  font-size: 85px;   /* FONT SIZE */
+  font-family: neutonbold;
+  min-width: 306px;
+  height: 400px;
+  width: 90%;
+  position: absolute;
+  left: 5%;
+  top:calc(50% - 180px);
+}
+.title_container {
+  /* background-color:  rgba(255,0,0,.25); */
+  mix-blend-mode: multiply;
+  position: relative;
+  width: 100%;
+    display: flex;
+    -webkit-flex-flow: row wrap;
+    flex-flow: row wrap;
+    justify-content: center;
+}
+.title_container p {
+  margin-right: 20px;
+}
+.start_button {
+  background-color: rgba(80,225,100,.9);
+  cursor: pointer;
+  width: 100%;
+  height: 80px;
+  padding-top: 35px;
+  position: absolute;
+  text-align: center;
+  bottom: 0px;
+    -webkit-transition: transform .2s;
+    transition: transform .2s;
+}
+.start_button a {
+  display: block;
+  position: relative;
+  color: #fee;
+  text-decoration: none;
+  line-height: 54px;
+  font-size: 54px;
+}
+.start_button:hover a {
+  opacity: .65;
+}
+.start_button:active {
+  transform: scale(.95);
+}
+.start_button:active a {
+  opacity: .5;
+}
+/* -------------- INTRO END -------------- */
+/* --------------------------------------- */
+
+/* ---------------------------------------- */
+/* -------------- SCREEN ONE -------------- */
+.one {
+  background-color: rgba(255,1,1,0);
+  /* background-image: url(../images/ms_bg.png); */
+  background-size: 5%;
+}
+.light_switch {
+
+}
+.tv_img_container {
+  background-color: rgba(255,1,1,.3);
+  position: absolute;
+  width: calc(16px * 50);
+  height: calc(9px * 50);
+}
+    .tv_screen {
+      background-image: url(../images/static2.gif);
+      background-size: contain;
+      position: absolute;
+      top: 50%;
+      width: 65%;
+      height: 65%;
+      margin-left: 5%;
+      border-radius: 20px;
+    }
+        .youtubeVid {
+          width: 100%;
+          height: 100%;
+          /* position: fixed;
+          top: 0;
+          left: 0; */
+          /* z-index: -99; */
+          pointer-events: none;
+        }
+        .webcam {
+          background-color: rgba(255,1,1,.3);
+          width: 100%    !important;
+          height: auto   !important;
+          pointer-events: none;
+        }
+    .ctrls {
+      background-color: rgba(255,1,1,.3);
+      height: 100%;
+      float: right;
+      width: 25%;
+        display: flex;
+        -webkit-flex-flow: row wrap;
+        flex-flow: row wrap;
+        justify-content: center;
+    }
+        .knob {
+          width: 50%;
+          height: 22.5%;
+          margin-left: 10%;
+          margin-right: 10%;
+          border-radius: 50%;
+            display: flex;
+            justify-content: center;
+        }
+        .knob:hover {
+          background-color: rgba(255,255,1,.3);
+          cursor: pointer;
+          /* cursor: move; */
+        }
+        .knob:active {
+          /* background-color: rgba(255,255,1,.3); */
+          cursor: pointer;
+        }
+        .channel {
+          background-color: rgba(255,1,1,.3);
+          margin-top: 30%;
+        }
+        .volume {
+          background-color: rgba(255,220,1,.3);
+        }
+        .tuner {
+          width: 20%;
+          height: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        .chnl {
+          background-color: rgba(255,220,1,.3);
+
+        }
+        .vol {
+          background-color: rgba(255,1,1,.3);
+
+        }
+        .ptr {
+          width: 50%;
+          height: 25%;
+        }
+        .cl {
+          background-color: rgba(255,1,1,.3);
+        }
+        .vl {
+          background-color: rgba(255,220,1,.3);
+        }
+        .active {
+          opacity: 1;
+        }
+/* -------------- SCREEN ONE END -------------- */
+/* -------------------------------------------- */
+
+.cell:hover .squareBig{
+  animation: hueshiftRainbow 8s;
+}
+
+/* Hueshift color timeline */
+@-webkit-keyframes hueshiftRainbow {
+    0%   {background-color: red}
+    10%   {background-color: orange}
+    30%   {background-color: yellow}
+    50%   {background-color: green}
+    70%   {background-color: blue}
+    90%   {background-color: violet}
+    100%   {background-color: red}
+}
+
+/* MOBILE STYLES ////////////////////////////////////////////////////////////////////////////////////////////////*/
+@media only screen and (max-width: 767px){
+	.container{
+		width:87.5%; /* 280 pixels at a 320 pixel screen width (iPhone 3 / 4 / 5) */
+	}
+  .tv_img_container {
+    width: calc(16px * 20);
+    height: calc(9px * 20);
+  }
+}
+
+/* TABLET STYLES ////////////////////////////////////////////////////////////////////////////////////////////////*/
+@media only screen and (min-width: 768px) and (max-width: 1023px){
+	.container{
+		width:93.75%; /* 720 pixels at a 768 pixel screen width (iPads) */
+	}
+  .tv_img_container {
+    width: calc(16px * 30);
+    height: calc(9px * 30);
+  }
+}
+
+/* DESKTOP STYLES ////////////////////////////////////////////////////////////////////////////////////////////////*/
+@media only screen and (min-width: 1024px){
+	.container{
+		/*width:95.5%;*/
+		width:978px;
+	}
+}

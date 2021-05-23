@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Welcome Aboard</title>
+        <link href="css/reset.css" rel="stylesheet" type="text/css" />
+        <link href="css/styles.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+        <script type="text/javascript" src="js/jquery.easing.1.3.js" ></script>
+        <script type="text/javascript" src="js/starfield.js" ></script>
+        <script type="text/javascript" src="js/velocity.min.js" ></script>
+        <!-- jcf scripts and styles -->
+      	<link rel="stylesheet" href="css/theme-minimal/jcf.css">
+      	<script src="js/jcf.js"></script>
+      	<script src="js/jcf.range.js"></script>
+        <script>
+      		$(function() {
+      			jcf.replaceAll();
+      		});
+      	</script>
+        <!-- Font: Nunito (regular, italic) -->
+        <link href="https://fonts.googleapis.com/css?family=Nunito:400,400i" rel="stylesheet">
+        <!-- Font: Overpass Mono (regular, bold) -->
+        <link href="https://fonts.googleapis.com/css?family=Overpass+Mono:400,700" rel="stylesheet">
+        <!-- A-Frame library import -->
+        <script src="https://aframe.io/releases/0.7.0/aframe.min.js"></script>
+        <script src="https://aframe.io/releases/latest/aframe.min.js"></script>
+        <script src="https://cdn.rawgit.com/tizzle/aframe-orbit-controls-component/master/dist/aframe-orbit-controls-component.min.js"></script>
+        <script type="text/javascript" src="js/aframe-effects.min.js" ></script>
+    </head>
+    <body>
+      <!-- Music  -->
+      <audio id="terra" autoplay loop>
+        <source src="sound/terra.wav" type="audio/wav">
+      </audio>
+      <div id="btn-volume" class="volumeOn"></div>
+      <!-- The Window of the Content -->
+      <section class="window">
+        <div class="screen intro">
+          <!-- The FORM -->
+          <div class="form_container">
+            <!-- Official Form -->
+            <form id="myForm">
+              <!-- Title and tagline -->
+              <h1>Welcome aboard the <input id='input_rocketName' type="text" placeholder="THUNDERBIRD" autocomplete="off" onblur="$('#input_rocketName').addClass('noWiggle');" /> Rocket</h1>
+              <h2>Traveling space lightning fast!</h2>
+              <!-- Question #1 -->
+              <div class="questionSet qSet1 slideRight">
+                <p>Cosmonaut, what is your name?</p>
+                <input id="person_name" type="text" placeholder="Person Name" autocomplete="off" onblur="checkTextField(this);" onfocus="clearError()"/>
+                <p id="error"></p>
+              </div>
+              <!-- Question #2 -->
+              <div class="questionSet qSet2 slideRight">
+                <p id="color_question">Excellent cosmonaut, now pick a favorite color.</p>
+                <div class="radioStyle">
+                  <input id="fav_color_1" type="radio" name="fav_color" value="3333ee"/>
+                  <label id="fav_blue" for="fav_color_1">Blue</label>
+                </div>
+                <div class="radioStyle">
+                  <input id="fav_color_2" type="radio" name="fav_color" value="ff3333"/>
+                  <label id="fav_red" for="fav_color_2">Red</label>
+                </div>
+                <div class="radioStyle">
+                  <input id="fav_color_3" type="radio" name="fav_color" value="ffaa33"/>
+                  <label id="fav_orange" for="fav_color_3">Orange</label>
+                </div>
+                <p id="color_choice"></p>
+              </div>
+              <!-- Question #3 -->
+              <div class="questionSet qSet3 slideRight">
+                <p id="contrats">Congradulations</p>
+                <br>
+                <p id="teamcolor">Team Lead</p>
+                <br>
+                <p>Good Luck!</p>
+              </div>
+
+              <!-- submit button -->
+              <div class="form_buttons">
+                <input id="nextButton" type="button" value="NEXT"/>
+                <input id="submitButton" type="submit" value="TERRAFORM THE CRAP OUT OF IT"/>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div id="capture" class="screen one">
+          <!-- UI -->
+          <!-- <div class="pause button"></div> -->
+          <p id="label_rocket" class="UI ">Aboard the Thunderbird Express</p>
+          <p id="label_name" class="UI ">Red Leader Planet Cosmonaut</p>
+          <div class="sliders_container UI">
+              <p id="label_handy" class="">--- HANDY TERRATOOLS ---</p>
+              <div class="slider_con hide">
+                <label>PLANET SIZE:</label>
+                <input id="planet_size" type="range" value="155" min="100" max="190">
+              </div>
+              <div class="slider_con hide">
+        				<label>WATER LEVEL:</label>
+        				<input id="water_level" type="range" value="100" min="65" max="115">
+        			</div>
+              <div class="slider_con hide">
+        				<label id="label_moon">MOONS:</label>
+        				<input id="moon_count" type="range" value="1" min="0" max="5">
+        			</div>
+              <input id="finishTerraformButton" class="hide" type="button" value="I'M DONE!"/>
+          </div>
+          <!-- Content -->
+          <div class="grab-mask">
+              <div class="scene_container">
+              <!-- 3D Scene Fills Screen -->
+              <a-scene vr-mode-ui="enabled: false">
+                <!-- Assets -->
+                <a-assets>
+                  <img id="worldTexture" src="">
+                </a-assets>
+                <!-- Camera Setup -->
+                <a-entity
+                    id="camera"
+                    camera
+                    position="0 5 2"
+                    orbit-controls="
+                        autoRotate: false;
+                        target: #target;
+                        enableDamping: true;
+                        enableZoom: false;
+                        dampingFactor: 0.25;
+                        rotateSpeed:0.14;
+                        minDistance:3;
+                        maxDistance:15;"
+                    mouse-cursor="">
+                </a-entity>
+                <!-- WORLD Setup -->
+                <a-sphere id="target" src="#worldTexture" color="red" position="0 2 -5" rotation="0 0 0" radius=".01">
+                    <a-entity id="planet_model" gltf-model="url(assets/models/land2.gltf)" scale="2 2 2">
+                        <a-entity id="ocean" gltf-model="url(assets/models/world3.gltf)" scale="1.5 1.5 1.5"></a-entity>
+                    </a-entity>
+                    <a-entity id="moon_parent_01" geometry="primitive: sphere; radius: 0.1">
+                        <a-entity id="moon_01" gltf-model="url(assets/models/pn_moon_01.gltf)" scale="1.5 1.5 1.5"></a-entity>
+                    </a-entity>
+                    <a-entity id="moon_parent_02" geometry="primitive: sphere; radius: 0.1">
+                        <a-entity id="moon_02" gltf-model="url(assets/models/pn_moon_02.gltf)" scale="1.5 1.5 1.5"></a-entity>
+                    </a-entity>
+                    <a-entity id="moon_parent_03" geometry="primitive: sphere; radius: 0.1">
+                        <a-entity id="moon_03" gltf-model="url(assets/models/pn_moon_03.gltf)" scale="1.5 1.5 1.5"></a-entity>
+                    </a-entity>
+                    <a-entity id="moon_parent_04" geometry="primitive: sphere; radius: 0.1">
+                        <a-entity id="moon_04" gltf-model="url(assets/models/pn_moon_04.gltf)" scale="1.5 1.5 1.5"></a-entity>
+                    </a-entity>
+                    <a-entity id="moon_parent_05" geometry="primitive: sphere; radius: 0.1">
+                        <a-entity id="moon_05" gltf-model="url(assets/models/pn_moon_05.gltf)" scale="1.5 1.5 1.5"></a-entity>
+                    </a-entity>
+                    <a-entity id="cloud_parent_01" geometry="primitive: sphere; radius: 0.1">
+                        <a-entity id="cloud_01" gltf-model="url(assets/models/clouds_01.gltf)" scale="2 2 2"></a-entity>
+                    </a-entity>
+                    <a-entity id="cloud_parent_02" geometry="primitive: sphere; radius: 0.1">
+                        <a-entity id="cloud_02" gltf-model="url(assets/models/clouds_02.gltf)" scale="2 2 2"></a-entity>
+                    </a-entity>
+                    <a-entity id="cloud_parent_03" geometry="primitive: sphere; radius: 0.1">
+                        <a-entity id="cloud_03" gltf-model="url(assets/models/clouds_03.gltf)" scale="2 2 2"></a-entity>
+                    </a-entity>
+                    <a-entity id="flag_parent" geometry="primitive: sphere; radius: 0.01">
+                        <a-entity id="flag_blue" gltf-model="url(assets/models/flag_blue.gltf)" scale="2 2 2"></a-entity>
+                        <a-entity id="flag_red" gltf-model="url(assets/models/flag_red.gltf)" scale="2 2 2"></a-entity>
+                        <a-entity id="flag_orange" gltf-model="url(assets/models/flag_orange.gltf)" scale="2 2 2"></a-entity>
+                    </a-entity>
+                </a-sphere>
+
+                <div class="atmosphere"></div>
+                <!-- Sky -->
+                <!-- <a-sky color="rgba(33,33,33,0.5)"></a-sky> -->
+                <!-- Sun -->
+                <!-- <a-light type="point" intensity="2" position="2 4 4"></a-light> -->
+              </a-scene>
+          </div>
+          <div class="clear"></div>
+          </div>
+        </div>
+        <div class="congrats_container hide UI">
+          <p id="goodbye" class="">Excellent job on terraforming YOUR planet! Now that's over, it's time for you go back to bed. There are more planets to fill with colonialism!</p>
+          <input id="enterCryostasis" class="" type="button" value="ENTER CRYOSTASIS"/>
+        </div>
+        <!-- <div id="congrats" class="screen two">
+
+        </div> -->
+      </section>
+      <img class="volumeOn hide">
+      <script type="text/javascript" src="js/custom_behaviors.js"></script>
+    </body>
+</html>

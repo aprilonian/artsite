@@ -1,0 +1,203 @@
+/* CSS is how you can add style to your website, such as colors, fonts, and positioning of your
+   HTML content. To learn how to do something, just try searching Google for questions like
+   "how to change link color." */
+
+body {
+  background-color: #d3678d;
+  background-image: url('../images/bg_turnip_02.png');
+	background-position: top;
+  font-size: 18px;
+  /* font-family: Georgia, "Times New Roman", serif; */
+  font-family: 'Lora', serif;
+  font-style: normal;
+  margin: 0;
+}
+
+a {
+  color:rgb(177, 50, 250);
+}
+a:visited {  
+  color:rgb(177, 50, 250);
+}
+
+p {
+  line-height: 1.6em; /*I find the default HTML line-height tends to be a bit claustrophobic for main text*/
+}
+
+hr {
+  border: solid #aa6db6;
+  border-width: 2px 0 0 0;
+}
+
+img {
+  width: 100%;
+  height: auto;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+.right {
+  float: right;
+  margin-left: 1em;
+}
+.left {
+  float: left;
+  margin-right: 1em;
+}
+.center {
+  display: block;
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
+  width: 100%;
+}
+
+.display-flex {
+  display: flex;
+}
+
+.flex-center {
+  justify-content: center;
+  text-align: center;
+}
+
+@media only screen and (min-width: 600px) {
+  .small {
+    max-width: 60%;
+    height: auto;
+  }
+}
+.caption {
+  margin-top: 0;
+  font-size: 0.9em;
+  font-style: italic;
+}
+.quoteblock {
+  padding-left: 5%;
+  border-left: 2px outset #613879;
+}
+.pastebin {
+  max-height: 300px;
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  background-color: #1d0d17;
+  border-radius: 4px;
+  padding: 0px 5%;
+  color: rgb(225, 65, 158);
+  white-space: nowrap;
+  margin-bottom: 1.2em;
+}
+.pastebin pre {
+  margin: 0px;
+}
+
+a:hover { 
+  background-color: #fff6e6;
+}
+
+h1, h2, h3, h4, h5 {
+  /* font-family: Tahoma, Geneva, sans-serif; */
+  font-family: 'Roboto', sans-serif;
+  font-style: normal;
+  color: #6d346f;
+  margin: 0px;
+}
+
+/*#CONTAINER is the rectangle that contains everything but the background!*/
+#container {
+  margin: 3em auto;
+  width: 90%;
+	max-width: 700px;
+	background-color: #f0a9fa;
+  color: #151515; 
+  /* outline-color: #a9a9a9;
+  outline-style: ridge;
+  outline-width: 4px;
+  outline-offset: 0; */
+}
+
+#content {
+  padding: 15px 2% 5px 2%;
+}
+#content-colorborder {
+  padding: 15px 3% 10px 3%;
+  margin-bottom: 15px;
+	background-color: #ffffff;
+  border-radius: 4px;
+}
+
+
+/*HEADER STYLE*/
+#header {
+  background-color: #613879;
+  padding: 0 5%;
+  border-color: #fcfcfc;
+  border-style:inset;
+  border-width: 0 0 4px 0;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+#header ul {
+  list-style-type: none;
+  padding: 0.5em 0;
+  margin: 0px;
+}
+#header li {
+  font-size: 1.2em;
+  display: inline-block;
+  margin-right: 1.5em;
+  margin-bottom: 0.2em;
+  margin-top: 0.2em;
+}
+#header li a {
+  color: white;
+  text-decoration: none;
+  background-color: inherit;
+}
+#header li a:hover {
+  text-decoration: underline;
+}
+
+
+
+/*POST LIST STYLE*/
+#postlistdiv ul, #experimentslistdiv ul, #recentpostlistdiv ul, #pinnedpostlistdiv ul {
+  font-size: 1.2em;
+  font-style: italic;
+  padding: 0;
+  list-style-type: none;
+  margin-top: 0.2em;
+}
+.moreposts {
+  font-size: 0.8em;
+  margin-top: 0.2em;
+}
+
+.threejs-embed {
+  width: 100%;
+}
+
+#adoodle {
+  width: 100px;
+  mix-blend-mode: darken;
+  opacity: .75;
+}
+
+/*NEXT AND PREVIOUS LINKS STYLE*/
+#nextprev {
+  text-align: center;
+  margin-top: 1.4em;
+}
+
+/*DISQUS STYLE*/
+#disqus_thread {
+  margin-top: 1.6em;
+}
+
+/*FOOTER STYLE*/
+#footer {
+  font-size: 0.7em;
+  padding: 0 2.5% 10px 2.5%;
+  text-align: center;
+  opacity: 0.75;
+}
