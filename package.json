@@ -1,0 +1,30 @@
+{
+  "name": "artsite",
+  "version": "1.0.0",
+  "description": "a zonelets blog",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "neoupload": "node upload.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aprilonian/artsite.git"
+  },
+  "keywords": [
+    "blog",
+    "art",
+    "3d"
+  ],
+  "author": "April Jane",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aprilonian/artsite/issues"
+  },
+  "homepage": "https://github.com/aprilonian/artsite#readme",
+  "dependencies": {
+    "async-neocities": "^2.1.1",
+    "neocities": "0.0.3",
+    "run-func": "^1.0.5"
+  }
+}
