@@ -1,0 +1,93 @@
+<div id="content-colorborder">
+  <h1 id="postTitleH1"></h1>
+  <h4 id="postDate"></h4>
+  
+  <p class="caption">Pixelize me again girl! But like, with more lines please?</p>
+  
+  <p>After a weekend's worth of headache, and research for more outline shaders, I found two examples that stood out the most:</p>
+  <h2>Ex.1 The Outlined Cute Cube</h2>
+  <br>
+  <iframe src="../threejs/scene/moreoutlines_1.html" class="threejs-embed"></iframe>        
+  
+  <p>This first one inspired by <a target="_blank" href="https://jsfiddle.net/prisoner849/96npfk1r/">this jsfiddle example</a> seemed really promising at first. It took only a few hours to figure out how to merge into a base shader. But if you take a look at the fragment shader,</p>
+  <div class="pastebin"><pre><code>
+const GeoOutlineShader = {
+
+uniforms: {
+'size' : {value: null}, // Must be vector3
+'thickness' : {value: 0.01},
+'smoothness' : {value: 0.1},
+},
+
+vertexShader: /* glsl */`
+
+varying vec3 vPos;
+
+void main()	{
+vPos = position;
+gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+}`,
+
+fragmentShader: /* glsl */`
+
+varying vec3 vPos;
+
+uniform vec3 size;
+uniform float thickness;
+uniform float smoothness;
+
+void main() {
+  
+float a = smoothstep(thickness, thickness + smoothness, length(abs(vPos.xy) - size.xy));
+a *= smoothstep(thickness, thickness + smoothness, length(abs(vPos.yz) - size.yz));
+a *= smoothstep(thickness, thickness + smoothness, length(abs(vPos.xz) - size.xz));
+
+vec3 c = mix(vec3(1), vec3(0), a);
+
+gl_FragColor = vec4(c, 1.0);
+}`
+
+};
+
+export { GeoOutlineShader };
+  </code></pre></div>
+  <p>it only works on geometry with only 3 dimensions, namely a cube. That wouldn't work on more complex geometry. And I'm not too far in my shader exploration to know how to really rewrite it yet.</p>
+  <br>
+  
+  <h2>Ex.2 Outlines of Geometry</h2>
+  <p>This is where things got complicated for me. <a target="_blank" href="https://gkjohnson.github.io/threejs-sandbox/conditional-lines/">There is this really cool shader presented here</a> and a <a target="_blank" href="https://discourse.threejs.org/t/ldraw-like-edges/17100/4">forum that lead to it</a>, that depicts what seems like an effortless execution of outlining a complex scene that creates an outline effect by generating geometry and shading it using conditional maths.</p>
+  <p>I thought, alright, great! I'll just plug and play! Copy pasta, bing bam blahp~ </p>
+  <p>nahhhhh</p> 
+  <p>Sorely mistaken, there were some compatibility errors with the newest version of three.js, so, with a tail tucked between my legs, I squinted through the code, looking at other examples on how to fix shader code, and slowly but surely pieced it together. I simplified a lot of things so it made sense to me -- definitely trash compacting everything into some poorly written code but I promise to actually comment and complile these files as I go along.... (am I making false promises??)</p>
+  <p>But anyway HERE IT IS!</p>
+  <iframe src="../threejs/scene/moreoutlines_2.html" class="threejs-embed"></iframe>    
+  <p>Not much at first sight when compared to the outline effect packaged with three.js, but when they are combined...</p>
+  
+  <h2>Ex.3 Outlines of Geometry combined with the Outline Effect</h2>
+  <p>We get something all the more interesting:</p>
+  <iframe src="../threejs/scene/moreoutlines_3.html" class="threejs-embed"></iframe>
+  <p>There are four shaders at work here,</p>
+  <ul class="caption">
+    <li>one for the base model</li>
+    <li>geometry generated and shaded following the edges</li>
+    <li>geometry generated and shaded following the tangent angles of each polygon</li>
+    <li>the outline effect</li>
+  </ul>
+
+  <h2>Ex.4 A Cone Problem</h2>
+  <p>The reason we would want to combine these shaders is to solve the cone problem! I say this as if it's a thing -- it's not -- but rather a more general problem of outlining an object efficiently.</p>
+  <p>The cone problem for me with the outline effect is that if you turn the opacity to zero for the geoOutline, the effectOutline fails to shade the cone edges properly and vice versa.</p>
+  <iframe src="../threejs/scene/moreoutlines_4.html" class="threejs-embed"></iframe>
+  <p>To solve for all of the edge cases, pun intended, I was determined to combine these together and maybe... eventually... port and simplify these into one.</p>
+  <p>Ideally, I'd know how to combine all of them into one elegantly programmed shader that is easier to plug-n-play, but alas, I'm not there yet!</p>
+  <p>If you're interested in the source for this, I'd be happy to send over some files, or set up a github, but I haven't even done that for myself yet but right now I'm learning a ton and am excited to do more.</p>       
+  <p>In the meantime, the <a target="_blank" href="https://github.com/gkjohnson/threejs-sandbox/tree/master/conditional-lines/src">source</a> from <a target="_blank" href="https://gkjohnson.github.io/threejs-sandbox/conditional-lines/">the original conditional lines shader</a> can be found on github: <a target="_blank" href="https://github.com/gkjohnson/threejs-sandbox/tree/master/conditional-lines/src">here</a></p>
+
+  <p>Thanks for stopping by friend!</p>
+  
+  <p>With love,</p>
+  <h2>April Jane</h2>
+  <br>
+  
+</div>       
+<div id="nextprev"></div>

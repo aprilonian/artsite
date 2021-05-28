@@ -15,6 +15,7 @@ body {
 
 a {
   color:rgb(177, 50, 250);
+  cursor: pointer;
 }
 a:visited {  
   color:rgb(177, 50, 250);

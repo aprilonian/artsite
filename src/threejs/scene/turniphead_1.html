@@ -211,7 +211,7 @@
 					// model.scale.set( 0.01, 0.01, 0.01 );
 
 					meshScene=model;
-					console.log(meshScene);
+					// console.log(meshScene);
 					
 					// ADD THE SCENE
 					scene.add( meshScene );
@@ -246,7 +246,7 @@
 					// this will generate Threshold Lines
 					meshScene.traverse( c => {
 						if ( c.isMesh ) {
-							console.log(c);
+							// console.log(c);
 							let mesh = c;
 							if(mesh.name == "leaf_01" || mesh.name == "leaf_02" || mesh.name == "leaf_03"){
 								initGeo(mesh);
