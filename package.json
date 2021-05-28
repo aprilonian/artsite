@@ -9,7 +9,10 @@
     "serve" : "./node_modules/.bin/http-server -a localhost -p 8000 -c-1",
     "server-start" : "reload -b -v -d /googledrive/server/git/artsite/src",   
     "server-loud" : "reload -v -d /googledrive/server/git/artsite/src",   
-    "server" : "reload -d /googledrive/server/git/artsite/src"
+    "server" : "reload -d /googledrive/server/git/artsite/src",
+    "add" : "git add -A",
+    "commit" : "git commit",
+    "push" : "git push -u origin main"
   },
   "repository": {
     "type": "git",
