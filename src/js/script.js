@@ -149,20 +149,6 @@ function reloadApp() {
   // }
 
 
-  
-
-  // let postListHTML = "<ul>";
-  // for ( let i = 0; i < postsArray.length; i++ ) {
-  //   postListHTML += formatPostLink(i);
-  // }
-  // postListHTML += "</ul>";
-
-  // let experimentsListHTML = "<ul>";
-  // for ( let i = 0; i < experimentsArray.length; i++ ) {
-  //   var experimentsName = experimentsArray[i][0].split("/")[1];
-  //   experimentsListHTML += '<li><a href="' + relativePath + '/'+ experimentsArray[i][0] +'">' +experimentsName+ '</a></li>';
-  // }
-  // experimentsListHTML += "</ul>";
 
   // //Generate the Next and Previous Post Links HTML
   // let nextprevHTML = "";
@@ -196,17 +182,32 @@ function reloadApp() {
   //   NOTE: All of these sections are optional to use on any given page. For example, if there's 
   //   one particular blog post where we don't want the footer to appear, 
   //   we simply don't put a <div id="footer"> on that page.*/
+  let url = window.location.href;
 
   // if (document.getElementById("nextprev")) {
   //   document.getElementById("nextprev").innerHTML = nextprevHTML;
   // }
-  // if (document.getElementById("experimentslistdiv")) {
-  //   document.getElementById("experimentslistdiv").innerHTML = experimentsListHTML;
-  // }
-  // if (document.getElementById("postlistdiv")) {
-  //   document.getElementById("postlistdiv").innerHTML = postListHTML;
-  // }
-  let url = window.location.href;
+  if (document.getElementById("experimentslistdiv")) {
+    
+    let experimentsListHTML = "<ul>";
+    for ( let i = 0; i < experimentsArray.length; i++ ) {
+      var experimentsName = experimentsArray[i][0].split("/")[1];
+      experimentsListHTML += '<li><a href="' + relativePath + '/'+ experimentsArray[i][0] +'">' +experimentsName+ '</a></li>';
+    }
+    experimentsListHTML += "</ul>";
+
+    document.getElementById("experimentslistdiv").innerHTML = experimentsListHTML;
+  }
+  if (document.getElementById("postlistdiv")) {  
+
+    let postListHTML = "<ul>";
+    for ( let i = 0; i < posts.length; i++ ) {
+      postListHTML += '<li><a id="'+posts[i][0].split("!")[0]+'">' + formatPostTitle(posts[i], undefined, " ⬩ ", true, true, undefined) + '</a></li>';
+    }
+    postListHTML += "</ul>";
+
+    document.getElementById("postlistdiv").innerHTML = postListHTML;
+  }
   if (document.getElementById("pinnedpostlistdiv")) {
     
     // Generate list of pinned posts
@@ -214,7 +215,7 @@ function reloadApp() {
     for ( let i = 0; i < posts.length; i++ ) {
       if(posts[i][0].slice(11).replace(/-/g," ").split("!")[1])
       {
-        let pinnedPost = '<li><a id="'+posts[i][0].split("!")[0]+'">' + formatPostTitle(posts[i]) + '</a></li>';
+        let pinnedPost = '<li><a id="'+posts[i][0].split("!")[0]+'">' + formatPostTitle(posts[i], undefined, undefined, true, true) + '</a></li>';
         pinnedPostListHTML += pinnedPost;
       }
         
@@ -229,7 +230,7 @@ function reloadApp() {
     let recentPostListHTML = "<h2>Newest Posts:</h2><ul>";
     let numberOfRecentPosts = Math.min( recentPostsCutoff, posts.length );
     for ( let i = 0; i < numberOfRecentPosts; i++ ) {
-      let recentPost = '<li><a id="'+posts[i][0]+'">' + formatPostTitle(posts[i]) + '</a></li>';
+      let recentPost = '<li><a id="'+posts[i][0].split("!")[0]+'">' + formatPostTitle(posts[i], undefined, undefined, true, true) + '</a></li>';
       recentPostListHTML += recentPost;
     }
     /*If you've written more posts than can fit in the Recent Posts List,
@@ -242,20 +243,7 @@ function reloadApp() {
     recentPostListHTML += "</ul>";
 
     document.getElementById("recentpostlistdiv").innerHTML = recentPostListHTML;
-        
-    for(var i=0; i<posts.length; i++) {   
-
-      let post = posts[i][0].split("!")[0];
-      let title = formatPostTitle(posts[i]);
-      let div = "content";
-
-      if(document.getElementById(post)) {
-        document.getElementById(post).addEventListener("click", function() {  
-          console.log("Go to new post: " + title);     
-          goToPost(post, title, div); 
-        });
-      }      
-    }
+    
   }  
   if(document.getElementById("allposts")){
     document.getElementById("allposts").addEventListener("click", function() {  
@@ -271,37 +259,36 @@ function reloadApp() {
     let postTitle = "Post Title"
     if(url.split("?")[1]?.split("=")[0] == "post"){
       let post = url.split("=")[1];
-      postTitle = capitalize(formatPostTitle([post])); 
+      postTitle = formatPostTitle([post]);
     }
     document.getElementById("postTitleH1").innerHTML = postTitle;
   }
   if (document.getElementById("postDate")) {
-    // //Get the current post title and date (if we are on a post page)
-    let niceDate = "";
-    if(url.split("?")[1]?.split("=")[0] == "post"){
-      niceDate = url.split("=")[1];
 
-      if (  postDateFormat.test ( niceDate.slice( 0,11 ) ) ) {
-        let monthSlice = niceDate.slice( 5,7 );
-        let month = "";
-        if ( monthSlice === "01") { month = "Jan";}
-        else if ( monthSlice === "02") { month = "Feb";}
-        else if ( monthSlice === "03") { month = "Mar";}
-        else if ( monthSlice === "04") { month = "Apr";}
-        else if ( monthSlice === "05") { month = "May";}
-        else if ( monthSlice === "06") { month = "Jun";}
-        else if ( monthSlice === "07") { month = "Jul";}
-        else if ( monthSlice === "08") { month = "Aug";}
-        else if ( monthSlice === "09") { month = "Sep";}
-        else if ( monthSlice === "10") { month = "Oct";}
-        else if ( monthSlice === "11") { month = "Nov";}
-        else if ( monthSlice === "12") { month = "Dec";}
-        niceDate = niceDate.slice( 8,10 ) + " " + month + ", " + niceDate.slice( 0,4 );
-      }
-    }
+    let postDate = "";
     
+    // NICE DATE
+    if(url.split("?")[1]?.split("=")[0] == "post"){
+      let post = url.split("=")[1];
+      postDate = formatPostDate(post);
+    }
 
-    document.getElementById("postDate").innerHTML = niceDate;
+    document.getElementById("postDate").innerHTML = postDate;
+  }
+
+  // ASSIGN BUTTONS
+  for(var i=0; i<posts.length; i++) {   
+
+    let post = posts[i][0].split("!")[0];
+    let title = formatPostTitle(posts[i]);
+    let div = "content";
+
+    if(document.getElementById(post)) {
+      document.getElementById(post).addEventListener("click", function() {  
+        console.log("Go to new post: " + title);     
+        goToPost(post, title, div); 
+      });
+    }      
   }
 
   // //Dynamically set the HTML <title> tag from the postTitle variable we created earlier
@@ -493,7 +480,7 @@ function capitalize (value) {
 //   return '<li><a id="'+post[0]+'">' + postTitle + '</a></li>';
 // }
 
-function formatPostTitle(post) {
+function formatPostTitle(post, capitalized=true, spacer=" ⬩ ", withDate=false, formattedDate=false, onlyDate=false) {
   
   let title;
   if(post.length > 1){
@@ -502,12 +489,48 @@ function formatPostTitle(post) {
   else {
     title = post[0];
   }
+  
   //If there is no alternate post title, check if the post uses the date format or not, and return the proper title
   if (  postDateFormat.test ( title.slice( 0,11 ) ) ) {
-    return title.split("!")[0].slice(11).replace(/-/g," ");
+    let postDate = title.split("!")[0].slice(0,10);
+    let postTitle = title.split("!")[0].slice(11).replace(/-/g," ");
+
+    postDate = (formattedDate? formatPostDate(title):postDate);
+    postTitle = (capitalized?capitalize(postTitle):postTitle);
+
+    let formatted = (withDate ? postDate+spacer+postTitle : postTitle)    
+    return onlyDate ? postDate : formatted;
   } 
   else {
-    return title.split("!")[0].replace(/-/g," ");
+    let postTitle = title.split("!")[0].replace(/-/g," ");
+    postTitle = (capitalized?capitalize(postTitle):postTitle);
+
+    let formatted = postTitle;
+    return formatted;
+  }
+}
+
+function formatPostDate(post) {
+  // //Get the current post title and date (if we are on a post page)
+
+  let postDateSlice = post.slice( 0,11 );
+  if (  postDateFormat.test (postDateSlice)) {
+    let monthSlice = postDateSlice.slice( 5,7 );
+    let month = "";
+    if ( monthSlice === "01") { month = "Jan";}
+    else if ( monthSlice === "02") { month = "Feb";}
+    else if ( monthSlice === "03") { month = "Mar";}
+    else if ( monthSlice === "04") { month = "Apr";}
+    else if ( monthSlice === "05") { month = "May";}
+    else if ( monthSlice === "06") { month = "Jun";}
+    else if ( monthSlice === "07") { month = "Jul";}
+    else if ( monthSlice === "08") { month = "Aug";}
+    else if ( monthSlice === "09") { month = "Sep";}
+    else if ( monthSlice === "10") { month = "Oct";}
+    else if ( monthSlice === "11") { month = "Nov";}
+    else if ( monthSlice === "12") { month = "Dec";}
+    let niceDate = postDateSlice.slice( 8,10 ) + " " + month + ", " + postDateSlice.slice( 0,4 );
+    return niceDate;
   }
 }
 
