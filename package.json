@@ -4,18 +4,14 @@
   "description": "a zonelets blog",
   "main": "index.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "neoupload": "node upload.js",
-    "serve": "./node_modules/.bin/http-server -a localhost -p 8000 -c-1",
-    "server-start": "reload -b -v -d /googledrive/server/git/artsite/src",
-    "server-loud": "reload -v -d /googledrive/server/git/artsite/src",
-    "server": "reload -b -d /Users/apriljane/github/artsite/src",
-    "server-b": "reload -d /Users/apriljane/github/artsite/src",
-    "server-win": "reload -d /googledrive/server/git/artsite/src",
+    "i-path": "export PATH=./node_modules/.bin:$PATH",
+    "i-reload": "npm install -g reload",
+    "server": "reload -d ./src",
+    "server-n": "reload -b -d ./src",
+    "server-l": "reload -b -v -d ./src",
     "add": "git add -A",
-    "commit": "git commit",
-    "push": "git push -u origin main",
-    "path": "export PATH=./node_modules/.bin:$PATH"
+    "commit": "git commit -a",
+    "push": "git push -u origin main"
   },
   "repository": {
     "type": "git",
@@ -31,12 +27,5 @@
   "bugs": {
     "url": "https://github.com/aprilonian/artsite/issues"
   },
-  "homepage": "https://github.com/aprilonian/artsite#readme",
-  "dependencies": {
-    "async-neocities": "^2.1.1",
-    "http-server": "^0.12.3",
-    "neocities": "0.0.3",
-    "reload": "^3.1.1",
-    "run-func": "^1.0.5"
-  }
+  "homepage": "https://github.com/aprilonian/artsite#readme"
 }
