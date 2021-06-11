@@ -1,21 +1,46 @@
-
-/*Welcome to the script file! Your 1st time here, you should update
+/*"Welcome to the script file! Your 1st time here, you should update
   the basic info section to include your name and website/social 
   media link (if desired). Most of the time, you will just come
   here to update the posts array. However, you can also edit or
-  add your own scripts to do whatever you like!*/
+  add your own scripts to do whatever you like!" 
+  
+  --Originally added by Marina Kittaka
+*/
 
-//TABLE OF CONTENTS
-  // 1. Basic Info
-  // 2. Posts Array
-  // 3. Creating HTML Sections to Be Inserted (Header, Footer, etc)
-  // 4. Inserting the Sections Into our Actual HTML Pages
+/*
+  What I'm using:
+    - EDITOR:     Visual Studio Code
+    - TESTING:    Firefox/Chrome/Safari/Android
+    - FRONTEND:   Zonelets, npm, npm reload, git, 
+    - SCRIPTS:    script.js, three.js, HTMLImporter.js
+    - HOSTING:    Neocities
+*/
 
-//-----------------------------
+///////////////////////
+// TABLE OF CONTENTS //
+///////////////////////
+  // BASIC INFO
+  // PROJECT VARIABLES
+  // LOAD CONTENT
+  // PRELOAD CONTENT
+  // POSTLOAD CONTENT
+  // PUSHING PAGES
+  // SCROLLING EVENTS
+  // ANIMATING EVENTS
+  // RESIZING EVENTS
+  //
+  // Utility Functions
+  // Export Module Functions
 
+// Check out the HTMLImporter file for more info on what this is doing 
+// to "hotswap" html code into the page.
 import {HTMLImporter} from "./HTMLImporter.js";
 
-//==[ 1. BASIC INFO ]==
+
+////////////////
+// BASIC INFO //
+////////////////
+  //#region 
 
 let blogName = "";
 let authorName = "April Jane";
@@ -23,36 +48,12 @@ let authorLink = "https://www.twitter.com/aprilonian"; // Enter your website, so
 let lastUpdated = "2021";
 let relativePath = ".";
 
-//-----------------------------
+  //#endregion
 
-//==[ 2. POSTS ARRAY ]==
-
-/*Each time you make a new post, add the filepath here at the top of postsArray.
-  This will cause all the right links to appear and work.
-  NOTE: It's important to follow this exact naming convention, because the scripts
-  below are expecting it ( 'posts/YYYY-MM-DD-Title-of-Your-Post.html', ). You can
-  alter the scripts if you want to use a different naming convention*/
-/*UPDATE: as of version 1.3, you may omit the date if you would like. But if you
-  use a date it must still follow that format.*/
-
-let postsArray = [
-  [ "posts/2021-05-20-Animated-Turnips.html" ],
-  [ "posts/2021-05-17-More-Outlines.html" ],
-  [ "posts/2021-05-13-Adding-The-Experiments.html" ],
-  [ "posts/2021-05-12-Dot-Brand.html!pinned" ],
-  //[ "posts/2020-11-10-Special-Characters-Example.html", encodeURI( 'Spéci@l "Character\'s" Examp|e' ) ]
-  //[ "posts/2020-11-10-My-Third-Post-Example.html" ],
-  //[ "posts/2020-11-10-My-Second-Post-Example.html" ],
-  // [ "posts/2020-11-10-HTML-cheat-sheet.html" ],
-  // [ "posts/2020-11-10-Post-Template.html" ] 
-];
-
-let experimentsArray = [
-  [ "experiments/coffeetv/index.html" ],
-  [ "experiments/infinisequence/index.html" ],
-  [ "experiments/scrambledeggs/index.html" ],
-  [ "experiments/thunderbirdexpress/index.html" ],
-];
+///////////////////////
+// PROJECT VARIABLES //
+///////////////////////
+  //#region 
 
 let pages = [
   ["home"],
@@ -62,137 +63,107 @@ let pages = [
 ]
 
 let posts = [
- ["2021-05-20-Animated-Turnips"],
- ["2021-05-17-More-Outlines"],
- ["2021-05-13-Adding-The-Experiments"],
- ["2021-05-12-Dot-Brand!pinned"],
+  ["2021-06-11-Sticker-Me-BB-dot-html"],
+  ["2021-05-20-Animated-Turnips"],
+  ["2021-05-17-More-Outlines"],
+  ["2021-05-13-Adding-The-Experiments"],
+  ["2021-05-12-Dot-Brand!pinned"],
 ]
+
+let projectUrls = [
+  [ "experiments/coffeetv/index.html" ],
+  [ "experiments/infinisequence/index.html" ],
+  [ "experiments/scrambledeggs/index.html" ],
+  [ "experiments/thunderbirdexpress/index.html" ],
+];
 
 //The date format to look for is 4 digits, hyphen, 2 digits, hyphen, 2 digits, hyphen. 
 const postDateFormat = /\d{4}\-\d{2}\-\d{2}\-/;
 
-//-----------------------------
-
-//////////////
-//  PAGES   //
-//////////////
-let currentPage = pages[0][0]; // prefilled by server
-function goToPage(page, title, element) {
-  let pageTitle = title;
-  setupPage(page, pageTitle, element);
-  window.history.pushState(currentPage, pageTitle, "?page="+currentPage);  
-}
-function setupPage(page, title, element) {  
-  currentPage = page;
-  HTMLImporter.import("../pages/"+page+".html", element, reloadApp);
-  document.title = title;
-}
-
-//////////////
-// POSTINGS //
-//////////////
+let navScrollTop = 112;
+let currentPage = pages[0][0]; // prefilled by server in this case, as "home" at pages[0][0]
 let currentPost = "";
-function goToPost(post, title, element) {
-  setupPost(post, title, element);
-  window.history.pushState(currentPost, title, "?post="+currentPost);  
-}
-function setupPost(post, title, element) {  
-  currentPost = post;
-  HTMLImporter.import("../postings/"+post+".html", element, reloadApp);
-  document.title = title;
-}
+let animatedTags = [];
+let animatedLetters = [];
 
-window.onpopstate = function(event) {
-  if(event) {
-    let page = event.state;
-    let pageTitle = capitalize(page);
-    
-    let url = window.location.href
-    if(url.includes("?page=")) {
-      setupPage(page, pageTitle, "content");
-    }
-    else if(url.includes("?post=")) {      
-      setupPost(page, pageTitle, "content");
-    }
-  }
-  else {
-    console.log("No page found!")
-  }
-}
+  //#endregion
 
-//////////////
-// LOAD APP //
-//////////////
-function reloadApp() {
+//////////////////
+// LOAD CONTENT //
+//////////////////
+  //#region 
+function reloadContent() {
 
-  // //==[ 3. CREATING HTML SECTIONS TO BE INSERTED ]==
-
-  // let url = window.location.pathname;
-
-  // //Check if you are in posts (if so, the links will have to go up a directory)
-  
-  // if ( url.includes("posts/") ) {
-  //   relativePath = "..";
-  // }
-  // else {    
-  //   relativePath = ".";
-  // }
-  
-  // //To do the following stuff, we want to know where we are in the posts array (if we're currently on a post page).
-  // let currentIndex = -1;
-  // let currentFilename = url.substring(url.lastIndexOf('posts/'));
-  // let i;
-  // for (i = 0; i < postsArray.length; i++) {
-  //   if ( postsArray[i][0].split("!")[0] === currentFilename ) {
-  //     currentIndex = i;
-  //   }
-  // }
-
-
-
-  // //Generate the Next and Previous Post Links HTML
-  // let nextprevHTML = "";
-  // let nextlink = "";
-  // let prevlink = "";
-
-  // /*If you're on the newest blog post, there's no point to
-  // a "Next Post" link, right? And vice versa with the oldest 
-  // post! That's what the following code handles.*/
-  // if ( postsArray.length < 2 ) {
-  //   nextprevHTML = '<a href="' + relativePath + '/index.html">Home</a>';
-  // } else if ( currentIndex === 0 ) {
-  //   prevlink = postsArray[currentIndex + 1][0];
-  //   nextprevHTML = '<a href="' + relativePath + '/index.html">Home</a> | <a href="'+ relativePath + '/' + prevlink +'">Previous Post \u00BB</a>';
-  // } else if ( currentIndex === postsArray.length - 1 ) {
-  //   nextlink = postsArray[currentIndex - 1][0];
-  //   nextprevHTML = '<a href="' + relativePath + '/' + nextlink +'">\u00AB Next Post</a> | <a href="' + relativePath + '/index.html">Home</a>';
-  // } else if ( 0 < currentIndex && currentIndex < postsArray.length - 1 ) {
-  //   nextlink = postsArray[currentIndex - 1][0];
-  //   prevlink = postsArray[currentIndex + 1][0];
-  //   nextprevHTML = '<a href="' + relativePath + '/'+ nextlink +'">\u00AB Next Post</a> | <a href="' + relativePath + '/index.html">Home</a> | <a href="' + relativePath + '/'+ prevlink +'">Previous Post \u00BB</a>';
-  // }
-
-  // var dynamicPostLinks = document.getElementsByClassName("postLink");
-
-  // //-----------------------------
-
-  // //==[ 4. INSERTING THE SECTIONS INTO OUR ACTUAL HTML PAGES ]==
-
-  // /*Here we check if each relevant div exists. If so, we inject the correct HTML!
-  //   NOTE: All of these sections are optional to use on any given page. For example, if there's 
-  //   one particular blog post where we don't want the footer to appear, 
-  //   we simply don't put a <div id="footer"> on that page.*/
+  // Get the URL so we can use the variables that are store in there by the PUSHING PAGES section
   let url = window.location.href;
 
-  // if (document.getElementById("nextprev")) {
-  //   document.getElementById("nextprev").innerHTML = nextprevHTML;
-  // }
+  
+  // Below we check if each relevant div exists. If so, we inject the correct HTML!
+  // 
+  // NOTE: 
+  // All of these sections are optional to use on any given page. For example, if there's 
+  // one particular blog post where we don't want the footer to appear, 
+  // we simply don't put a <div id="footer"> on that page.
+  
+  // ID SEARCH LIST:
+    // nextprev
+    // experimentslistdiv
+    // postlistdiv
+    // postlistdiv
+    // pinnedpostlistdiv
+    // recentpostlistdiv
+    // allposts
+    // postTitleH1
+    // postDate
+
+  if (document.getElementById("nextprev")) {
+
+    updateNav();
+
+    // //Generate the Next and Previous Post Links HTML
+    let nextprevHTML = "";
+
+    // Using the URL bar, we can s
+    let postIndex = 0;
+    for ( let i = 0; i < posts.length; i++ ) {
+      // console.log(url.split("?")[1]?.split("=")[1])
+      if(posts[i][0].split("!")[0] == url.split("?")[1]?.split("=")[1])
+      {
+         postIndex = i;
+      }
+    }
+
+
+    // If you're on the newest blog post, there's no point to
+    // a "Next Post" link, right? And vice versa with the oldest 
+    // post! That's what the following code handles.
+
+    let homeButton = ' | ';
+    
+    let nextButton = (posts.length<2) ? '<a class="invisible">\u00AB Next Post</a>' : ((postIndex===0) ? '<a class="invisible">\u00AB Next Post</a>' : '<a id="'+posts[postIndex-1][0].split("!")[0]+'">\u00AB Next Post</a>');
+    
+    let prevButton = (posts.length<2) ? '<a class="invisible">Previous Post \u00BB</a>' : ((postIndex===posts.length-1) ? '<a class="invisible">Previous Post \u00BB</a>' : '<a id="'+posts[postIndex+1][0].split("!")[0]+'">Previous Post \u00BB</a>');
+
+    nextprevHTML = nextButton + homeButton + prevButton;
+    
+    // INJECT THE CODE!!
+    document.getElementById("nextprev").innerHTML = nextprevHTML;
+
+    // NOW search for the new home button we added 
+    // and add a click event to PUSH a page to window history
+    if(document.getElementById("postingshome")){
+      document.getElementById("postingshome").addEventListener("click", function() {       
+        goToPage(pages[0][0], capitalize(pages[0][0]), "content", "pages", "page"); 
+      });
+    }
+    
+  }
   if (document.getElementById("experimentslistdiv")) {
     
     let experimentsListHTML = "<ul>";
-    for ( let i = 0; i < experimentsArray.length; i++ ) {
-      var experimentsName = experimentsArray[i][0].split("/")[1];
-      experimentsListHTML += '<li><a href="' + relativePath + '/'+ experimentsArray[i][0] +'">' +experimentsName+ '</a></li>';
+    for ( let i = 0; i < projectUrls.length; i++ ) {
+      var experimentsName = projectUrls[i][0].split("/")[1];
+      experimentsListHTML += '<li><a href="' + relativePath + '/'+ projectUrls[i][0] +'">' +experimentsName+ '</a></li>';
     }
     experimentsListHTML += "</ul>";
 
@@ -247,15 +218,12 @@ function reloadApp() {
   }  
   if(document.getElementById("allposts")){
     document.getElementById("allposts").addEventListener("click", function() {  
-      goToPage(pages[1][0], capitalize(decodeURI(pages[1][1])), "content"); 
+      goToPage(pages[1][0], capitalize(decodeURI(pages[1][1])), "content", "pages", "page"); 
     });
   }
-  // if (document.getElementById("blogTitleH1")) {
-  //   document.getElementById("blogTitleH1").innerHTML = blogTitle;
-  // }
   if (document.getElementById("postTitleH1")) {
     
-    console.log("BLOGTITLE")
+    // console.log("BLOGTITLE")
     let postTitle = "Post Title"
     if(url.split("?")[1]?.split("=")[0] == "post"){
       let post = url.split("=")[1];
@@ -276,7 +244,19 @@ function reloadApp() {
     document.getElementById("postDate").innerHTML = postDate;
   }
 
+  animatedTags = document.getElementsByClassName("tag");
+  for(let i=0; i<animatedTags.length; i++) {
+    console.log(animatedTags[i].innerHTML)
+    animatedTags[i].innerHTML = createElementsFromString(animatedTags[i].innerHTML, "tagLetter_"+i);
+
+
+    let animatedTagLetterArray = document.getElementsByClassName("tagLetter_"+i);
+    animatedLetters.push(animatedTagLetterArray)
+  }
+
   // ASSIGN BUTTONS
+  // For every post, if there is a button element with an "id=postname" matching the post
+  // and add a click event to PUSH a page to window history
   for(var i=0; i<posts.length; i++) {   
 
     let post = posts[i][0].split("!")[0];
@@ -286,27 +266,24 @@ function reloadApp() {
     if(document.getElementById(post)) {
       document.getElementById(post).addEventListener("click", function() {  
         console.log("Go to new post: " + title);     
-        goToPost(post, title, div); 
+        goToPage(post, title, div,"postings","post"); 
       });
     }      
   }
-
-  // //Dynamically set the HTML <title> tag from the postTitle variable we created earlier
-  // //The <title> tag content is what shows up on browser tabs
-  // if (document.title === "Blog Post") {
-  //   document.title = currentPostTitle;
-  // }  
-  
-
   resizeAll();
 }
+  //#endregion
 
 //////////////
 // PRELOAD  //
 //////////////
+  //#region 
+// The moment that this script is called, this function fires
 function preload() {  
     
-  // Fill header
+  /////////////////
+  // HEADER FILL //
+  /////////////////
   if (document.getElementById("header")) {    
     let headerHTML = "<ul>";
     for(var i=0; i<pages.length; i++) {  
@@ -325,17 +302,23 @@ function preload() {
     document.getElementById("header").innerHTML = headerHTML;
   }  
 
-  // Fill footer
+  /////////////////
+  // FOOTER FILL //
+  /////////////////
   if (document.getElementById("footer")) {
     let footerHTML = "<hr><p>" + blogName + "Written and created by <a href='" + authorLink + "'>" + authorName + "</a>, built with <a href='https://zonelets.net/'>Zonelets</a> and <a href='https://threejs.org/'>Three.js</a>. Website hosted by <a href='https://neocities.org/'>Neocities</a>." + "<br>Last updated " +lastUpdated+".</p>";
     
     document.getElementById("footer").innerHTML = footerHTML;
   }
   
-  // Load content
-  reloadApp();
+  ///////////////////////////
+  // LOAD & RELOAD CONTENT //
+  ///////////////////////////
+  reloadContent();
 
-  // Setup header buttons
+  ///////////////////////////////
+  // HEADER NAVIGATION BUTTONS //
+  ///////////////////////////////
   for(var i=0; i<pages.length; i++) {   
 
     let page = pages[i][0];
@@ -349,11 +332,18 @@ function preload() {
     let div = "content";
 
     document.getElementById(page).addEventListener("click", function() {       
-      goToPage(page, title, div); 
+      goToPage(page, title, div, "pages", "page"); 
     });
   }
   
-
+  /////////////////////////////////
+  // PAGE PUSHING TO THE URL BAR //
+  /////////////////////////////////
+  // Okay this was complcated for me at first, but essencially: store values in the URL bar 
+  // and use those values to determine what page we are on and push it into the history of the
+  // browser. This allows for hotswapping *pages* and *posts* on the fly rather than using 
+  // separate index files. The hotswapping is done with AJAX, so it should be pretty reliable
+  // long term.
   let url = window.location.href
   if(url.includes("posts/")) {
     console.log("OLD POST REDIRCTING!")
@@ -364,41 +354,159 @@ function preload() {
     let page = url.split("=")[1];
     let title = capitalize(page);
     let element = "content";
-    setupPage(page, title, element);
+    setupPage(page, title, element, "pages", "page");
     window.history.pushState(currentPage, title, "?page="+currentPage);  
   }
   else if(url.split("?")[1]?.split("=")[0] == "post"){
     let post = url.split("=")[1];
     let title = formatPostTitle([post]);
     let element = "content";
-    setupPost(post, title, element);
+    setupPage(post, title, element, "postings", "post");
     window.history.pushState(currentPost, title, "?post="+currentPost);  
   }
   else {
     let page = pages[0];
     let title = capitalize(page[0]);
     let element = "content";
-    setupPage(page, title, element);
+    setupPage(page, title, element, "pages", "page");
     window.history.pushState(page[0], title, "?page="+currentPage); 
   }
    
 }
-preload();
+preload(); // Happens when the DOM is loaded
+  //#endregion
 
 //////////////
 // POSTLOAD //
 //////////////
+  //#region 
+
+// POST LOAD when everything is ready
 function postload() {
   resizeAll();
+  animate(0);
 }
-
 window.onload = function() {
   postload();
 };
+  //#endregion
+
+///////////////////
+// PUSHING PAGES //
+///////////////////
+  //#region 
+
+function goToPage(page, title, element, location, locationTitle) {
+  setupPage(page, title, element, location);
+  window.history.pushState(currentPage, title, "?"+locationTitle+"="+currentPage);
+}
+function setupPage(page, title, element, location) {
+  currentPage = page;
+  currentPost = page;
+  HTMLImporter.import("../"+location+"/"+page+".html", element, reloadContent);
+  document.title = title;
+}
+
+window.onpopstate = function(event) {
+  if(event) {
+    let page = event.state;
+    let pageTitle = capitalize(page);
+    
+    let url = window.location.href
+
+    if(url.includes("?page=")) {
+      setupPage(page, pageTitle, "content", "pages", "page");
+    }
+    else if(url.includes("?post=")) {      
+      setupPage(page, pageTitle, "content", "postings", "page");
+    }
+  }
+  else {
+    console.log("No page found!")
+  }
+}
+  //#endregion
+
+//////////////
+// SCROLLIN //
+//////////////
+  //#region 
+// Function for when the DOM is scrolling
+window.onscroll = function() {
+}
+  //#endregion
+
+///////////////
+// ANIMATING //
+///////////////
+  //#region 
+
+// Like a game loop, animate every from when available (i.e. when focused on this tab)
+
+let last = 0; // timestamp of the last update() call
+let deltaTime = 0;
+let worldPaused = false;
+function animate(now) {
+  updateNav();
+
+  if(!last || now - last >= 10) {
+    last = now;
+    if(!worldPaused)
+    {
+  
+      if(animatedLetters.length>0) 
+      {
+        for(let i=0; i<animatedLetters.length; i++) {
+          wavyElements(animatedLetters[i]);
+        }
+      }
+
+      // step in deltaTime
+      deltaTime++;
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+// Stick the next/prev button bar to the top when we scroll down far enough
+function updateNav() {
+  if(document.getElementById("nextprev"))
+  {
+    let nav = document.getElementById("nextprev");
+    let content = document.getElementById("content");
+    let contentborder = document.getElementById("content-colorborder");
+
+    let doc = document.documentElement;
+    let top = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
+
+    if(top >= navScrollTop) {
+      if(!(nav.classList.contains("navfixed"))) {
+        nav.classList.add("navfixed");
+        content.classList.add("navspacer");
+      }
+    } else if (top < navScrollTop) {
+      if(nav.classList.contains("navfixed")) {
+        nav.classList.remove("navfixed");
+      }
+      content.classList.remove("navspacer");
+    } else {
+      content.classList.remove("navspacer");
+    }
+    nav.style.width = contentborder.offsetWidth + "px"
+  } else {
+
+    let content = document.getElementById("content");
+    content.classList.add("navspacer");
+
+  }
+}
+  //#endregion
 
 //////////////
 // RESIZING //
 //////////////
+  //#region 
 window.addEventListener( 'resize', blogWindowResize );
 
 function blogWindowResize() {
@@ -416,11 +524,38 @@ function resizeAll() {
     }
   }
 }
-
+  //#endregion
 
 ///////////////////////
-// Utility Functions //
+// UTILITY FUNCTIONS //
 ///////////////////////
+  //#region 
+
+// Creates a <p> tag around every letter in a string and returns the html string
+// Additionally, <div> tags separate words to make sure flex works
+function createElementsFromString(stringP, elementClassName) {
+  var sPArray = stringP.split("");
+  var returnString = "";
+  for(var i = 0; i < sPArray.length; i++) {
+    if(sPArray[i] == " ") // every space
+    {
+      returnString += "<span class='"+elementClassName+" invisible'>_</span>";
+    }
+    else {
+      returnString += "<span class='"+elementClassName+"'>" + sPArray[i] + "</span>";
+    }
+  }
+  returnString += "";
+  return returnString
+}
+// wavyElements utilizes elements in an array to transform them in a sine wave
+function wavyElements(elementArray = [], amplitude = 2, offsetwave = -2, dampening = 30) {
+  for(var i = 0; i < elementArray.length; i++){
+    elementArray[i].style.transform = "translateY(" + (Math.sin(deltaTime/dampening + i*5)*amplitude + offsetwave) + "px)"; 
+  }
+
+  console.log(elementArray[0]);
+}
 
 function capitalize (value) {
   if(value) {
@@ -438,47 +573,6 @@ function capitalize (value) {
   }
   
 }
-
-//Generate the Post List HTML, which will be shown on the "Archive" page.
-// function formatPostLink(i) {
-//   let postTitle_i = "";
-//   if ( postsArray[i].length > 1 ) {
-//     postTitle_i = decodeURI(postsArray[i][1]);
-//   } else {
-//   if (  postDateFormat.test ( postsArray[i][0].slice( 6,17 ) ) ) {
-//     postTitle_i = postsArray[i][0].slice(17,-5).replace(/-/g," ");
-//     } else {
-//       postTitle_i = postsArray[i][0].slice(6,-5).replace(/-/g," "); // split before "!" everything after ! are tags
-//     }
-//   }
-//   if (  postDateFormat.test ( postsArray[i][0].slice( 6,17 ) ) ) {
-//     return '<li><a href="' + relativePath + '/'+ postsArray[i][0].split("!")[0] +'">' + postsArray[i][0].slice(6,16) + " \u00BB " + postTitle_i.split(".")[0] + '</a></li>';
-//   } else {
-//     return '<li><a href="' + relativePath + '/'+ postsArray[i][0].split("!")[0] +'">' + postTitle_i.split(".")[0] + '</a></li>';
-//   }
-// }
-
-//Convert the post url to readable post name. E.g. changes "2020-10-10-My-First-Post.html" to "My First Post"
-//Or pass along the "special characters" version of the title if one exists
-// function formatPostTitle(i) {
-//   // Check if there is an alternate post title
-//   if ( postsArray[i].length > 1 ) {
-//     //Remember how we had to use encodeURI for special characters up above? Now we use decodeURI to get them back.
-//     return decodeURI(postsArray[i][1]);
-//   } else {
-//   //If there is no alternate post title, check if the post uses the date format or not, and return the proper title
-//   if (  postDateFormat.test ( postsArray[i][0].slice( 6,17 ) ) ) {
-//     return postsArray[i][0].split("!")[0].slice(17,-5).replace(/-/g," ");
-//     } else {
-//       return postsArray[i][0].split("!")[0].slice(6,-5).replace(/-/g," ");
-//     }
-//   }
-// }
-
-// function formatPostLink(post) {
-//   let postTitle = formatPostTitle(post[0]);  
-//   return '<li><a id="'+post[0]+'">' + postTitle + '</a></li>';
-// }
 
 function formatPostTitle(post, capitalized=true, spacer=" ⬩ ", withDate=false, formattedDate=false, onlyDate=false) {
   
@@ -533,5 +627,11 @@ function formatPostDate(post) {
     return niceDate;
   }
 }
+  //#endregion
 
-// export {preload, postload};
+/////////////////////////////
+// EXPORT MODULE FUNCTIONS //
+/////////////////////////////
+// export these fucntions if we want to use them in another script. 
+// lookup using "module type" syntax if you're curious how this works.
+export {preload, reloadContent, postload};
