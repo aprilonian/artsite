@@ -51,16 +51,17 @@ let relativePath = ".";
 let footerHTML  = "<hr>"
                 +"<p>" 
                 + blogName 
-                + "Written and created by <a href='"+authorLink+"'>" 
+                + "Written and created by <a href='"+authorLink+"' target='_blank'>" 
                 + authorName 
                 + "</a>, "
-                + "built on top of <a href='https://zonelets.net/'>Zonelets</a> "
-                + "and <a href='https://threejs.org/'>Three.js</a>. "
-                + "Website hosted by <a href='https://neocities.org/'>Neocities</a>." 
-                + "<br>Last updated " + lastUpdated +".</p>";
+                + "built on top of <a href='https://zonelets.net/' target='_blank'>Zonelets</a> "
+                + "and <a href='https://threejs.org/' target='_blank'>Three.js</a>. "
+                + "Website hosted by <a href='https://neocities.org/' target='_blank'>Neocities</a>. " 
+                + "<a href='https://web.archive.org/web/20191105090859/http://www.uzine.net/article63.html' target='_blank'>What the heck is The Indie Web</a>." 
+                + " Last updated " + lastUpdated +".</p>";
 
   //#endregion
-
+  
 ///////////////////////
 // PROJECT VARIABLES //
 ///////////////////////
@@ -90,6 +91,7 @@ let projectUrls = [
 
 let stickers = [
   {
+    html:     "<div id='sticker-buttercup' class='sticker'><a href='https://lu.tiny-universes.net/index2.html' target='_blank'></a></div>",
     id:       "sticker-buttercup",
     parentid:   "content",
     alignH:   "left",
@@ -98,6 +100,7 @@ let stickers = [
     offsetY:  44
   },
   {
+    html:     "<div id='sticker-approaches' class='sticker'><a href='https://lu.tiny-universes.net/index2.html' target='_blank'></a></div>",
     id:       "sticker-approaches",
     parentid:   "content",
     alignH:   "right",
@@ -106,6 +109,7 @@ let stickers = [
     offsetY:  -120
   },
   {
+    html:     "<div id='sticker-turnipsleeping' class='sticker'><a href='https://lu.tiny-universes.net/index2.html' target='_blank'></a></div>",
     id:       "sticker-turnipsleeping",
     parentid:   "content",
     alignH:   "center",
@@ -114,6 +118,9 @@ let stickers = [
     offsetY:  -60
   },
 ]
+
+
+
 
 //The date format to look for is 4 digits, hyphen, 2 digits, hyphen, 2 digits, hyphen. 
 const postDateFormat = /\d{4}\-\d{2}\-\d{2}\-/;
@@ -286,6 +293,15 @@ function reloadContent() {
     }
 
     document.getElementById("postDate").innerHTML = postDate;
+  }
+
+  for(let i=0; i<stickers.length; i++) {
+    let content = document.getElementById("content");
+    if(!(content.innerHTML.includes((stickers[i].html))));
+    {
+      content.innerHTML += (stickers[i].html);
+    }
+    
   }
 
   animatedTags = document.getElementsByClassName("wavy");
