@@ -119,9 +119,6 @@ let stickers = [
   },
 ]
 
-
-
-
 //The date format to look for is 4 digits, hyphen, 2 digits, hyphen, 2 digits, hyphen. 
 const postDateFormat = /\d{4}\-\d{2}\-\d{2}\-/;
 
