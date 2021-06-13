@@ -8,7 +8,7 @@
 */
 
 /*
-  What I'm using:
+  what aprilonian is using:
     - EDITOR:     Visual Studio Code
     - TESTING:    Firefox/Chrome/Safari/Android
     - FRONTEND:   Zonelets, npm, npm reload, git, 
@@ -48,6 +48,17 @@ let authorLink = "https://www.twitter.com/aprilonian"; // Enter your website, so
 let lastUpdated = "2021";
 let relativePath = ".";
 
+let footerHTML  = "<hr>"
+                +"<p>" 
+                + blogName 
+                + "Written and created by <a href='"+authorLink+"'>" 
+                + authorName 
+                + "</a>, "
+                + "built on top of <a href='https://zonelets.net/'>Zonelets</a> "
+                + "and <a href='https://threejs.org/'>Three.js</a>. "
+                + "Website hosted by <a href='https://neocities.org/'>Neocities</a>." 
+                + "<br>Last updated " + lastUpdated +".</p>";
+
   //#endregion
 
 ///////////////////////
@@ -63,7 +74,7 @@ let pages = [
 ]
 
 let posts = [
-  ["2021-06-11-Sticker-Me-BB-dot-html"],
+  ["2021-06-14-Sticker-Me-BB-dot-html!testing"],
   ["2021-05-20-Animated-Turnips"],
   ["2021-05-17-More-Outlines"],
   ["2021-05-13-Adding-The-Experiments"],
@@ -76,6 +87,33 @@ let projectUrls = [
   [ "experiments/scrambledeggs/index.html" ],
   [ "experiments/thunderbirdexpress/index.html" ],
 ];
+
+let stickers = [
+  {
+    id:       "sticker-buttercup",
+    parentid:   "content",
+    alignH:   "left",
+    alignV:   "top",
+    offsetX:  -50,
+    offsetY:  44
+  },
+  {
+    id:       "sticker-approaches",
+    parentid:   "content",
+    alignH:   "right",
+    alignV:   "middle",
+    offsetX:  45,
+    offsetY:  -120
+  },
+  {
+    id:       "sticker-turnipsleeping",
+    parentid:   "content",
+    alignH:   "center",
+    alignV:   "bottom",
+    offsetX:  -45,
+    offsetY:  -60
+  },
+]
 
 //The date format to look for is 4 digits, hyphen, 2 digits, hyphen, 2 digits, hyphen. 
 const postDateFormat = /\d{4}\-\d{2}\-\d{2}\-/;
@@ -173,7 +211,10 @@ function reloadContent() {
 
     let postListHTML = "<ul>";
     for ( let i = 0; i < posts.length; i++ ) {
-      postListHTML += '<li><a id="'+posts[i][0].split("!")[0]+'">' + formatPostTitle(posts[i], undefined, " ⬩ ", true, true, undefined) + '</a></li>';
+      if(!(posts[i][0].slice(11).replace(/-/g," ").split("!")[1] === "testing"))
+      {
+        postListHTML += '<li><a id="'+posts[i][0].split("!")[0]+'">' + formatPostTitle(posts[i], undefined, " ⬩ ", true, true, undefined) + '</a></li>';
+      }
     }
     postListHTML += "</ul>";
 
@@ -184,7 +225,7 @@ function reloadContent() {
     // Generate list of pinned posts
     let pinnedPostListHTML = "<h2>Pinned:</h2><ul>";
     for ( let i = 0; i < posts.length; i++ ) {
-      if(posts[i][0].slice(11).replace(/-/g," ").split("!")[1])
+      if(posts[i][0].slice(11).replace(/-/g," ").split("!")[1] === "pinned")
       {
         let pinnedPost = '<li><a id="'+posts[i][0].split("!")[0]+'">' + formatPostTitle(posts[i], undefined, undefined, true, true) + '</a></li>';
         pinnedPostListHTML += pinnedPost;
@@ -201,8 +242,11 @@ function reloadContent() {
     let recentPostListHTML = "<h2>Newest Posts:</h2><ul>";
     let numberOfRecentPosts = Math.min( recentPostsCutoff, posts.length );
     for ( let i = 0; i < numberOfRecentPosts; i++ ) {
-      let recentPost = '<li><a id="'+posts[i][0].split("!")[0]+'">' + formatPostTitle(posts[i], undefined, undefined, true, true) + '</a></li>';
-      recentPostListHTML += recentPost;
+      if(!(posts[i][0].slice(11).replace(/-/g," ").split("!")[1] === "testing"))
+      {
+        let recentPost = '<li><a id="'+posts[i][0].split("!")[0]+'">' + formatPostTitle(posts[i], undefined, undefined, true, true) + '</a></li>';
+        recentPostListHTML += recentPost;
+      }      
     }
     /*If you've written more posts than can fit in the Recent Posts List,
       then we'll add a link to the archive so readers can find the rest of
@@ -244,13 +288,12 @@ function reloadContent() {
     document.getElementById("postDate").innerHTML = postDate;
   }
 
-  animatedTags = document.getElementsByClassName("tag");
+  animatedTags = document.getElementsByClassName("wavy");
   for(let i=0; i<animatedTags.length; i++) {
-    console.log(animatedTags[i].innerHTML)
-    animatedTags[i].innerHTML = createElementsFromString(animatedTags[i].innerHTML, "tagLetter_"+i);
+    animatedTags[i].innerHTML = createElementsFromString(animatedTags[i].innerHTML, "wavyLetter_"+i);
 
 
-    let animatedTagLetterArray = document.getElementsByClassName("tagLetter_"+i);
+    let animatedTagLetterArray = document.getElementsByClassName("wavyLetter_"+i);
     animatedLetters.push(animatedTagLetterArray)
   }
 
@@ -305,9 +348,7 @@ function preload() {
   /////////////////
   // FOOTER FILL //
   /////////////////
-  if (document.getElementById("footer")) {
-    let footerHTML = "<hr><p>" + blogName + "Written and created by <a href='" + authorLink + "'>" + authorName + "</a>, built with <a href='https://zonelets.net/'>Zonelets</a> and <a href='https://threejs.org/'>Three.js</a>. Website hosted by <a href='https://neocities.org/'>Neocities</a>." + "<br>Last updated " +lastUpdated+".</p>";
-    
+  if (document.getElementById("footer")) {    
     document.getElementById("footer").innerHTML = footerHTML;
   }
   
@@ -454,11 +495,38 @@ function animate(now) {
     if(!worldPaused)
     {
   
-      if(animatedLetters.length>0) 
+      if(animatedLetters.length>0 && animatedLetters != undefined) 
       {
+
         for(let i=0; i<animatedLetters.length; i++) {
-          wavyElements(animatedLetters[i]);
+          if(animatedLetters[i][0]) {
+            let speed     = undefined;
+            let amplitude = undefined;
+            let offset    = undefined;
+            let waveType  = undefined;
+            let currentLetter = animatedLetters[i][0];
+            if(currentLetter.parentNode.hasAttribute("wavy-speed")) {      
+              speed=currentLetter.parentNode.getAttribute("wavy-speed");
+            }
+            if(currentLetter.parentNode.hasAttribute("wavy-amplitude")) {      
+              amplitude=currentLetter.parentNode.getAttribute("wavy-amplitude");
+            }
+            if(currentLetter.parentNode.hasAttribute("wavy-offset")) {      
+              offset=currentLetter.parentNode.getAttribute("wavy-offset");
+            }
+            if(currentLetter.parentNode.hasAttribute("wavy-type")) {      
+              waveType=currentLetter.parentNode.getAttribute("wavy-type");
+            }
+
+
+            wavyElements(animatedLetters[i], amplitude, offset, speed, waveType);
+          }
+          
         }
+      }
+
+      for(let i=0; i<stickers.length;i++){
+        anchor(stickers[i].id, stickers[i].parentid, stickers[i].alignH, stickers[i].alignV, stickers[i].offsetX, stickers[i].offsetY);        
       }
 
       // step in deltaTime
@@ -523,6 +591,7 @@ function resizeAll() {
       tjs_embed[i].setAttribute("height", tjs_embed[i].scrollWidth)      
     }
   }
+
 }
   //#endregion
 
@@ -549,12 +618,43 @@ function createElementsFromString(stringP, elementClassName) {
   return returnString
 }
 // wavyElements utilizes elements in an array to transform them in a sine wave
-function wavyElements(elementArray = [], amplitude = 2, offsetwave = -2, dampening = 30) {
+function wavyElements(elementArray = [], amplitude = 2, offsetwave = -2, speed = 1, waveType = "sine") {
+  
+
   for(var i = 0; i < elementArray.length; i++){
-    elementArray[i].style.transform = "translateY(" + (Math.sin(deltaTime/dampening + i*5)*amplitude + offsetwave) + "px)"; 
+    let sineWave    = Math.sin( (deltaTime/30*speed)+ i*5);
+    let squareWave  = Math.sign( Math.sin( (deltaTime/30*speed)+ i*5));
+    let targetWave = (waveType=="sine")?sineWave:(waveType=="square")?squareWave:sineWave;
+    elementArray[i].style.transform = "translateY(" + (targetWave *amplitude + offsetwave) + "px)"; 
+  }
+}
+
+function anchor(elementID, anchorToID, alignHori="center", alignVert="top", offsetX=0, offsetY=0) {
+
+  if(document.getElementById(elementID) && document.getElementById(anchorToID))
+  {
+    elementID   = document.getElementById(elementID);
+    anchorToID  = document.getElementById(anchorToID);
+    let left    = anchorToID.getBoundingClientRect().left;
+    let center  = anchorToID.getBoundingClientRect().width/2 + left;
+    let right   = anchorToID.getBoundingClientRect().right;
+    let top     = anchorToID.getBoundingClientRect().top +window.scrollY
+    let middle  = anchorToID.getBoundingClientRect().height/2 + top;
+    let bottom  = anchorToID.getBoundingClientRect().bottom +window.scrollY;
+    offsetX     = offsetX - elementID.offsetWidth/2;
+    offsetY     = offsetY - elementID.offsetHeight/2;
+
+    alignHori = (alignHori==="left")?left:(alignHori==="center")?center:(alignHori==="right")?right:"no align selected";
+    alignVert = (alignVert==="top")?top:(alignVert==="middle")?middle:(alignVert==="bottom")?bottom:"no align selected";
+
+    elementID.style.top  = (alignVert+offsetY)+ "px";
+    elementID.style.left = (alignHori+offsetX) + "px";
+
   }
 
-  console.log(elementArray[0]);
+  
+
+  // elementArray[i].style.transform = "translateY(" + (Math.sin(deltaTime/dampening + i*5)*amplitude + offsetwave) + "px)"; 
 }
 
 function capitalize (value) {
