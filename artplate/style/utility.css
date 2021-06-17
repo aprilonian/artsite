@@ -1,0 +1,59 @@
+/*  This CSS file is best used between projects -- you can copy it easily knowing you'll use these styles. 
+    You could easily put this in the style.css file to reduce the number of files you are dealing with, 
+    but this way declutters your main css file
+*/
+.button {
+    pointer-events: auto;
+    cursor: pointer;
+}
+.caption {
+    margin-top: 0;
+    font-size: 0.9em;
+    font-style: italic;
+}
+.emphasize {
+    margin-top: 0;
+    font-weight: bold;
+    font-style: italic;
+}
+.featured {
+    color: #72d000;
+    margin-top: 0;
+    font-size: 0.6em;
+    font-style: italic;
+}
+.right {
+  float: right;
+  margin-left: 1em;
+}
+.left {
+  float: left;
+  margin-right: 1em;
+}
+.center {
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+    text-align: center;
+    width: 100%;
+}
+.display-flex {
+    display: flex;
+}
+.flex-center {
+    justify-content: center;
+    text-align: center;
+}
+.hidden {
+    display: none;
+}
+.invisible {
+    opacity: 0;
+    pointer-events: none !important;
+}
+.unselectable {
+    pointer-events: none !important;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+}

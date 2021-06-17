@@ -1,0 +1,449 @@
+/* CSS is how you can add style to your website, such as colors, fonts, and positioning of your
+   HTML content. To learn how to do something, just try searching Google for questions like
+   "how to change link color." */
+
+body {
+  background-color: #b36676;
+  background-image: url('../images/bg.png');
+	background-position: top;
+  font-size: 18px;
+  font-family: 'Lora', serif;
+  font-style: normal;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+a {
+  color: darkred;
+  cursor: pointer;
+}
+a:visited {  
+  color: darkred;
+}
+
+p {
+  line-height: 1.6em; /*I find the default HTML line-height tends to be a bit claustrophobic for main text*/
+}
+
+hr {
+  border: solid #aa6db6;
+  border-width: 2px 0 0 0;
+  opacity: 0;
+}
+
+img {
+  width: 100%;
+  height: auto;
+}
+
+@media only screen and (max-width: 600px) {
+  .small {
+    max-width: 60%;
+    height: auto;
+  }
+  .sticker {
+    height: 10vw;
+    width: 10vw;
+  }
+  #header {
+    justify-content: center !important;
+  }
+  #header ul {
+    padding: 0.5em 0;
+    flex-wrap: wrap !important;
+    width: auto !important;
+    max-width: none !important;
+    transform:none !important;
+  }
+  #header li {
+    margin: 0.2em 1.5em !important;
+  }
+  #artblogtitle {
+    font-size: 6vw !important;
+    margin-bottom: -5px !important;
+  }
+}
+@media only screen and (max-width: 820px) {
+  #header {
+    justify-content: center !important;
+  }
+  #header ul {
+    padding: 0.5em 0;
+    flex-wrap: wrap !important;
+    width: auto !important;
+    max-width: none !important;
+    transform:none !important;
+  }
+  #header li {
+    margin: 0.2em 1.5em !important;
+  }
+  #artblogtitle {
+    font-size: 6vw !important;
+  }
+}
+
+.wavy {
+  transform: translateY(0px);
+}
+.wavy span {
+  display: inline-block;
+}
+.wavy[wavy-highlight-style="bubble"] span {
+  border-radius: 5px;
+  padding-right: 2px;
+  padding-left: 2px;
+}
+.wavy[wavy-highlight-color="blue"] span {
+  color: #fff;
+  background-color: #55CDFC;
+}
+.quoteblock {
+  padding-left: 5%;
+  border-left: 2px outset #613879;
+}
+.pastebin {
+  max-height: 300px;
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  background-color: #1d0d17;
+  border-radius: 4px;
+  padding: 0px 5%;
+  color: rgb(225, 65, 158);
+  white-space: nowrap;
+  margin-bottom: 1.2em;
+}
+.pastebin pre {
+  margin: 0px;
+}
+
+a:hover { 
+  background-color: #fff6e6;
+}
+
+h1, h2, h3, h4, h5, label {
+  /* font-family: Tahoma, Geneva, sans-serif; */
+  font-family: 'Roboto', sans-serif;
+  font-style: normal;
+  color: #d3678d;
+  margin: 0px;
+}
+
+/*#CONTAINER is the rectangle that contains everything but the background!*/
+#container {
+  margin: 3em auto;
+  width: 90%;
+	max-width: 820px;
+  color: #151515; 
+  /* outline-color: #a9a9a9;
+  outline-style: ridge;
+  outline-width: 4px;
+  outline-offset: 0; */
+}
+
+#content {
+  margin-left: auto;
+  margin-right: auto;
+  background-color: pink;
+  border-radius: 0px 0px 5px 5px ;
+  padding-bottom: 5px;
+}
+.navspacer {
+  padding-top: 31px;
+}
+#content-colorborder {
+  padding: 15px 3% 10px 3%;
+  margin-bottom: 15px;
+	background-color: #ffffff;
+  border-radius: 4px;
+}
+
+#artblogtitle {
+  color: #fff;
+  text-transform: uppercase;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  margin-bottom: -8px;
+}
+
+/*HEADER STYLE*/
+#header {
+  background-size: contain;
+  background-repeat: repeat-x;
+  image-rendering: crisp-edges;
+  background-color:rgb(106, 171, 231);
+  /* padding: 0 5%; */
+  border-color: #fcfcfc;
+  border-style:inset;
+  border-width: 0 0 4px 0;
+  display: flex;
+  justify-content: flex-end;
+  text-align: center;
+  border-radius: 5px 5px 0px 0px;
+  font-family: 'Courier New', Courier, monospace;
+}
+#header ul {
+  list-style-type: none;
+  /* padding: 0.5em 0; */
+  margin: 0px;
+  display: flex;
+  justify-content: space-evenly;
+  flex-wrap: nowrap;
+  transform: translateY(-33px);
+  width: 35vw;
+  max-width: 50%;
+}
+#header li {
+  font-size: 1.2em;
+  display: inline-block;
+  margin-left: auto;
+  /* margin: 0.2em 1.5em; */
+}
+#header li a {
+  color: white;
+  text-decoration: none;
+  background-color: inherit;
+}
+#header li a:hover {
+  /* text-decoration: underline; */
+  border-bottom: dotted white;
+}
+
+
+
+/*POST LIST STYLE*/
+#recentpostlistdiv, #pinnedpostlistdiv {
+  padding-left: 2%;
+}
+#postlistdiv ul, #projectslist ul, #recentpostlistdiv ul, #pinnedpostlistdiv ul {
+  font-size: 1.2em;
+  font-style: italic;
+  padding: 0;
+  list-style-type: none;
+  margin-top: 0.2em;
+}
+.moreposts {
+  font-size: 0.8em;
+  margin-top: 0.2em;
+}
+
+.threejs-embed {
+  width: 100%;
+  overflow: hidden;
+}
+.threejs-embed body {
+  overflow: hidden;
+}
+.form {
+  margin: 0px;
+  width: 100%;
+  height: max-content;
+  margin-bottom: 30px;
+  display: flex;
+  flex-flow: column;
+}
+.form input {
+  border-radius: 30px;
+  border-style: dashed;
+  padding: 5px;
+  padding-left: 15px;
+  margin-bottom: 15px;
+  font-size: 1em;
+}
+
+#adoodle {
+  width: 100px;
+  mix-blend-mode: darken;
+  opacity: .75;
+}
+
+/*NEXT AND PREVIOUS LINKS STYLE*/
+#nextprev {
+  color: darkred;
+  text-align: center;
+  padding-top: 0.1em;
+  padding-bottom: 0.3em;
+  background: pink;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+}
+.navfixed {
+  position: fixed;
+  top: 0px;
+  /* width: 672px; */
+  z-index: 1;
+}
+
+/*DISQUS STYLE*/
+#disqus_thread {
+  margin-top: 1.6em;
+}
+
+/*FOOTER STYLE*/
+#footer {
+  font-size: 0.7em;
+  padding: 0 2.5% 10px 2.5%;
+  text-align: center;
+  background-color: pink;
+  border-radius: 5px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+/* STICKERS */
+.sticker {
+  /* background-color: sienna; */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  z-index: 2;
+}
+.sticker a {
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: .5;
+}
+
+#gallery {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  pointer-events: none;
+  margin-top: 1em;
+  margin-bottom: 30px;
+}
+.art-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 5px;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.art-container img {
+  /* width:auto; */
+  height: 101%;
+  border-radius: 5px;
+  transition: .2s;
+}
+.art-container:hover img{
+  transform: scale(1.5) rotateZ(12deg);
+}
+.art-container-single {
+  width: 100%;
+  margin-bottom: 10px;
+}
+.art-container-grid {
+  height: 27vw;
+  max-height: 243px;
+  width: 32.66%;
+}
+.art-container-grid:nth-child(n+4) {
+  margin-top: 1%;
+}
+.art-container-grid:nth-child(3n-1) {
+  margin-left: 1%;
+  margin-right: 1%;
+}
+.art-container-grid img{
+  height: 101%;
+  object-fit: cover;
+}
+
+#gallery:hover > .art-container img:not(:hover){
+  filter: grayscale(1);
+}
+#galleryview {
+  background-color: rgba(0, 0, 0, 0.452);
+  mix-blend-mode: darken;
+  background-blend-mode: darken;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  top:0;
+  left:0;
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 100;
+  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+}
+.galleryview-button {
+  height: 100vh;
+  width: 15vw;
+  position: fixed;
+  top: 0;
+  z-index: 102;
+  opacity: 0.0;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.galleryview-button:hover {
+  background-color: rgba(5, 0, 7, 0.1);
+  opacity: 0.7;
+  background-blend-mode: multiply;
+}
+#galleryview-left{
+  left: 0;
+  background-image: linear-gradient(to left, rgba(255,0,0,0), rgb(0, 0, 0));
+}
+#galleryview-right{
+  right: 0;
+  background-image: linear-gradient(to right, rgba(255,0,0,0), rgb(0, 0, 0));
+}
+
+#gallery-types {
+  display: flex;
+  pointer-events: all;
+  margin-top: 30px;
+}
+#gallery-types .button{
+  width:30px;
+  height: 30px;
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: .25;
+  pointer-events: all;
+}
+#gallery-types div {
+  margin-right: 5px;
+}
+#gallery-types .active {
+  opacity: 1;
+}
+#gallery-type-grid {
+  background-image: url(../images/ui/grid.png);
+  filter: invert(47.8%) sepia(100%) saturate(168.8%) hue-rotate(292.4deg);
+}
+#gallery-type-single {
+  /* background-image: url(../images/ui/gridsingle.png); */
+  background-color: #d3678d;
+  border-radius: 5px;
+}
+
+.artfocus {
+  position: fixed;
+  top: 50vh;
+  left: 50vw;
+  z-index: 101;
+  max-width: 756px;
+  cursor: pointer;
+}
+.artfocus-tall {
+  width: auto;
+  height: 83vw;
+  max-height: 95vh;
+}
+.artfocus-wide {
+  width: 83vw;
+  height: auto;
+}
+
+
+
+
