@@ -7,10 +7,11 @@ body {
   background-image: url('../images/bg_turnip_02.png');
 	background-position: top;
   font-size: 18px;
-  /* font-family: Georgia, "Times New Roman", serif; */
   font-family: 'Lora', serif;
   font-style: normal;
   margin: 0;
+  overflow-x: hidden;
+  cursor: url("../images/cuteshit/cursor-vaporwavenormal.cur"), default;
 }
 
 a {
@@ -19,6 +20,10 @@ a {
 }
 a:visited {  
   color: darkred;
+}
+a:hover {
+  cursor: url("../images/cuteshit/cursor-cocolinkselect.cur"), default;
+  background-color: #fff6e6;
 }
 
 p {
@@ -131,12 +136,8 @@ img {
   margin: 0px;
 }
 
-a:hover { 
-  background-color: #fff6e6;
-}
 
 h1, h2, h3, h4, h5, label {
-  /* font-family: Tahoma, Geneva, sans-serif; */
   font-family: 'Roboto', sans-serif;
   font-style: normal;
   color: #d3678d;
@@ -149,19 +150,14 @@ h1, h2, h3, h4, h5, label {
   width: 90%;
 	max-width: 700px;
   color: #151515; 
-  /* outline-color: #a9a9a9;
-  outline-style: ridge;
-  outline-width: 4px;
-  outline-offset: 0; */
 }
 
 #content {
-  width: 90%;
-  margin-left: auto;
-  margin-right: auto;
   background-color: pink;
   border-radius: 5px;
   padding-bottom: 5px;
+  overflow: clip;
+  margin-top: 10px;
 }
 .navspacer {
   padding-top: 31px;
@@ -180,7 +176,6 @@ h1, h2, h3, h4, h5, label {
   background-size: contain;
   background-repeat: repeat-x;
   image-rendering: crisp-edges;
-  /* background-color:#000000; */
   padding: 0 5%;
   border-color: #fcfcfc;
   border-style:inset;
@@ -202,9 +197,6 @@ h1, h2, h3, h4, h5, label {
   font-size: 1.2em;
   display: inline-block;
   margin: 0.2em 1.5em;
-  /* margin-bottom: 0.2em;
-  margin-top: 0.2em; */
-  /* margin: 0.4em; */
 }
 #header li a {
   color: white;
@@ -212,7 +204,7 @@ h1, h2, h3, h4, h5, label {
   background-color: inherit;
 }
 #header li a:hover {
-  text-decoration: underline;
+  border-bottom: dotted;
 }
 
 
@@ -301,7 +293,6 @@ h1, h2, h3, h4, h5, label {
   text-align: center;
   background-color: pink;
   border-radius: 5px;
-  width: 85%;
   margin-right: auto;
   margin-left: auto;
 }
@@ -322,16 +313,4 @@ h1, h2, h3, h4, h5, label {
   height: 100%;
   display: block;
   opacity: .5;
-}
-#sticker-buttercup {
-  background-image: url("../images/stickers/cyberkit.gif");
-  transform: rotateZ(22deg);
-}
-#sticker-approaches {
-  background-image: url("../images/stickers/rainbow.gif");
-  transform: rotateZ(-12deg);
-}
-#sticker-turnipsleeping {
-  background-image: url("../images/stickers/good-neat.png");
-  transform: rotateZ(-8deg);
 }

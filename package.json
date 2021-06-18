@@ -9,6 +9,7 @@
     "server": "reload -d ./src",
     "server-n": "reload -b -d ./src",
     "server-l": "reload -b -v -d ./src",
+    "server-art": "reload -b -d ./src",
     "add": "git add -A",
     "commit": "git commit -a",
     "push": "git push -u origin main",

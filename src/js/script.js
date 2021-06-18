@@ -48,6 +48,7 @@ let authorLink = "https://www.twitter.com/aprilonian"; // Enter your website, so
 let lastUpdated = "2021";
 let relativePath = ".";
 
+let recentPostsCutoff = 3; //Hey YOU! Change this number to set how many recent posts to show before cutting it off with a "more posts" link.
 let footerHTML  = "<hr>"
                 +"<p>" 
                 + blogName 
@@ -75,7 +76,7 @@ let pages = [
 ]
 
 let posts = [
-  ["2021-06-14-Sticker-Me-BB-dot-html!testing"],
+  ["2021-06-17-Sticker-Me-BB-dot-html"],
   ["2021-05-20-Animated-Turnips"],
   ["2021-05-17-More-Outlines"],
   ["2021-05-13-Adding-The-Experiments"],
@@ -91,38 +92,62 @@ let projectUrls = [
 
 let stickers = [
   {
-    html:     "<div id='sticker-buttercup' class='sticker'><a href='https://lu.tiny-universes.net/index2.html' target='_blank'></a></div>",
-    id:       "sticker-buttercup",
+    location:   "../images/stickers/",
+    file:       "buttercupsndaisies-blue",
+    ext:        ".png",
+    transform:  "rotate(12deg) scale(1.3)",
+    href:       "../images/stickers/buttercupsndaisies-blue.png",
+    id:         "sticker-gorge",
     parentid:   "content",
-    alignH:   "left",
-    alignV:   "top",
-    offsetX:  -50,
-    offsetY:  44
+    alignH:     "left",
+    alignV:     "top",
+    offsetX:    -55,
+    offsetY:    44,
+  },{
+    location:   "../images/stickers/",
+    file:       "spacecatplanets-nobg",
+    ext:        ".png",
+    transform:  "rotate(10deg) scale(1.3)",
+    href:       "../images/stickers/spacecatplanets-nobg.png",
+    id:         "sticker-spacecat",
+    parentid:   "content",
+    alignH:     "right",
+    alignV:     "middle",
+    offsetX:    55,
+    offsetY:    -100
   },
   {
-    html:     "<div id='sticker-approaches' class='sticker'><a href='https://lu.tiny-universes.net/index2.html' target='_blank'></a></div>",
-    id:       "sticker-approaches",
-    parentid:   "content",
-    alignH:   "right",
-    alignV:   "middle",
-    offsetX:  45,
-    offsetY:  -120
+    location:   "../images/stickers/",
+    file:       "approaches",
+    ext:        ".png",
+    transform:  "rotate(-10deg) scale(1.1)",
+    href:       "../images/stickers/approaches.png",
+    id:         "sticker-approaches",
+    parentid:   "content-colorborder",
+    alignH:     "right",
+    alignV:     "bottom",
+    offsetX:    -180,
+    offsetY:    -30
   },
-  {
-    html:     "<div id='sticker-turnipsleeping' class='sticker'><a href='https://lu.tiny-universes.net/index2.html' target='_blank'></a></div>",
-    id:       "sticker-turnipsleeping",
-    parentid:   "content",
-    alignH:   "center",
-    alignV:   "bottom",
-    offsetX:  -45,
-    offsetY:  -60
-  },
+  // {
+  //   location:   "../images/stickers/",
+  //   file:       "turnipsleeping",
+  //   ext:        ".png",
+  //   transform:  "rotate(10deg)",
+  //   href:       "http://aprilonian.art",
+  //   id:         "sticker-turnipsleeping",
+  //   parentid:   "content",
+  //   alignH:     "center",
+  //   alignV:     "bottom",
+  //   offsetX:    -45,
+  //   offsetY:    -60
+  // },
 ]
 
 //The date format to look for is 4 digits, hyphen, 2 digits, hyphen, 2 digits, hyphen. 
 const postDateFormat = /\d{4}\-\d{2}\-\d{2}\-/;
 
-let navScrollTop = 112;
+let navScrollTop = 122;
 let currentPage = pages[0][0]; // prefilled by server in this case, as "home" at pages[0][0]
 let currentPost = "";
 let animatedTags = [];
@@ -158,48 +183,6 @@ function reloadContent() {
     // postTitleH1
     // postDate
 
-  if (document.getElementById("nextprev")) {
-
-    updateNav();
-
-    // //Generate the Next and Previous Post Links HTML
-    let nextprevHTML = "";
-
-    // Using the URL bar, we can s
-    let postIndex = 0;
-    for ( let i = 0; i < posts.length; i++ ) {
-      // console.log(url.split("?")[1]?.split("=")[1])
-      if(posts[i][0].split("!")[0] == url.split("?")[1]?.split("=")[1])
-      {
-         postIndex = i;
-      }
-    }
-
-
-    // If you're on the newest blog post, there's no point to
-    // a "Next Post" link, right? And vice versa with the oldest 
-    // post! That's what the following code handles.
-
-    let homeButton = ' | ';
-    
-    let nextButton = (posts.length<2) ? '<a class="invisible">\u00AB Next Post</a>' : ((postIndex===0) ? '<a class="invisible">\u00AB Next Post</a>' : '<a id="'+posts[postIndex-1][0].split("!")[0]+'">\u00AB Next Post</a>');
-    
-    let prevButton = (posts.length<2) ? '<a class="invisible">Previous Post \u00BB</a>' : ((postIndex===posts.length-1) ? '<a class="invisible">Previous Post \u00BB</a>' : '<a id="'+posts[postIndex+1][0].split("!")[0]+'">Previous Post \u00BB</a>');
-
-    nextprevHTML = nextButton + homeButton + prevButton;
-    
-    // INJECT THE CODE!!
-    document.getElementById("nextprev").innerHTML = nextprevHTML;
-
-    // NOW search for the new home button we added 
-    // and add a click event to PUSH a page to window history
-    if(document.getElementById("postingshome")){
-      document.getElementById("postingshome").addEventListener("click", function() {       
-        goToPage(pages[0][0], capitalize(pages[0][0]), "content", "pages", "page"); 
-      });
-    }
-    
-  }
   if (document.getElementById("experimentslistdiv")) {
     
     let experimentsListHTML = "<ul>";
@@ -242,20 +225,22 @@ function reloadContent() {
   }
   if (document.getElementById("recentpostlistdiv")) {
     // // Generate the Recent Post List HTML, which can be shown on the home page (or wherever you want!)
-    let recentPostsCutoff = 3; //Hey YOU! Change this number to set how many recent posts to show before cutting it off with a "more posts" link.
     let recentPostListHTML = "<h2>Newest Posts:</h2><ul>";
-    let numberOfRecentPosts = Math.min( recentPostsCutoff, posts.length );
+    let recentPostsCutoffLocal = recentPostsCutoff;
+    let numberOfRecentPosts = Math.min( recentPostsCutoffLocal, posts.length );
     for ( let i = 0; i < numberOfRecentPosts; i++ ) {
-      if(!(posts[i][0].slice(11).replace(/-/g," ").split("!")[1] === "testing"))
+      if((posts[i][0].slice(11).replace(/-/g," ").split("!")[1] === "testing"))
       {
+        numberOfRecentPosts++; recentPostsCutoffLocal++;
+      } else {
         let recentPost = '<li><a id="'+posts[i][0].split("!")[0]+'">' + formatPostTitle(posts[i], undefined, undefined, true, true) + '</a></li>';
-        recentPostListHTML += recentPost;
-      }      
+        recentPostListHTML += recentPost;        
+      }    
     }
     /*If you've written more posts than can fit in the Recent Posts List,
       then we'll add a link to the archive so readers can find the rest of
       your wonderful posts and be filled with knowledge.*/
-    if ( posts.length > recentPostsCutoff ) {
+    if ( posts.length > recentPostsCutoffLocal ) {
       recentPostListHTML += '<li class="moreposts"><a id="allposts">all postings</a></li>';
       
     }  
@@ -264,11 +249,6 @@ function reloadContent() {
     document.getElementById("recentpostlistdiv").innerHTML = recentPostListHTML;
     
   }  
-  if(document.getElementById("allposts")){
-    document.getElementById("allposts").addEventListener("click", function() {  
-      goToPage(pages[1][0], capitalize(decodeURI(pages[1][1])), "content", "pages", "page"); 
-    });
-  }
   if (document.getElementById("postTitleH1")) {
     
     // console.log("BLOGTITLE")
@@ -292,13 +272,24 @@ function reloadContent() {
     document.getElementById("postDate").innerHTML = postDate;
   }
 
-  for(let i=0; i<stickers.length; i++) {
-    let content = document.getElementById("content");
-    if(!(content.innerHTML.includes((stickers[i].html))));
-    {
-      content.innerHTML += (stickers[i].html);
+  if(stickers !== undefined) {
+    for(let i=0; i<stickers.length; i++) {
+      let sticker = stickers[i];
+      let parent = document.getElementById(sticker.parentid);
+      let stickerHref = (!(sticker.href===""))?"<a href='"+sticker.href+"' target='_blank'></a>":"";
+      let stickerHTML =       
+        "<div id='"+sticker.id+"' class='sticker'>"+stickerHref+"</div>"
+        +"<style>#"+sticker.id+" {"
+        +"background-image: url('"+ sticker.location+sticker.file+sticker.ext +"');"
+        +"transform: "+sticker.transform+"; }</style>";
+      
+      if(parent) {
+        if(!(parent.innerHTML.includes(stickerHTML)));
+        {
+          parent.innerHTML += stickerHTML;
+        }  
+      }          
     }
-    
   }
 
   animatedTags = document.getElementsByClassName("wavy");
@@ -310,21 +301,101 @@ function reloadContent() {
     animatedLetters.push(animatedTagLetterArray)
   }
 
-  // ASSIGN BUTTONS
+  // ASSIGN BUTTONS FOR RECENT POSTS
   // For every post, if there is a button element with an "id=postname" matching the post
   // and add a click event to PUSH a page to window history
   for(var i=0; i<posts.length; i++) {   
 
-    let post = posts[i][0].split("!")[0];
+    if(!(posts[i][0].split("!")[1]==="testing")) {
+      let post = posts[i][0].split("!")[0];
+      let title = formatPostTitle(posts[i]);
+      let div = "content";
+
+      if(document.getElementById(post)) {
+        document.getElementById(post).addEventListener("click", function() {  
+          goToPage(post, title, div,"postings","post"); 
+        });
+      }  
+    }
+        
+  }
+
+  // ASSIGN BUTTONS FOR PINNED POSTS
+  for(var i=0; i<posts.length; i++) {   
+
+    let post = posts[i][0];
     let title = formatPostTitle(posts[i]);
     let div = "content";
-
     if(document.getElementById(post)) {
-      document.getElementById(post).addEventListener("click", function() {  
-        console.log("Go to new post: " + title);     
-        goToPage(post, title, div,"postings","post"); 
-      });
+      if(post.split("!")[1]==="pinned") {
+        document.getElementById(post).removeEventListener("click", function(){}, false);
+        document.getElementById(post).addEventListener("click", function() {  
+          console.log("Go to new post: " + title);     
+          goToPage(post.split("!")[0], title, div,"postings","post"); 
+        });
+      }      
     }      
+  }
+
+  // ASSIGN BUTTONS FOR NEXT & PREVIOUS POSTS & All POSTS
+  if (document.getElementById("nextprev")) {
+
+    updateNav();
+
+    // //Generate the Next and Previous Post Links HTML
+    let nextprevHTML = "";
+
+    // Using the URL bar, we can s
+    let postIndex = 0;
+    for ( let i = 0; i < posts.length; i++ ) {
+      // console.log(url.split("?")[1]?.split("=")[1])
+      if(posts[i][0].split("!")[0] == url.split("?")[1]?.split("=")[1])
+      {
+         postIndex = i;
+      }
+    }
+
+
+    // If you're on the newest blog post, there's no point to
+    // a "Next Post" link, right? And vice versa with the oldest 
+    // post! That's what the following code handles.
+
+    let homeButton = ' | ';
+    
+    let nextButton = (posts.length<2) ? '<a class="invisible">\u00AB Next Post</a>' : ((postIndex===0) ? '<a class="invisible">\u00AB Next Post</a>' : (posts[postIndex-1][0].split("!")[1]=="testing")? '<a class="invisible">\u00AB Next Post</a>' : '<a class="navpost" location="'+posts[postIndex-1][0].split("!")[0]+'">\u00AB Next Post</a>');
+    
+    let prevButton = (posts.length<2) ? '<a class="invisible">Previous Post \u00BB</a>' : ((postIndex===posts.length-1) ? '<a class="invisible">Previous Post \u00BB</a>' : '<a class="navpost" location="'+posts[postIndex+1][0].split("!")[0]+'">Previous Post \u00BB</a>');
+
+    nextprevHTML = nextButton + homeButton + prevButton;
+    
+    // INJECT THE CODE!!
+    document.getElementById("nextprev").innerHTML = nextprevHTML;
+
+    // NOW search for the new home button we added 
+    // and add a click event to PUSH a page to window history
+    if(document.getElementById("postingshome")){
+      document.getElementById("postingshome").addEventListener("click", function() {       
+        goToPage(pages[0][0], capitalize(pages[0][0]), "content", "pages", "page"); 
+      });
+    }
+    
+  }
+
+  let nextprevBtns = document.getElementsByClassName("navpost");
+  for ( let i = 0; i < nextprevBtns.length; i++ ) {
+    let post = nextprevBtns[i].getAttribute('location');
+    let title = formatPostTitle([post]);
+    let div = "content";
+
+    nextprevBtns[i].addEventListener("click", function() {  
+      goToPage(post, title, div,"postings","post"); 
+    });
+  }
+
+  if(document.getElementById("allposts")){
+    document.getElementById("allposts").addEventListener("click", function() {  
+      goToPage(pages[1][0], capitalize(decodeURI(pages[1][1])), "content", "pages", "page"); 
+    });
   }
   resizeAll();
 }

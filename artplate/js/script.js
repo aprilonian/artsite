@@ -45,7 +45,7 @@ import {HTMLImporter} from "./HTMLImporter.js";
 
 // FILL THIS OUT WITH YOUR INFORMATION
 
-let artBlogTitle = "Nicole Fairchild"; // set this to "" if you don't want a title at the top above the nav bar
+let artBlogTitle = "Jane Doe"; // set this to "" if you don't want a title at the top above the nav bar
 let authorName = "Jane Doe";
 let authorLink = "https://aprilonian.art"; // Enter your website, social media, etc. Some way for people to tell you they like your blog! (Leaving it empty is okay too)
 let lastUpdated = "2021";
@@ -387,10 +387,12 @@ function reloadContent() {
         +"background-image: url('"+ sticker.location+sticker.file+sticker.ext +"');"
         +"transform: "+sticker.transform+"; }</style>";
       
-      if(!(parent.innerHTML.includes(stickerHTML)));
-      {
-        parent.innerHTML += stickerHTML;
-      }      
+      if(parent) {
+        if(!(parent.innerHTML.includes(stickerHTML)));
+        {
+          parent.innerHTML += stickerHTML;
+        }      
+      }
     }
   }
   
@@ -576,7 +578,7 @@ function reloadContent() {
   let nextprevBtns = document.getElementsByClassName("navpost");
   for ( let i = 0; i < nextprevBtns.length; i++ ) {
     let post = nextprevBtns[i].getAttribute('location');
-    let title = formatPostTitle(post);
+    let title = formatPostTitle([post]);
     let div = "content";
 
     nextprevBtns[i].addEventListener("click", function() {  
