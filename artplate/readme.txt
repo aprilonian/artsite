@@ -1,4 +1,6 @@
 Zonelet Starter
+Artplate mod by April Jane
+---
 For more information visit https://zonelets.net/
 
 Released under MIT License
