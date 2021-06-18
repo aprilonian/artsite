@@ -122,6 +122,7 @@ img {
   border-left: 2px outset #613879;
 }
 .pastebin {
+  font-size: 12px;
   max-height: 300px;
   overflow-y: scroll;
   scrollbar-width: thin;
@@ -131,6 +132,8 @@ img {
   color: rgb(225, 65, 158);
   white-space: nowrap;
   margin-bottom: 1.2em;
+  cursor:text;
+  padding-bottom: 10px;
 }
 .pastebin pre {
   margin: 0px;

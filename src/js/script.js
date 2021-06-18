@@ -284,11 +284,11 @@ function reloadContent() {
         +"transform: "+sticker.transform+"; }</style>";
       
       if(parent) {
-        if(!(parent.innerHTML.includes(stickerHTML)));
+        if(!(document.getElementById(stickers[i].id)))
         {
           parent.innerHTML += stickerHTML;
         }  
-      }          
+      }      
     }
   }
 
@@ -735,10 +735,6 @@ function anchor(elementID, anchorToID, alignHori="center", alignVert="top", offs
     elementID.style.left = (alignHori+offsetX) + "px";
 
   }
-
-  
-
-  // elementArray[i].style.transform = "translateY(" + (Math.sin(deltaTime/dampening + i*5)*amplitude + offsetwave) + "px)"; 
 }
 
 function capitalize (value) {

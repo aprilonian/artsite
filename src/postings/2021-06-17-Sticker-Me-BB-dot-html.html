@@ -17,7 +17,7 @@
     </ul>
 
   </p>
-  <p>Please download them for your pleasure! </p>
+  <p>Please download them for your pleasure! <span class="emphasize">( see code implementation below)</span></p>
   
   <div class="dl-stickers">
     <a id="buttercups" alt="sticker telling you are gorgeous" href="../images/stickers/buttercupsndaisies-blue.png" download></a>
@@ -54,7 +54,7 @@
     Also, the three of us really want to print these for anyone interested. There would be about 150 prints per sticker, so if enough of you are interested and we run out, we might have to start like an actual sticker club... *heavy breathing* ... 
   </p>
   <p>
-    We'll print these because it'll be fun to share with friends, so it's gonna be free and I'll just mail them to where ever you are. <span class="emphasize">I'm</span> not data mining your stuff, but I am using google forms to get your pesky address, so DM me if you're looking to avoid google.
+    Share with friends! Or don't! <span class="emphasize">I'm</span> not data mining your stuff, but I am using google forms to get your pesky address, so DM me if you're looking to avoid google.
   </p>
 
   <p>Get on this mailing list if you want any of them~</p>
@@ -76,23 +76,104 @@
 
   <br>
   <h2 class="wavy"  wavy-highlight-style="bubble" wavy-highlight-color="blue">GITHUB!</h2>
-  <p>You also may have noticed a few changes to the site since last I updated, can you tell?</p>
+  <p>You also may have noticed a few other changes to the site since last I updated, can you tell?</p>
   <p><a href="https://github.com/aprilonian/artsite" target="_blank">I got github set up</a> too! So now you can copy my ENTIRE WEBSTIE. Please use it, feel free to credit me or not. I'll be adding more comments to everything as I go. This website was orignially based on Zonelets, a cool as hell blogging setup, and since then I have expanded on that code, so if anything, keep the <a href='https://zonelets.net/' target="_blank">Zonelets</a> credit if you are interested in copy pasta'ing everything.</p>
 
   <p>If you want something a little less cluttered, I also stripped everything down to a template for an art blog also on <a href="https://github.com/aprilonian/artsite/tree/main/artplate" target="_blank">my github</a></p>
 
   <p>DM me on tweeter if you have any questions or get confused, because it is a mess to look at at first. Zonelets is certainly easier to get into if it's your first time diving into JavaScript, I would recommend it to anyone if you can't already tell.</p>
+
+  <p>But if you're extra lazy grabbing that sticker code, I've kindly stripped and added it below.</p>
+  <h2 class="wavy"  wavy-highlight-style="bubble" wavy-highlight-color="blue">STICKER CODE!</h2>
+  <br>
+<div class="pastebin"><pre><code>
+let stickers = [
+  {
+    location:   "../images/stickers/",
+    file:       "buttercupsndaisies-blue",
+    ext:        ".png",
+    transform:  "rotate(12deg) scale(1.3)",
+    href:       "../images/stickers/buttercupsndaisies-blue.png",
+    id:         "sticker-gorge",
+    parentid:   "content",
+    alignH:     "left",
+    alignV:     "top",
+    offsetX:    -55,
+    offsetY:    44,
+  },
+]
+</code></pre></div>
+<p class="caption">// If there are stickers, for each sticker, add it to the parent</p>
+<div class="pastebin"><pre><code>
+if(stickers !== undefined) {
+  for(let i=0; i&lt;stickers.length; i++) {
+    let sticker = stickers[i];
+    let parent = document.getElementById(sticker.parentid);
+    let stickerHref = (!(sticker.href===""))?"&lt;a href='"+sticker.href+"' target='_blank'&gt;&lt;/a&gt;":"";
+    let stickerHTML =       
+      "&lt;div id='"+sticker.id+"' class='sticker'&gt;"+stickerHref+"&lt;/div&gt;"
+      +"&lt;style&gt;#"+sticker.id+" {"
+      +"background-image: url('"+ sticker.location+sticker.file+sticker.ext +"');"
+      +"transform: "+sticker.transform+"; }&lt;/style&gt;";
+    
+    if(parent) {
+      if(!(document.getElementById(stickers[i].id)))
+      {
+        parent.innerHTML += stickerHTML;
+      }  
+    }          
+  }
+}
+</code></pre></div>
+<p class="caption">// requestAnimationFrame animate loop so we can "anchor" the sticker for every frame</p>
+<div class="pastebin"><pre><code>
+let last = 0; // timestamp of the last update() call
+let deltaTime = 0;
+function animate(now) {
+  if(!last || now - last >= 10) {
+    last = now;
+    for(let i=0; i&lt;stickers.length;i++){
+      anchor(stickers[i].id, stickers[i].parentid, stickers[i].alignH, stickers[i].alignV, stickers[i].offsetX, stickers[i].offsetY);        
+    }
+
+    // step in deltaTime
+    deltaTime++;
+  }
+
+  requestAnimationFrame(animate);
+}
+animate(0);
+
+</code></pre></div>
+<p class="caption">// anchor function that handles the different types of anchoring and styles the sticker accordingly</p>
+<div class="pastebin"><pre><code>
+function anchor(elementID, anchorToID, alignHori="center", alignVert="top", offsetX=0, offsetY=0) {
+
+  if(document.getElementById(elementID) && document.getElementById(anchorToID))
+  {
+    elementID   = document.getElementById(elementID);
+    anchorToID  = document.getElementById(anchorToID);
+    let left    = anchorToID.getBoundingClientRect().left;
+    let center  = anchorToID.getBoundingClientRect().width/2 + left;
+    let right   = anchorToID.getBoundingClientRect().right;
+    let top     = anchorToID.getBoundingClientRect().top +window.scrollY
+    let middle  = anchorToID.getBoundingClientRect().height/2 + top;
+    let bottom  = anchorToID.getBoundingClientRect().bottom +window.scrollY;
+    offsetX     = offsetX - elementID.offsetWidth/2;
+    offsetY     = offsetY - elementID.offsetHeight/2;
+
+    alignHori = (alignHori==="left")?left:(alignHori==="center")?center:(alignHori==="right")?right:"no align selected";
+    alignVert = (alignVert==="top")?top:(alignVert==="middle")?middle:(alignVert==="bottom")?bottom:"no align selected";
+
+    elementID.style.top  = (alignVert+offsetY)+ "px";
+    elementID.style.left = (alignHori+offsetX) + "px";
+
+  }
+}
+
+</code></pre></div>
   
   <p>With love,</p>
   <h2 class="wavy" wavy-amplitude="3" wavy-speed="4" wavy-type="square">April Jane</h2>
   <br>
-  
-  <!-- <script>
-    var iframe = document.getElementById("gForm");
-    iframe.onload = function() {
-      // var hide = iframe.contentWindow.document;
-      console.log(iframe.contentWindow.document.body.innerHTML);
-    };
-    // elmnt[0].style.display = "none"; 
-  </script> -->
 </div>
