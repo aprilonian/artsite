@@ -129,19 +129,19 @@ let stickers = [
     offsetX:    -180,
     offsetY:    -30
   },
-  // {
-  //   location:   "../images/stickers/",
-  //   file:       "turnipsleeping",
-  //   ext:        ".png",
-  //   transform:  "rotate(10deg)",
-  //   href:       "http://aprilonian.art",
-  //   id:         "sticker-turnipsleeping",
-  //   parentid:   "content",
-  //   alignH:     "center",
-  //   alignV:     "bottom",
-  //   offsetX:    -45,
-  //   offsetY:    -60
-  // },
+  {
+    location:   "../images/stickers/",
+    file:       "inclusiveprideflag",
+    ext:        ".jpg",
+    transform:  "rotate(2deg)",
+    href:       "https://twitter.com/ValentinoInter/status/1404048013773967360",
+    id:         "sticker-pride",
+    parentid:   "content",
+    alignH:     "right",
+    alignV:     "top",
+    offsetX:    -0,
+    offsetY:    -0
+  },
 ]
 
 //The date format to look for is 4 digits, hyphen, 2 digits, hyphen, 2 digits, hyphen. 
@@ -149,9 +149,10 @@ const postDateFormat = /\d{4}\-\d{2}\-\d{2}\-/;
 
 let navScrollTop = 122;
 let currentPage = pages[0][0]; // prefilled by server in this case, as "home" at pages[0][0]
-let currentPost = "";
+// let currentPage = "";
 let animatedTags = [];
 let animatedLetters = [];
+let hasEvents = false;
 
   //#endregion
 
@@ -160,6 +161,8 @@ let animatedLetters = [];
 //////////////////
   //#region 
 function reloadContent() {
+
+  console.log("reload");
 
   // Get the URL so we can use the variables that are store in there by the PUSHING PAGES section
   let url = window.location.href;
@@ -275,18 +278,21 @@ function reloadContent() {
   if(stickers !== undefined) {
     for(let i=0; i<stickers.length; i++) {
       let sticker = stickers[i];
-      let parent = document.getElementById(sticker.parentid);
-      let stickerHref = (!(sticker.href===""))?"<a href='"+sticker.href+"' target='_blank'></a>":"";
-      let stickerHTML =       
-        "<div id='"+sticker.id+"' class='sticker'>"+stickerHref+"</div>"
-        +"<style>#"+sticker.id+" {"
-        +"background-image: url('"+ sticker.location+sticker.file+sticker.ext +"');"
-        +"transform: "+sticker.transform+"; }</style>";
+      let parent = document.getElementById(sticker.parentid);     
       
       if(parent) {
         if(!(document.getElementById(stickers[i].id)))
         {
-          parent.innerHTML += stickerHTML;
+          let stickerHref = (!(sticker.href===""))?"<a href='"+sticker.href+"' target='_blank'></a>":"";
+          let stickerHTML =       
+            "<div id='"+sticker.id+"' class='sticker'>"+stickerHref+"</div>"
+            +"<style>#"+sticker.id+" {"
+            +"background-image: url('"+ sticker.location+sticker.file+sticker.ext +"');"
+            +"transform: "+sticker.transform+";}"
+            +"#"+sticker.id+" a {"
+            +"mask-image:url('"+ sticker.location+sticker.file+sticker.ext +"');"
+            +"}</style>";
+          document.getElementById("container").innerHTML += stickerHTML;
         }  
       }      
     }
@@ -397,6 +403,33 @@ function reloadContent() {
       goToPage(pages[1][0], capitalize(decodeURI(pages[1][1])), "content", "pages", "page"); 
     });
   }
+
+  ///////////////////////////////
+  // HEADER NAVIGATION BUTTONS //
+  ///////////////////////////////
+  for(var i=0; i<pages.length; i++) {   
+
+    let page = pages[i][0];
+    let title;
+    if(pages[i].length > 1){
+      title = capitalize(decodeURI(pages[i][1]));
+    }
+    else {
+      title = capitalize(page);
+    }
+    let div = "content";
+
+    let element = document.getElementById(page);
+    if(!(element.getAttribute('listener'))) {
+      console.log(page);
+      element.addEventListener("click", function() {       
+        console.log("go!")
+        goToPage(page, title, div, "pages", "page"); 
+      });
+      element.setAttribute('listener', 'true');
+    }
+  }
+
   resizeAll();
 }
   //#endregion
@@ -407,6 +440,7 @@ function reloadContent() {
   //#region 
 // The moment that this script is called, this function fires
 function preload() {  
+  console.log("preload");
     
   /////////////////
   // HEADER FILL //
@@ -439,27 +473,7 @@ function preload() {
   ///////////////////////////
   // LOAD & RELOAD CONTENT //
   ///////////////////////////
-  reloadContent();
-
-  ///////////////////////////////
-  // HEADER NAVIGATION BUTTONS //
-  ///////////////////////////////
-  for(var i=0; i<pages.length; i++) {   
-
-    let page = pages[i][0];
-    let title;
-    if(pages[i].length > 1){
-      title = capitalize(decodeURI(pages[i][1]));
-    }
-    else {
-      title = capitalize(page);
-    }
-    let div = "content";
-
-    document.getElementById(page).addEventListener("click", function() {       
-      goToPage(page, title, div, "pages", "page"); 
-    });
-  }
+  // reloadContent();
   
   /////////////////////////////////
   // PAGE PUSHING TO THE URL BAR //
@@ -487,7 +501,7 @@ function preload() {
     let title = formatPostTitle([post]);
     let element = "content";
     setupPage(post, title, element, "postings", "post");
-    window.history.pushState(currentPost, title, "?post="+currentPost);  
+    window.history.pushState(currentPage, title, "?post="+currentPage);  
   }
   else {
     let page = pages[0];
@@ -508,6 +522,7 @@ preload(); // Happens when the DOM is loaded
 
 // POST LOAD when everything is ready
 function postload() {
+  console.log("postload");  
   resizeAll();
   animate(0);
 }
@@ -527,9 +542,12 @@ function goToPage(page, title, element, location, locationTitle) {
 }
 function setupPage(page, title, element, location) {
   currentPage = page;
-  currentPost = page;
-  HTMLImporter.import("../"+location+"/"+page+".html", element, reloadContent);
+  currentPage = page;
+  HTMLImporter.import("../"+location+"/"+page+".html", element, reloadContent, HTML404Redirect);
   document.title = title;
+}
+function HTML404Redirect() {
+  setTimeout(function(){ window.location.href="/?page=home"; }, 2000);  
 }
 
 window.onpopstate = function(event) {
@@ -676,6 +694,11 @@ function resizeAll() {
     }
   }
 
+  if(document.getElementById("content"))
+  {
+    navScrollTop = document.getElementById("content").offsetTop;
+  }
+    
 }
   //#endregion
 

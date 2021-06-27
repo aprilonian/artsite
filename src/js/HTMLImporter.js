@@ -4,7 +4,7 @@
 // Use where ever and however you want
 function HTMLImporter() {}
 
-HTMLImporter.import = function(url, element, callback=function(){}) {
+HTMLImporter.import = function(url, element, callback=function(){}, redirect=function(){}) {
 
   var error, http_request, load, script;
 
@@ -67,11 +67,21 @@ HTMLImporter.import = function(url, element, callback=function(){}) {
 
   };
 
+
   http_request = new XMLHttpRequest();
   http_request.addEventListener("error", error);
   http_request.addEventListener("load", load);
   http_request.open("GET", url);
   http_request.send();
+
+
+  http_request.onreadystatechange = () => {
+    if (http_request.status === 404) {
+        // do something    
+        redirect();
+    }
+  };
+  
 };
 
 export {HTMLImporter};

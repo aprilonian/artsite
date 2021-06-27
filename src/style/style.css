@@ -178,6 +178,8 @@ h1, h2, h3, h4, h5, label {
   background-image: url("../images/gifs/grass.png");
   background-size: contain;
   background-repeat: repeat-x;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: pixelated;
   image-rendering: crisp-edges;
   padding: 0 5%;
   border-color: #fcfcfc;
@@ -205,6 +207,9 @@ h1, h2, h3, h4, h5, label {
   color: white;
   text-decoration: none;
   background-color: inherit;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
 }
 #header li a:hover {
   border-bottom: dotted;
@@ -316,4 +321,7 @@ h1, h2, h3, h4, h5, label {
   height: 100%;
   display: block;
   opacity: .5;
+  mask-size: contain;
+  mask-position: center;
+  mask-repeat: no-repeat;
 }

@@ -1,14 +1,12 @@
-let url = window.location.href
-
-if(url.includes("postings/")) {
+if(window.location.href.includes("postings/")) {
     console.log("OLD POST REDIRCTING!")
-    let post = url.split("postings")[1].split("/")[1].split(".")[0];
+    let post = window.location.href.split("postings")[1].split("/")[1].split(".")[0];
     window.location.href="/?post="+post;
-} else if(url.includes("pages/")) {
+} else if(window.location.href.includes("pages/")) {
     console.log("OLD PAGE REDIRCTING!")
-    let page = url.split("pages")[1].split("/")[1].split(".")[0];
+    let page = window.location.href.split("pages")[1].split("/")[1].split(".")[0];
     window.location.href="/?page="+page;
-} else if(url.includes(".html")) {
+} else if(window.location.href.includes(".html")) {
     console.log("WRONG PAGE REDIRCTING!")
     window.location.href="/?page=home";
 }

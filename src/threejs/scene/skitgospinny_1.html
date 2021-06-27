@@ -1,0 +1,863 @@
+<html lang="en">
+	<head>
+		<title>Ammo.js Skirt Go Spinny</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="../style/skirt.css">
+		<style>
+			body {
+				color: #333;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="info">
+			Ammo.js physics anchoring of soft body volume demo<br/>
+			Spin the skirt with your mouse!
+			<br>
+			<div id="stats">
+				<div>
+					<h3>Spins:</h3>
+					<h1 id="stat-spins">0</h1>
+				</div>
+				<div>
+					<h3>Twirl Speed:</h3>
+					<h1 id="stat-speed">0</h1>
+				</div>
+			</div>
+		</div>
+
+		
+		<div id="container"></div>
+
+		<script src="../examples/js/libs/ammo.wasm.js"></script>
+
+		<script type="module">
+
+			import * as THREE from '../build/three.module.js';
+
+			import Stats from '../examples/jsm/libs/stats.module.js';
+
+			import { OrbitControls } from '../examples/jsm/controls/OrbitControls.js';
+			import { BufferGeometryUtils } from '../examples/jsm/utils/BufferGeometryUtils.js';
+            
+			import { GLTFLoader } from '../examples/jsm/loaders/GLTFLoader.js';
+			import { DRACOLoader } from '../examples/jsm/loaders/DRACOLoader.js';
+
+			import { MStylizedFabric } from '../materials/MStylizedFabric.js';
+
+			// SCENE VARIABLES
+			let container, stats, params, camera, controls, scene, renderer, mixer, meshScene, rotator;
+			const clock = new THREE.Clock();
+
+			// STAT COUNTERS
+			let spins = 0;
+			let statSpins = 0;
+			let statSpeed = 0;
+			
+			// MOUSE VARIABLES
+			let clickRequest = false;
+            let mouseDown = false;
+			let mouseX, mouseY;
+			let mTimestamp = null;
+			let lastMouseX = null;
+			let lastMouseY = null;
+			let mSpeedX = 0;
+			let mSpeedY = 0;
+
+			// ROTATOR VARIABLES
+			let r_current_rotY = 0;
+			let r_momentum_rotY = 0;
+			let r_momentum_rotY_dir = 0;
+			let r_momentum_rotY_max = 51;
+			let r_tmp_m_rotY;
+			
+			let r_tmpTransform, r_ammoTmpPos, r_ammoTmpQuat;
+			let r_tmpPos = new THREE.Vector3()
+			let r_tmpQuat = new THREE.Quaternion();
+			
+
+			// BALL VARIABLES for testing
+            let testing = false;
+			const mouseCoords = new THREE.Vector2();
+			const raycaster = new THREE.Raycaster();
+			const ballMaterial = new THREE.MeshPhongMaterial( { color: 0x202020 } );
+			const pos = new THREE.Vector3();
+			const quat = new THREE.Quaternion();
+
+			// PHYSICS VARIABLES
+			const gravityConstant = -9.8;
+			let physicsWorld, transformAux1, softBodyHelpers;
+			const rigidBodies = [];
+			const softBodies = [];
+			const margin = 0.05;
+			const FLAGS = { CF_KINEMATIC_OBJECT: 2 };
+			const STATE = { DISABLE_DEACTIVATION : 4 }
+
+			Ammo().then( function ( AmmoLib ) {
+
+				Ammo = AmmoLib;
+
+				init();
+				// animate();
+
+			} );
+
+            ////////////////////
+            // Initialization //
+            ////////////////////
+                //#region 
+			function init() {
+
+                params = {
+					pixelSize: 8,
+					color: "#00187b",
+					geoOpacity: 1.0,
+					thickness: 0.016,
+					threshold: 90.0,
+					animate: true,
+					postprocessing: true, 
+				};
+
+				r_tmpTransform = new Ammo.btTransform();
+                r_ammoTmpPos = new Ammo.btVector3();
+                r_ammoTmpQuat = new Ammo.btQuaternion();
+
+				initScene();
+
+				initPhysics();
+
+				initCreateObjects();
+
+				initInput();
+
+                initStats();
+
+			}
+
+			function initScene() {
+
+                // CAMERA
+				camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 0.2, 2000 );
+				camera.position.set( 0, 2, 10 );
+                camera.rotation.set(-0.2, 0, 0);
+
+                // RENDERER
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.shadowMap.enabled = true;
+				container = document.getElementById( 'container' );
+				container.appendChild( renderer.domElement );
+
+                // CONTROLS
+				// controls = new OrbitControls( camera, renderer.domElement );
+				// controls.target.set( 0, 0, 0 );
+				// controls.update();
+				// controls.enablePan = false;
+				// controls.enableDamping = false;
+				// controls.rotateSpeed = 0;
+				// // controls.panSpeed = 1.5;
+				// controls.zoomSpeed = 0;
+
+				// DEFINE GROUPS
+				// grpLines = new THREE.Group();
+
+                // SCENE
+				scene = new THREE.Scene();
+                scene.background = new THREE.Color(0xd3678d);
+
+				// DEFINE LIGHTS
+				const hemisphereLight = new THREE.HemisphereLight( 0xfceafc, 0x000000, .8 );
+				scene.add( hemisphereLight );
+
+				const dirLight = new THREE.DirectionalLight( 0xffffff, .5 );
+				dirLight.position.set( 150, 75, 150 );
+				scene.add( dirLight );
+
+				const dirLight2 = new THREE.DirectionalLight( 0xffffff, .2 );
+				dirLight2.position.set( - 150, 75, - 150 );
+				scene.add( dirLight2 );
+
+				const dirLight3 = new THREE.DirectionalLight( 0xffffff, .1 );
+				dirLight3.position.set( 125, 125, 0 );
+				scene.add( dirLight3 );
+			}
+
+			function initPhysics() {
+
+				// Physics configuration
+
+				const collisionConfiguration = new Ammo.btSoftBodyRigidBodyCollisionConfiguration();
+				const dispatcher = new Ammo.btCollisionDispatcher( collisionConfiguration );
+				const broadphase = new Ammo.btDbvtBroadphase();
+				const solver = new Ammo.btSequentialImpulseConstraintSolver();
+				const softBodySolver = new Ammo.btDefaultSoftBodySolver();
+				physicsWorld = new Ammo.btSoftRigidDynamicsWorld( dispatcher, broadphase, solver, collisionConfiguration, softBodySolver );
+				physicsWorld.setGravity( new Ammo.btVector3( 0, gravityConstant, 0 ) );
+				physicsWorld.getWorldInfo().set_m_gravity( new Ammo.btVector3( 0, gravityConstant, 0 ) );
+
+				transformAux1 = new Ammo.btTransform();
+				softBodyHelpers = new Ammo.btSoftBodyHelpers();
+
+			}
+
+			function initCreateObjects() {
+
+                // DEFINE TEXTURES
+				let fabricPattern = new THREE.TextureLoader().load( "../models/textures/transPattern.jpg");
+				fabricPattern.wrapS = THREE.RepeatWrapping;
+				fabricPattern.wrapT = THREE.RepeatWrapping;
+				fabricPattern.repeat.set( 1,1);
+				// fabricPattern.offset = new THREE.Vector2( 0.2, 0.5 );
+
+                const gradientMap = createGradientMap(4,4);
+
+                // DEFINE MATERIALS
+                const M_skirt_fabric = new THREE.MeshToonMaterial( {
+					// color: new THREE.Color(0xd3678d),
+					color: new THREE.Color(0xaaaaaa),
+					map: fabricPattern,
+					gradientMap: gradientMap,
+					transparent: true,
+					opacity: 1,
+					// vertexColors: true, // helpful to visualize your vertex colors
+				} );
+
+				const M_fresnel = new THREE.ShaderMaterial( {
+
+					uniforms: MStylizedFabric.uniforms,
+					vertexShader: MStylizedFabric.vertexShader,
+					fragmentShader: MStylizedFabric.fragmentShader
+
+				} );
+				M_fresnel.uniforms[ "baseColor" ].value = fabricPattern;
+
+                const M_invisible = new THREE.MeshToonMaterial( {
+					color: new THREE.Color(0xffffff),
+					gradientMap: gradientMap,
+					transparent: true,
+					opacity: 0,
+				} );
+                
+
+				// DEFINE GEOMETRIES
+				const dracoLoader = new DRACOLoader();
+				dracoLoader.setDecoderPath( '../examples/js/libs/draco/gltf/' );
+
+				// Ground
+				pos.set( 0, - 2.5, 0 );
+				quat.set( 0, 0, 0, 1 );
+				const ground = createRigidBodyBoxShape( 40, 1, 40, 0, pos, quat, M_invisible);
+				ground.castShadow = true;
+				ground.receiveShadow = true;
+
+				// Create soft volumes
+				const volumeMass = 15;
+                
+				// Rotator
+				pos.set( 0, 2.8, 0 );
+				quat.setFromAxisAngle( new THREE.Vector3( 0, 0, 0 ), 0 );
+				rotator = createRigidBodyBoxShape( 4, 1, 4, 1, pos, quat, M_invisible, true);
+				rotator.castShadow = false;
+				rotator.receiveShadow = false;
+				console.log(rotator.userData.physicsBody);
+
+                // ADD LOADER AND GEO
+				const loader = new GLTFLoader();
+				loader.setDRACOLoader( dracoLoader );
+				loader.load( '../models/skirtgospinny.gltf', function ( gltf ) {
+
+					// IMPORT THE SCENE
+					const meshScene = gltf.scene;
+					meshScene.position.set( - 5, 25, 0 );
+					
+					// ADD THE SCENE
+					// scene.add( meshScene );
+
+					// ADD SOFTBODIES
+					meshScene.traverse( c => {
+						if ( c.isMesh ) {
+							let mesh = c;
+                            let count = 0;
+                            
+				            mesh.translate( - 2, 5, 0 );
+				            let skirt = createSoftVolume( mesh.geometry, volumeMass, 1);
+                            skirt.material = M_fresnel;
+                            // console.log(skirt);
+
+							// By vertex colors 
+                            let vertColors = skirt.geometry.attributes.color.array
+                            let anchors = [];
+                            for(let i=0; i<(vertColors.length/4); i++) {                                
+                                if(vertColors[i*4] <= 0.1){
+                                    count++;
+                                    anchors.push((i));
+                                }
+                            }
+                            
+                            // Glue the cloth to the arm
+                            const influence = 0.5;
+                            count = 0;
+                            
+                            let ammoVertAssociation = skirt.geometry.ammoIndexInOrder;
+                            for(let i=0; i < ammoVertAssociation.length; i++) {
+                                for(let j=0; j < anchors.length; j++) {                                
+                                    if(ammoVertAssociation[i] == anchors[j]) {
+                                        count++;
+                                        skirt.userData.physicsBody.appendAnchor( i, rotator.userData.physicsBody, false, influence );
+                                    }
+                                }
+                            }
+                            console.log("You painted "+count+" anchors with a value less than 0.1");                           
+						}
+					});
+					
+					// Add an animation mixer to take care of mesh animations
+					mixer = new THREE.AnimationMixer( meshScene );
+
+					let i;
+					for(i=0; i<gltf.animations.length; i++){
+						const clip = gltf.animations[i];
+
+						if ( clip ) {
+
+							const action = mixer.clipAction( clip );
+							action.play();
+							
+						}
+					}
+
+					animate();					
+
+				}, function() {
+					console.log("LOADED SKIRT!");
+				}, function ( e ) {
+
+					console.error( e );
+
+				} );
+
+
+
+			}
+
+            function initInput() {
+
+                if(testing) {
+                    window.addEventListener( 'pointerdown', function ( event ) {
+
+                        if ( ! clickRequest ) {
+
+                            mouseCoords.set(
+                                ( event.clientX / window.innerWidth ) * 2 - 1,
+                                - ( event.clientY / window.innerHeight ) * 2 + 1
+                            );
+
+                            clickRequest = true;
+
+                        }
+
+                    } );
+                }
+				
+				function handleInputDown(e) {
+					// console.log("testing")
+                    mouseDown = true;
+					r_tmp_m_rotY = r_momentum_rotY;
+					r_momentum_rotY = 0;
+				}
+				function handleInputMove(e) {
+
+					if(mouseDown) {
+						let maxX = 100;
+						let maxY = maxX;
+						
+						if (mTimestamp === null) {
+							mTimestamp = Date.now();
+							lastMouseX = e.screenX;
+							lastMouseY = e.screenY;
+							return;
+						}
+
+						let now = Date.now();
+						let dt =  now - mTimestamp;
+						let dx = e.screenX - lastMouseX;
+						let dy = e.screenY - lastMouseY;
+						mSpeedX = Math.round( dx / dt * 100 );
+						mSpeedY = Math.round( dy / dt * 100 );
+						
+						if(Math.abs(mSpeedX) >= maxX || Math.abs(mSpeedX) === Infinity) {
+							mSpeedX = Math.sign(mSpeedX)*maxX;
+						}
+						if(Math.abs(mSpeedY) >= maxY || Math.abs(mSpeedY) === Infinity) {
+							mSpeedY = Math.sign(mSpeedY)*maxY;
+						}
+						if(isNaN(mSpeedX)) {
+							mSpeedX = 0;
+						}
+						if(isNaN(mSpeedY)) {
+							mSpeedY = 0;
+						}
+
+						mTimestamp = now;
+						lastMouseX = e.screenX;
+						lastMouseY = e.screenY;
+
+						let angularMomentumY = rotator.userData.physicsBody.getAngularVelocity().y();
+						r_momentum_rotY = (Math.abs(angularMomentumY)+(r_tmp_m_rotY));
+						r_momentum_rotY_dir = Math.sign(angularMomentumY);
+					}
+
+                    mouseX = ( event.clientX / window.innerWidth ) * 2 - 1;
+                    mouseY =  - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+					// console.log("Screen X: "+e.screenX+"\nClient X: "+e.clientX);
+				}
+				function handleInputUp(e) {
+					mouseDown = false;
+					mSpeedX = 0;
+					mSpeedY = 0;
+				}
+
+				window.addEventListener( 'mousedown', handleInputDown);
+                window.addEventListener( 'mousemove', handleInputMove);
+				window.addEventListener( 'mouseup', handleInputUp);
+				container.addEventListener( 'touchstart', function ( e ) { e.preventDefault(); handleInputDown(e);},false );
+                container.addEventListener( 'touchmove', function ( e ) { e.preventDefault(); handleInputMove(e);},false );
+				container.addEventListener( 'touchend', function ( e ) { e.preventDefault(); handleInputUp(e);},false );
+				
+
+				window.addEventListener( 'resize', onWindowResize );
+
+			}
+
+            function initStats() {
+				stats = new Stats();
+				stats.domElement.style.position = 'absolute';
+				stats.domElement.style.top = '0px';
+				container.appendChild( stats.domElement );
+
+				statSpins = document.getElementById('stat-spins');
+				statSpeed = document.getElementById('stat-speed');
+            }
+                //#endregion
+            ////////////////////////////
+            // Utility Ammo Functions //
+            ////////////////////////////
+                //#region 
+			function processGeometry( bufGeometry ) {
+
+				// Ony consider the position values when merging the vertices
+				const posOnlyBufGeometry = new THREE.BufferGeometry();
+				posOnlyBufGeometry.setAttribute( 'position', bufGeometry.getAttribute( 'position' ) );
+				posOnlyBufGeometry.setIndex( bufGeometry.getIndex() );
+
+				// Merge the vertices so the triangle soup is converted to indexed triangles
+				const indexedBufferGeom = BufferGeometryUtils.mergeVertices( posOnlyBufGeometry );
+
+				// Create index arrays mapping the indexed vertices to bufGeometry vertices
+				mapIndices( bufGeometry, indexedBufferGeom );
+
+			}
+            
+            function mapIndices( bufGeometry, indexedBufferGeom ) {
+
+				// Creates ammoVertices, ammoIndices and ammoIndexAssociation in bufGeometry
+
+				const vertices = bufGeometry.attributes.position.array;
+				const idxVertices = indexedBufferGeom.attributes.position.array;
+				const indices = indexedBufferGeom.index.array;
+
+				const numIdxVertices = idxVertices.length / 3;
+				const numVertices = vertices.length / 3;
+
+				bufGeometry.ammoVertices = idxVertices;
+				bufGeometry.ammoIndices = indices;
+				bufGeometry.ammoIndexAssociation = [];
+                bufGeometry.ammoIndexInOrder = [];
+
+				for ( let i = 0; i < numIdxVertices; i ++ ) {
+
+					const association = [];
+					bufGeometry.ammoIndexAssociation.push( association );
+
+					const i3 = i * 3;
+
+					for ( let j = 0; j < numVertices; j ++ ) {
+
+						const j3 = j * 3;
+						if ( isEqual( idxVertices[ i3 ], idxVertices[ i3 + 1 ], idxVertices[ i3 + 2 ],
+							vertices[ j3 ], vertices[ j3 + 1 ], vertices[ j3 + 2 ] ) ) {
+
+							association.push( j3 );
+                            bufGeometry.ammoIndexInOrder.push(j);
+						}
+
+					}
+
+				}
+
+				for( let i = 0; i < bufGeometry.ammoIndexInOrder.length; i++) {
+					if(bufGeometry.ammoIndexInOrder[i] >= numIdxVertices) {
+						// console.log(bufGeometry.ammoIndexInOrder[i] +" compare to "+ numIdxVertices);
+						bufGeometry.ammoIndexInOrder.splice(i,1);
+						i--;
+					}
+				}
+
+			}
+            
+            function isEqual( x1, y1, z1, x2, y2, z2 ) {
+
+				const delta = 0.000001;
+				return Math.abs( x2 - x1 ) < delta &&
+						Math.abs( y2 - y1 ) < delta &&
+						Math.abs( z2 - z1 ) < delta;
+
+			}
+
+			function createSoftVolume( bufferGeom, mass, pressure ) {
+
+				processGeometry( bufferGeom );
+
+				const volume = new THREE.Mesh( bufferGeom, new THREE.MeshPhongMaterial( { color: 0xFFFFFF } ) );
+				volume.castShadow = true;
+				volume.receiveShadow = true;
+				volume.frustumCulled = false;
+				scene.add( volume );
+
+				// Volume physic object
+
+				const volumeSoftBody = softBodyHelpers.CreateFromTriMesh(
+					physicsWorld.getWorldInfo(),
+					bufferGeom.ammoVertices,
+					bufferGeom.ammoIndices,
+					bufferGeom.ammoIndices.length / 3,
+					true );
+
+				const sbConfig = volumeSoftBody.get_m_cfg();
+				sbConfig.set_viterations( 40 );
+				sbConfig.set_piterations( 40 );
+
+				// Soft-soft and soft-rigid collisions
+				sbConfig.set_collisions( 0x11 );
+
+				// Friction
+				sbConfig.set_kDF( 0.1 );
+				// Damping
+				sbConfig.set_kDP( 0.01 );
+				// Pressure
+				sbConfig.set_kPR( pressure );
+				// Stiffness
+				volumeSoftBody.get_m_materials().at( 0 ).set_m_kLST( 0.9 );
+				volumeSoftBody.get_m_materials().at( 0 ).set_m_kAST( 0.9 );
+
+				volumeSoftBody.setTotalMass( mass, false );
+				Ammo.castObject( volumeSoftBody, Ammo.btCollisionObject ).getCollisionShape().setMargin( margin );
+				physicsWorld.addSoftBody( volumeSoftBody, 1, - 1 );
+				volume.userData.physicsBody = volumeSoftBody;
+				// Disable deactivation
+				volumeSoftBody.setActivationState( 4 );
+
+				softBodies.push( volume );
+
+                return volume;
+			}
+			
+			function createRigidBody( threeObject, physicsShape, mass, pos, quat, isKinematic=false ) {
+
+				threeObject.position.copy( pos );
+				threeObject.quaternion.copy( quat );
+
+				const transform = new Ammo.btTransform();
+				transform.setIdentity();
+				transform.setOrigin( new Ammo.btVector3( pos.x, pos.y, pos.z ) );
+				transform.setRotation( new Ammo.btQuaternion( quat.x, quat.y, quat.z, quat.w ) );
+				const motionState = new Ammo.btDefaultMotionState( transform );
+
+				const localInertia = new Ammo.btVector3( 0, 0, 0 );
+				physicsShape.calculateLocalInertia( mass, localInertia );
+
+				const rbInfo = new Ammo.btRigidBodyConstructionInfo( mass, motionState, physicsShape, localInertia );
+				const body = new Ammo.btRigidBody( rbInfo );
+
+				threeObject.userData.physicsBody = body;
+
+				scene.add( threeObject );
+
+				if ( mass > 0 ) {
+
+					rigidBodies.push( threeObject );
+
+					// Disable deactivation
+					body.setActivationState( 4 );
+
+				}
+				
+				if(isKinematic){
+					body.setActivationState( STATE.DISABLE_DEACTIVATION );
+					body.setCollisionFlags( FLAGS.CF_KINEMATIC_OBJECT );				
+				}
+
+				physicsWorld.addRigidBody( body );
+
+				return body;
+
+			}
+                //#endregion
+            
+            ///////////////////////////////////
+            // Scene Specific Ammo Functions //
+            ///////////////////////////////////
+                //#region 
+            function createRigidBodyBoxShape( sx, sy, sz, mass, pos, quat, material, isKinematic=false) {
+
+				const threeObject = new THREE.Mesh( new THREE.BoxGeometry( sx, sy, sz, 1, 1, 1 ), material );
+				const shape = new Ammo.btBoxShape( new Ammo.btVector3( sx * 0.5, sy * 0.5, sz * 0.5 ) );
+				shape.setMargin( margin );
+
+				createRigidBody( threeObject, shape, mass, pos, quat, isKinematic );
+
+				return threeObject;
+
+			}
+                //#endregion
+
+            /////////////////////////////
+            // Utility Three Functions //
+            /////////////////////////////
+                //#region 
+            function createGradientMap(grad_width = 4, grad_height = 4, grad_color = new THREE.Color( 0xffffff )) {
+
+				const grad_size = grad_width * grad_height;
+				const grad_data = new Uint8Array(grad_size);
+
+				const grad_r = Math.floor( grad_color.r * 255 );
+				const grad_g = Math.floor( grad_color.g * 255 );
+				const grad_b = Math.floor( grad_color.b * 255 );
+
+				for ( let i = 0; i < grad_size; i ++ ) {
+
+					const grad_stride = i * 3;
+
+					grad_data[ grad_stride ] = grad_r;
+					grad_data[ grad_stride + 1 ] = grad_g;
+					grad_data[ grad_stride + 2 ] = grad_b;
+
+				}
+
+				let gradientMap = new THREE.DataTexture(grad_data, grad_width, grad_height, THREE.LuminanceFormat );
+				gradientMap.minFilter = THREE.NearestFilter;
+				gradientMap.magFilter = THREE.NearestFilter;
+				gradientMap.generateMipmaps = false;
+                
+                return gradientMap;
+            }
+                //#endregion
+
+            /////////////////
+            // Interaction //
+            /////////////////
+                //#region 
+            function testingBall() {
+
+				if ( clickRequest ) {
+
+					raycaster.setFromCamera( mouseCoords, camera );
+
+					// Creates a ball
+					const ballMass = 3;
+					const ballRadius = 0.4;
+
+					const ball = new THREE.Mesh( new THREE.SphereGeometry( ballRadius, 18, 16 ), ballMaterial );
+					ball.castShadow = true;
+					ball.receiveShadow = true;
+					const ballShape = new Ammo.btSphereShape( ballRadius );
+					ballShape.setMargin( margin );
+					pos.copy( raycaster.ray.direction );
+					pos.add( raycaster.ray.origin );
+					quat.set( 0, 0, 0, 1 );
+					const ballBody = createRigidBody( ball, ballShape, ballMass, pos, quat );
+					ballBody.setFriction( 0.5 );
+
+					pos.copy( raycaster.ray.direction );
+					pos.multiplyScalar( 14 );
+					ballBody.setLinearVelocity( new Ammo.btVector3( pos.x, pos.y, pos.z ) );
+
+					clickRequest = false;
+				}
+
+			}
+                
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+                //#endregion
+            
+            //////////////////
+            // UPDATE LOOPS //
+            //////////////////
+                //#region 
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				render();
+				stats.update();
+
+			}
+
+			function render() {
+
+				const deltaTime = clock.getDelta();
+				updatePhysics( deltaTime );
+				updateRotatorPhysics( deltaTime );
+
+                if(true){
+					mixer.update( deltaTime );
+                }
+
+                if(testing){
+                    testingBall();                    
+                }
+
+				renderer.render( scene, camera );
+
+			}
+
+			function updatePhysics( deltaTime ) {
+
+				// Step world
+				physicsWorld.stepSimulation( deltaTime, 10 );
+
+				// Update soft volumes
+				for ( let i = 0, il = softBodies.length; i < il; i ++ ) {
+
+					const volume = softBodies[ i ];
+					const geometry = volume.geometry;
+					const softBody = volume.userData.physicsBody;
+					const volumePositions = geometry.attributes.position.array;
+					const volumeNormals = geometry.attributes.normal.array;
+					const association = geometry.ammoIndexAssociation;
+					const numVerts = association.length;
+					const nodes = softBody.get_m_nodes();
+					for ( let j = 0; j < numVerts; j ++ ) {
+
+						const node = nodes.at( j );
+						const nodePos = node.get_m_x();
+						const x = nodePos.x();
+						const y = nodePos.y();
+						const z = nodePos.z();
+						const nodeNormal = node.get_m_n();
+						const nx = nodeNormal.x();
+						const ny = nodeNormal.y();
+						const nz = nodeNormal.z();
+
+						const assocVertex = association[ j ];
+
+						for ( let k = 0, kl = assocVertex.length; k < kl; k ++ ) {
+
+							let indexVertex = assocVertex[ k ];
+							volumePositions[ indexVertex ] = x;
+							volumeNormals[ indexVertex ] = nx;
+							indexVertex ++;
+							volumePositions[ indexVertex ] = y;
+							volumeNormals[ indexVertex ] = ny;
+							indexVertex ++;
+							volumePositions[ indexVertex ] = z;
+							volumeNormals[ indexVertex ] = nz;
+
+						}
+
+					}
+
+					geometry.attributes.position.needsUpdate = true;
+					geometry.attributes.normal.needsUpdate = true;
+
+				}
+
+				// Update rigid bodies
+				for ( let i = 0, il = rigidBodies.length; i < il; i ++ ) {
+
+					const objThree = rigidBodies[ i ];
+					const objPhys = objThree.userData.physicsBody;
+					const ms = objPhys.getMotionState();
+					if ( ms ) {
+
+						ms.getWorldTransform( transformAux1 );
+						const p = transformAux1.getOrigin();
+						const q = transformAux1.getRotation();
+						objThree.position.set( p.x(), p.y(), p.z() );
+						objThree.quaternion.set( q.x(), q.y(), q.z(), q.w() );
+
+					}
+
+				}
+
+			}
+            
+            function updateRotatorPhysics(deltaTime){
+
+				// console.log(r_momentum_rotY)
+				if(mouseDown || r_momentum_rotY >=0)
+				{
+					let scalingFactor = 0.0005;
+
+					spins += ((Math.abs(mSpeedX)*scalingFactor)+(r_momentum_rotY)*(0.01))/(2*Math.PI);
+					r_current_rotY += (mSpeedX*scalingFactor)+(r_momentum_rotY*r_momentum_rotY_dir)*(0.01);
+
+					if(rotator && !isNaN(r_current_rotY)) {
+
+						r_tmpPos.set(rotator.position.x,rotator.position.y,rotator.position.z);
+						let tmpEuler = new THREE.Euler( 0, r_current_rotY, 0, 'XYZ' );
+
+						r_tmpQuat.setFromEuler(tmpEuler);
+
+						let physicsBody = rotator.userData.physicsBody;					
+						let ms = physicsBody.getMotionState();
+						if(ms) {
+
+								r_ammoTmpPos.setValue(r_tmpPos.x, r_tmpPos.y, r_tmpPos.z);
+								r_ammoTmpQuat.setValue( r_tmpQuat.x, r_tmpQuat.y, r_tmpQuat.z, r_tmpQuat.w);
+
+								r_tmpTransform.setIdentity();
+								r_tmpTransform.setOrigin( r_ammoTmpPos ); 
+								r_tmpTransform.setRotation( r_ammoTmpQuat ); 
+
+								ms.setWorldTransform(r_tmpTransform);							
+						}
+
+					}
+					
+					mSpeedX = 0;
+					mSpeedY = 0;
+					
+				}
+				
+				if(r_momentum_rotY > r_momentum_rotY_max) {
+					r_momentum_rotY = r_momentum_rotY_max;
+				}
+				if(r_momentum_rotY >=0) {
+					r_momentum_rotY-=Math.sqrt(deltaTime)
+				}
+
+				if(Math.abs(r_momentum_rotY) <= 0.2 && mouseDown) {
+					r_tmp_m_rotY = 0;
+				}
+			
+				statSpeed.innerHTML = Math.abs(Math.round(r_momentum_rotY*10)/10);
+
+				statSpins.innerHTML = Math.trunc(spins);
+			}
+                //#endregion
+            
+		</script>
+
+	</body>
+</html>
