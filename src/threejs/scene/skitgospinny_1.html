@@ -261,7 +261,6 @@
 				rotator = createRigidBodyBoxShape( 4, 1, 4, 1, pos, quat, M_invisible, true);
 				rotator.castShadow = false;
 				rotator.receiveShadow = false;
-				console.log(rotator.userData.physicsBody);
 
                 // ADD LOADER AND GEO
 				const loader = new GLTFLoader();
@@ -282,8 +281,9 @@
                             let count = 0;
                             
 				            mesh.translate( - 2, 5, 0 );
-				            let skirt = createSoftVolume( mesh.geometry, volumeMass, 1);
+				            let skirt = createSoftVolume( mesh.geometry, volumeMass, 3);
                             skirt.material = M_fresnel;
+							skirt.doubleSided = false;
                             // console.log(skirt);
 
 							// By vertex colors 
@@ -342,6 +342,9 @@
 
 			}
 
+
+			let lastClientX = 0;
+			let distanceX = 0;
             function initInput() {
 
                 if(testing) {
@@ -366,6 +369,8 @@
                     mouseDown = true;
 					r_tmp_m_rotY = r_momentum_rotY;
 					r_momentum_rotY = 0;
+
+					lastClientX = e.clientX;
 				}
 				function handleInputMove(e) {
 
@@ -386,6 +391,13 @@
 						let dy = e.screenY - lastMouseY;
 						mSpeedX = Math.round( dx / dt * 100 );
 						mSpeedY = Math.round( dy / dt * 100 );
+
+						distanceX = (Math.abs((e.clientX - lastClientX)/dt) + 1)/100;
+						// console.log(distanceX);
+						
+						let tmpCenterX = Math.abs((1-(Math.abs(distanceX*100))));
+						tmpCenterX = tmpCenterX<=1?1:tmpCenterX;
+						mSpeedX = mSpeedX * tmpCenterX;
 						
 						if(Math.abs(mSpeedX) >= maxX || Math.abs(mSpeedX) === Infinity) {
 							mSpeedX = Math.sign(mSpeedX)*maxX;
@@ -400,6 +412,7 @@
 							mSpeedY = 0;
 						}
 
+						// console.log(mSpeedX);
 						mTimestamp = now;
 						lastMouseX = e.screenX;
 						lastMouseY = e.screenY;
@@ -409,6 +422,8 @@
 						r_momentum_rotY_dir = Math.sign(angularMomentumY);
 					}
 
+                    // mouseX = ( event.clientX / window.innerWidth ) * 2 - 1;
+                    // mouseY =  - ( event.clientY / window.innerHeight ) * 2 + 1;
                     mouseX = ( event.clientX / window.innerWidth ) * 2 - 1;
                     mouseY =  - ( event.clientY / window.innerHeight ) * 2 + 1;
 
