@@ -13,7 +13,7 @@
 	<body>
 		<div id="info">
 			Ammo.js physics anchoring of soft body volume demo<br/>
-			Spin the skirt with your mouse!
+			Spin the skirt with your touch input or mouse!
 			<br>
 			<div id="stats">
 				<div>
@@ -150,6 +150,8 @@
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				renderer.shadowMap.enabled = true;
 				container = document.getElementById( 'container' );
+				container.oncontextmenu = contextSelect;  
+				function contextSelect(e){e.preventDefault();}
 				container.appendChild( renderer.domElement );
 
                 // CONTROLS
@@ -369,7 +371,12 @@
 					// console.log("down");
                     interactDown = true;
 					r_tmp_m_rotY = r_momentum_rotY;
-					r_momentum_rotY = 0;
+					setTimeout(function() {
+						if(interactDown){
+							r_momentum_rotY = 0;
+						} 
+					}, 200); 
+					
 
 					if(e.touches) {
 						lastClientX = e.touches[0].clientX;
@@ -440,7 +447,7 @@
 							mSpeedY = 0;
 						}
 
-						console.log(mSpeedX);
+						// console.log(mSpeedX);
 						mTimestamp = now;
 						if(e.touches) {
 							lastMouseX = e.touches[0].screenX;
