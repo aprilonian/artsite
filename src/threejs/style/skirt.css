@@ -44,7 +44,9 @@ button {
     justify-content: center;
 }
 #stats div {
-    margin: 2vw;
+    margin-left: 4vw;
+    margin-right: 4vw;
+    min-width: 120px;
 }
 
 a, button, input, select {
@@ -91,4 +93,8 @@ a, button, input, select {
 	background-color: #f00;
 	margin-top: 20px;
 	padding: 10px;
+}
+
+#tps {
+    font-size: 12px;
 }

@@ -57,13 +57,15 @@
 			
 			// MOUSE VARIABLES
 			let clickRequest = false;
-            let mouseDown = false;
+            let interactDown = false;
 			let mouseX, mouseY;
 			let mTimestamp = null;
 			let lastMouseX = null;
 			let lastMouseY = null;
 			let mSpeedX = 0;
 			let mSpeedY = 0;
+			let lastClientX = 0;
+			let distanceX = 0;
 
 			// ROTATOR VARIABLES
 			let r_current_rotY = 0;
@@ -221,17 +223,19 @@
 					gradientMap: gradientMap,
 					transparent: true,
 					opacity: 1,
-					// vertexColors: true, // helpful to visualize your vertex colors
+					side: THREE.DoubleSide,
+					vertexColors: true, // helpful to visualize your vertex colors
 				} );
 
-				const M_fresnel = new THREE.ShaderMaterial( {
+				const M_skirt_fresnel = new THREE.ShaderMaterial( {
 
 					uniforms: MStylizedFabric.uniforms,
 					vertexShader: MStylizedFabric.vertexShader,
-					fragmentShader: MStylizedFabric.fragmentShader
+					fragmentShader: MStylizedFabric.fragmentShader,
+					// side: THREE.DoubleSide,
 
 				} );
-				M_fresnel.uniforms[ "baseColor" ].value = fabricPattern;
+				M_skirt_fresnel.uniforms[ "baseColor" ].value = fabricPattern;
 
                 const M_invisible = new THREE.MeshToonMaterial( {
 					color: new THREE.Color(0xffffff),
@@ -265,7 +269,7 @@
                 // ADD LOADER AND GEO
 				const loader = new GLTFLoader();
 				loader.setDRACOLoader( dracoLoader );
-				loader.load( '../models/skirtgospinny.gltf', function ( gltf ) {
+				loader.load( '../models/skirtgospinnyLP.gltf', function ( gltf ) {
 
 					// IMPORT THE SCENE
 					const meshScene = gltf.scene;
@@ -281,16 +285,16 @@
                             let count = 0;
                             
 				            mesh.translate( - 2, 5, 0 );
-				            let skirt = createSoftVolume( mesh.geometry, volumeMass, 3);
-                            skirt.material = M_fresnel;
-							skirt.doubleSided = false;
+				            let skirt = createSoftVolume( mesh.geometry, volumeMass, 0);
+                            skirt.material = M_skirt_fresnel;
+							// skirt.doubleSided = true;
                             // console.log(skirt);
 
 							// By vertex colors 
                             let vertColors = skirt.geometry.attributes.color.array
                             let anchors = [];
                             for(let i=0; i<(vertColors.length/4); i++) {                                
-                                if(vertColors[i*4] <= 0.1){
+                                if(vertColors[i*4] <= 0.01){
                                     count++;
                                     anchors.push((i));
                                 }
@@ -342,9 +346,6 @@
 
 			}
 
-
-			let lastClientX = 0;
-			let distanceX = 0;
             function initInput() {
 
                 if(testing) {
@@ -365,34 +366,61 @@
                 }
 				
 				function handleInputDown(e) {
-					// console.log("testing")
-                    mouseDown = true;
+					// console.log("down");
+                    interactDown = true;
 					r_tmp_m_rotY = r_momentum_rotY;
 					r_momentum_rotY = 0;
 
-					lastClientX = e.clientX;
+					if(e.touches) {
+						lastClientX = e.touches[0].clientX;
+					} else {
+						lastClientX = e.clientX;
+					}
+					
 				}
 				function handleInputMove(e) {
 
-					if(mouseDown) {
-						let maxX = 100;
-						let maxY = maxX;
+					if(interactDown) {
+						let maxX = 0;
+						let maxY = 0;
 						
 						if (mTimestamp === null) {
 							mTimestamp = Date.now();
-							lastMouseX = e.screenX;
-							lastMouseY = e.screenY;
+							if(e.touches) {
+								lastMouseX = e.touches[0].screenX;
+								lastMouseY = e.touches[0].screenY;
+							} else {
+								lastMouseX = e.screenX;
+								lastMouseY = e.screenY;
+							}
 							return;
 						}
 
 						let now = Date.now();
 						let dt =  now - mTimestamp;
-						let dx = e.screenX - lastMouseX;
-						let dy = e.screenY - lastMouseY;
-						mSpeedX = Math.round( dx / dt * 100 );
-						mSpeedY = Math.round( dy / dt * 100 );
+						let dx = 0;
+						let dy = 0;
+						if(e.touches) {
+							maxX = 120;
+							maxY = maxX;
+							// console.log("touch moving!");
+							dx = e.touches[0].screenX - lastMouseX;
+							dy = e.touches[0].screenY - lastMouseY;
+							mSpeedX = Math.round( dx / dt * 100 );
+							mSpeedY = Math.round( dy / dt * 100 );
 
-						distanceX = (Math.abs((e.clientX - lastClientX)/dt) + 1)/100;
+							distanceX = ((Math.abs((e.touches[0].clientX - lastClientX)/dt) + 1)/100);
+						} else {
+							maxX = 100;
+							maxY = maxX;
+							dx = e.screenX - lastMouseX;
+							dy = e.screenY - lastMouseY;
+							mSpeedX = Math.round( dx / dt * 100 );
+							mSpeedY = Math.round( dy / dt * 100 );
+
+							distanceX = (Math.abs((e.clientX - lastClientX)/dt) + 1)/100;
+						}
+						
 						// console.log(distanceX);
 						
 						let tmpCenterX = Math.abs((1-(Math.abs(distanceX*100))));
@@ -412,10 +440,15 @@
 							mSpeedY = 0;
 						}
 
-						// console.log(mSpeedX);
+						console.log(mSpeedX);
 						mTimestamp = now;
-						lastMouseX = e.screenX;
-						lastMouseY = e.screenY;
+						if(e.touches) {
+							lastMouseX = e.touches[0].screenX;
+							lastMouseY = e.touches[0].screenY;
+						} else {
+							lastMouseX = e.screenX;
+							lastMouseY = e.screenY;
+						}
 
 						let angularMomentumY = rotator.userData.physicsBody.getAngularVelocity().y();
 						r_momentum_rotY = (Math.abs(angularMomentumY)+(r_tmp_m_rotY));
@@ -424,13 +457,12 @@
 
                     // mouseX = ( event.clientX / window.innerWidth ) * 2 - 1;
                     // mouseY =  - ( event.clientY / window.innerHeight ) * 2 + 1;
-                    mouseX = ( event.clientX / window.innerWidth ) * 2 - 1;
-                    mouseY =  - ( event.clientY / window.innerHeight ) * 2 + 1;
 
 					// console.log("Screen X: "+e.screenX+"\nClient X: "+e.clientX);
 				}
 				function handleInputUp(e) {
-					mouseDown = false;
+					// console.log("up")
+					interactDown = false;
 					mSpeedX = 0;
 					mSpeedY = 0;
 				}
@@ -438,9 +470,9 @@
 				window.addEventListener( 'mousedown', handleInputDown);
                 window.addEventListener( 'mousemove', handleInputMove);
 				window.addEventListener( 'mouseup', handleInputUp);
-				container.addEventListener( 'touchstart', function ( e ) { e.preventDefault(); handleInputDown(e);},false );
-                container.addEventListener( 'touchmove', function ( e ) { e.preventDefault(); handleInputMove(e);},false );
-				container.addEventListener( 'touchend', function ( e ) { e.preventDefault(); handleInputUp(e);},false );
+				window.addEventListener( 'touchstart', function ( e ) { e.preventDefault(); handleInputDown(e);},false );
+                window.addEventListener( 'touchmove', function ( e ) { e.preventDefault(); handleInputMove(e);},false );
+				window.addEventListener( 'touchend', function ( e ) { e.preventDefault(); handleInputUp(e);},false );
 				
 
 				window.addEventListener( 'resize', onWindowResize );
@@ -820,7 +852,7 @@
             function updateRotatorPhysics(deltaTime){
 
 				// console.log(r_momentum_rotY)
-				if(mouseDown || r_momentum_rotY >=0)
+				if(interactDown || r_momentum_rotY >=0)
 				{
 					let scalingFactor = 0.0005;
 
@@ -859,14 +891,14 @@
 					r_momentum_rotY = r_momentum_rotY_max;
 				}
 				if(r_momentum_rotY >=0) {
-					r_momentum_rotY-=Math.sqrt(deltaTime)
+					r_momentum_rotY-=Math.sqrt(deltaTime);
 				}
 
-				if(Math.abs(r_momentum_rotY) <= 0.2 && mouseDown) {
+				if(Math.abs(r_momentum_rotY) <= 0.2 && interactDown) {
 					r_tmp_m_rotY = 0;
 				}
 			
-				statSpeed.innerHTML = Math.abs(Math.round(r_momentum_rotY*10)/10);
+				statSpeed.innerHTML = (Math.abs(Math.round(r_momentum_rotY*10)/10)) + "<span id='tps'> twirls/s</span>";
 
 				statSpins.innerHTML = Math.trunc(spins);
 			}
