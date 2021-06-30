@@ -53,7 +53,7 @@
 			import { MStylizedFabric } from '../materials/MStylizedFabric.js';
 
 			// SCENE VARIABLES
-			let container, gui, stats, params, camera, controls, scene, renderer, mixer, meshScene, skirt, krbRotator;
+			let container, gui, stats, params, camera, controls, scene, renderer, mixer, meshScene, krbRotator, skirt;
 			const clock = new THREE.Clock();
 
 			// STAT COUNTERS
@@ -86,6 +86,7 @@
 			
 
 			// BALL VARIABLES for testing
+            let testing = true;
 			const mouseCoords = new THREE.Vector2();
 			const raycaster = new THREE.Raycaster();
 			const pos = new THREE.Vector3();
@@ -101,14 +102,14 @@
 			const STATE = { DISABLE_DEACTIVATION : 4 }
 
 			// MATERIALS
-			let M_invisible, M_skirt_fresnel, M_skirt_fabric;
+			let M_invisible, M_skirt, M_skirt_fresnel, M_skirt_fabric;
 
 			Ammo().then( function ( AmmoLib ) {
 
 				Ammo = AmmoLib;
 
 				init();
-				// animate(); // normally this would be where we want to start our animate() loop, but we are loading in a custom model
+				// animate();
 
 			} );
 
@@ -118,7 +119,7 @@
                 //#region 
 			function init() {
 
-				params = {
+                params = {
 					opacity: 0,
 					projectiles: false,
 					simulate: false,
@@ -137,7 +138,7 @@
 
 				initInput();
 
-				// initGUI();
+				initGUI();
 
                 initStats();
 
@@ -289,11 +290,11 @@
 							let mesh = c;
                             let count = 0;
 							const volumeMass = 15;
-							const volumePressure = 0; // 0 for flat open geometries, 1+ for closed geometries
+							const volumePressure = 0; // 0 for 1 flat open geometries, 1+ for closed geometries
                             
 				            mesh.translate( - 2, 5, 0 );
 				            skirt = createSoftBody( mesh.geometry, volumeMass, volumePressure);
-                            if(params.showVertexColors) {
+							if(params.showVertexColors) {
                             	skirt.material = M_skirt_fabric;								
 							}
 							else {
@@ -366,15 +367,22 @@
 					}
 				});
 
-				window.addEventListener( 'pointerdown', function ( event ) {
-					if ( ! clickRequest ) {
-						mouseCoords.set(
-							( event.clientX / window.innerWidth ) * 2 - 1,
-							- ( event.clientY / window.innerHeight ) * 2 + 1
-						);
-						clickRequest = true;
-					}
-				} );
+                if(testing) {
+                    window.addEventListener( 'pointerdown', function ( event ) {
+
+                        if ( ! clickRequest ) {
+
+                            mouseCoords.set(
+                                ( event.clientX / window.innerWidth ) * 2 - 1,
+                                - ( event.clientY / window.innerHeight ) * 2 + 1
+                            );
+
+                            clickRequest = true;
+
+                        }
+
+                    } );
+                }
 				
 				function handleInputDown(e) {
 					// console.log("down");
@@ -514,10 +522,10 @@
 			}
 
             function initStats() {
-				// stats = new Stats();
-				// stats.domElement.style.position = 'absolute';
-				// stats.domElement.style.top = '0px';
-				// container.appendChild( stats.domElement );
+				stats = new Stats();
+				stats.domElement.style.position = 'absolute';
+				stats.domElement.style.top = '0px';
+				container.appendChild( stats.domElement );
 
 				statSpins = document.getElementById('stat-spins');
 				statSpeed = document.getElementById('stat-speed');
@@ -822,8 +830,7 @@
 				requestAnimationFrame( animate );
 
 				render();
-				if(stats)
-					stats.update();
+				stats.update();
 
 			}
 
@@ -954,25 +961,19 @@
 					
 				}
 				
-
-  				// Prevent momentum from going beyond the max
 				if(r_momentum_rotY > r_momentum_rotY_max) {
 					r_momentum_rotY = r_momentum_rotY_max;
 				}
-
-  				// Decrease the momentum over time
 				if(r_momentum_rotY >=0) {
 					r_momentum_rotY-=Math.sqrt(deltaTime);
 				}
 
-				// If momentum is less than 0.2, set the tmp momentum to 0 to stop spinning
 				if(Math.abs(krbRotator.userData.physicsBody.getAngularVelocity().y()) <= 0.2 && interactDown) {
 					r_tmp_m_rotY = 0;
 				}
 			
-
-				// Update the innerHTML for our stats
 				statSpeed.innerHTML = (Math.abs(Math.round(krbRotator.userData.physicsBody.getAngularVelocity().y()*10)/10)) + "<span class='statsLabel'> twirls/s</span>";
+
 				statSpins.innerHTML = Math.trunc(spins) + "<span class='statsLabel'> spinnies</span>";
 			}
                 //#endregion

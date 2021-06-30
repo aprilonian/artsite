@@ -1,6 +1,6 @@
 body {
 	margin: 0;
-	background-color: #000;
+	background-color: #F7A8B8;
 	color: #fff;
 	font-family: Monospace;
 	font-size: 13px;
@@ -32,6 +32,7 @@ canvas {
 }
 
 #info {
+	color: #2f0e23;
 	position: absolute;
 	top: 0px;
 	width: 100%;
@@ -54,7 +55,11 @@ canvas {
 #stats div {
     margin-left: 4vw;
     margin-right: 4vw;
-    min-width: 120px;
+    min-width: 150px;
+	max-width:  500px;
+}
+.statsLabel {
+    font-size: 12px;
 }
 
 a, button, input, select {
@@ -84,16 +89,16 @@ a, button, input, select {
 	background: rgba(0,0,0,0.7);
 }
 
-	#overlay button {
-		background: transparent;
-		border: 0;
-		border: 1px solid rgb(255, 255, 255);
-		border-radius: 4px;
-		color: #ffffff;
-		padding: 12px 18px;
-		text-transform: uppercase;
-		cursor: pointer;
-	}
+#overlay button {
+	background: transparent;
+	border: 0;
+	border: 1px solid rgb(255, 255, 255);
+	border-radius: 4px;
+	color: #ffffff;
+	padding: 12px 18px;
+	text-transform: uppercase;
+	cursor: pointer;
+}
 
 #notSupported {
 	width: 50%;
@@ -103,6 +108,55 @@ a, button, input, select {
 	padding: 10px;
 }
 
-#tps {
-    font-size: 12px;
+#start {
+	color: #fff;
+	background-color: #f7a8b885;
+	display: flex;
+	flex-flow: column;
+	justify-content: center;
+	align-items: center;
+	position: fixed;
+	top:0;
+	left:0;
+	width: 100vw;
+	height: 100vh;
+	z-index: 100000;
+	pointer-events: auto;
+	cursor: pointer;
 }
+#startblur {
+	filter: blur(1.5rem);
+}
+#pause {
+	color: #fff;
+	background-color: #94526b;
+	display: flex;
+	flex-flow: column;
+	justify-content: center;
+	align-items: center;
+	position: fixed;
+	top:0;
+	right:0;
+	width: 30px;
+	height: 30px;
+	font-size: 22px;
+	font-family: Monospace;
+	border-bottom-left-radius: 4px;
+	pointer-events: all;
+	cursor: pointer;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+#aboutlink {
+	position: fixed;
+	bottom: 0;
+	display: flex;
+	flex-flow: column;
+	justify-content: center;
+	align-items: center;
+	height: 5vh;
+	width: 100vw;
+}
+

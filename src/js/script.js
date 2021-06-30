@@ -76,7 +76,7 @@ let pages = [
 ]
 
 let posts = [
-  ["2021-06-28-Happy-Pride!testing"],
+  ["2021-06-28-Happy-Pride"],
   ["2021-06-17-Sticker-Me-BB-dot-html"],
   ["2021-05-20-Animated-Turnips"],
   ["2021-05-17-More-Outlines"],

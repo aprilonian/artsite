@@ -1,20 +1,2049 @@
-<div id="nextprev"></div>
-<div id="content-colorborder">
-  <h1 id="postTitleH1"></h1>
-  <h4 id="postDate"></h4>  
-  <p class="caption">Happy pride friends~</p>
-  
-  <h2>Skirt. Go.</h2>
+<div id='nextprev'></div>
+<div id='content-colorborder'>
+  <h1 id='postTitleH1'></h1>
+  <h4 id='postDate'></h4>  
+  <p class='caption'>Happy pride friends~</p>
   <br>
-  <iframe src="../threejs/scene/skirtgospinny_1.html" class="threejs-embed"></iframe>        
+  <h2>Skirt go Spinny</h2>
+  <br>
+  <iframe src='../threejs/scene/skirtgospinny_1.html' class='threejs-embed'></iframe>
+  <a href='../threejs/scene/skirtgospinny_1.html' class='demphasize'>see this fullscreen</a> 
+  <br>
+  <br>  
   
+  <h2>Ah yes, skirt go spinny, lmao.<br>But how you doin that?</h2>
+  <p>I'm glad you asked. Here's my best short answer:</p>
+
+  <div class='caption quoteblock'>
+    <p>Use ThreeJS for loading in a low-poly, vertex colored, & textured GLTF file exported out of Blender</p>
+  </div>
+  <div class='caption quoteblock'>
+    <p>Then using Ammo.js, which comes neatly packaged with ThreeJS, to simulate that model as a <span class='emphasize'>soft body</span> (such as cloth or jello)</p>
+  </div>
+  <div class='caption quoteblock'>
+    <p>Anchoring that soft body to an invisible Ammo <span class='emphasize'>kinematic rigid body</span> hovering above the soft body, in this case a cube</p>
+  </div>
+  <div class='caption quoteblock'>
+    <p>Finally, handling mouse/touch input from you, the user, and calculating the physics for the invisible kinematic cube.</p>
+  </div>
+
+  <br>
   
-  <p class="caption">// code comment</p>
-<div class="pastebin"><pre><code>
-//example code
+  <h2>Cool, but wut.</h2>
+  <p>I'm <span class='italic'>glad</span> you asked. Here's my best long answer:</p>
+  
+  <h3>Ammo.js</h3>
+  <div class='caption quoteblock'>
+    <p><span class='emphasize'>Ammo.js</span> is a phyics engine and direct port of an api called <a href='https://pybullet.org/wordpress/index.php/forum-2/' target='_blank' title='what is bullet physics?'>Bullet Physics</a>. And because it's a pretty smart port, the api used for JavaScript is virtually the same as Bullet but replaces any Bullet functions with <span class='emphasize'>'Ammo do thing'</span> instead of <span class='emphasize'>'Bullet do thing'</span>. With Ammo.js, like in a <span class='emphasize'>game engine</span>, we can simulate physics using <span class='emphasize'>rigid and soft bodies</span> handling <span class='emphasize'>collisions and interation</span>.</p>
+  </div>
+
+  <h3>Import</h3>
+  <div class='caption quoteblock'>
+    <p>I am using Ammo.js to take a <span class='emphasize'>GLTF model</span> that I modelled and textured in Blender, <span class='emphasize'>load it in with ThreeJS and convert it to a soft body</span>. I also painted <span class='emphasize'>vertex colors</span> on the rim of the skirt which are imported right along with the mesh. We can then search for the vertex colors convert and normalize them as <span class='emphasize'>weighted influences</span> to be used as <span class='emphasize'>anchors</span> for the soft body.</p>
+  </div>
+
+  <h3>Glue</h3>
+  <div class='caption quoteblock'>
+    <p>With those achors, we can <span class='emphasize'>glue</span> the model to an invisible <span class='emphasize'>kinematic</span> rigid body above the model that suspends it in space.</p>
+  </div>
+  <div class='caption quoteblock'>
+    <p>Kinematic rigid bodies are useful because the bodies them selves can receive and give physics information but aren't affected by the rest of the simulation, (i.e gravity, projectiles, other rigid & soft bodies in motion). And since it can recieve information we can attach our soft body to it while it is suspended above and apply user input.</p>
+  </div>
+  
+  <h3>Simulate</h3>
+  <div class='caption quoteblock'>
+    <p>Using <span class='wavy' wavy-speed='10'>MATH</span>, the attached soft body spins around by taking input from user's mouse/touch speed and calculating angular momentum for the kinematic rigid body.</p>
+  </div>
+  <br>
+  <p>Make sense yet? Kinda?</p>
+  <p>Here. Let's peel behind the curtain a little bit. <a class='caption' href='https://github.com/aprilonian/artsite/blob/main/src/threejs/scene/skirtgospinny_1.html' target='_blank'>(LOOK AT THE GITHUB CODE!)</a></p>
+
+  <h2>Behind the Scenes</h2>
+  <br>
+  <iframe src='../threejs/scene/skirtgospinny_2.html' class='threejs-embed'></iframe>
+  <a href='../threejs/scene/skirtgospinny_2.html' class='demphasize'>see this fullscreen</a> 
+  <br>
+  <br>
+  <br>
+
+<!-- ALL OF TEH CODE -->
+  <h3>All of the code:</h3>
+  <p class='caption'>// Here's everything minus the external scene files such as the GLTF, textures, and imported classes which can be found on <a class='caption' href='https://github.com/aprilonian/artsite/blob/main/src/threejs/scene/skirtgospinny_1.html' target='_blank'>github</a></p>
+<div class='pastebin'><pre><code>
+&lt;script src='../examples/js/libs/ammo.wasm.js'&gt;&lt;/script&gt;
+
+&lt;script type='module'&gt;
+  import * as THREE from '../build/three.module.js';
+
+  import Stats from '../examples/jsm/libs/stats.module.js';
+  import { GUI } from '../examples/jsm/libs/dat.gui.module.js';
+
+  import { OrbitControls } from '../examples/jsm/controls/OrbitControls.js';
+  import { BufferGeometryUtils } from '../examples/jsm/utils/BufferGeometryUtils.js';
+        
+  import { GLTFLoader } from '../examples/jsm/loaders/GLTFLoader.js';
+  import { DRACOLoader } from '../examples/jsm/loaders/DRACOLoader.js';
+
+  import { MStylizedFabric } from '../materials/MStylizedFabric.js';
+
+  // SCENE VARIABLES
+  let container, gui, stats, params, camera, controls, scene, renderer, mixer, meshScene, skirt, krbRotator;
+  const clock = new THREE.Clock();
+
+  // STAT COUNTERS
+  let spins = 0;
+  let statSpins = 0;
+  let statSpeed = 0;
+
+  // MOUSE VARIABLES
+  let clickRequest = false;
+  let interactDown = false;
+  let mouseX, mouseY;
+  let mTimestamp = null;
+  let lastMouseX = null;
+  let lastMouseY = null;
+  let mSpeedX = 0;
+  let mSpeedY = 0;
+  let lastClientX = 0;
+  let distanceX = 0;
+
+  // krbRotator VARIABLES
+  let r_current_rotY = 0;
+  let r_momentum_rotY = 0;
+  let r_momentum_rotY_dir = 0;
+  let r_momentum_rotY_max = 100.1;
+  let r_tmp_m_rotY;
+
+  let r_tmpTransform, r_ammoTmpPos, r_ammoTmpQuat;
+  let r_tmpPos = new THREE.Vector3()
+  let r_tmpQuat = new THREE.Quaternion();
+
+
+  // BALL VARIABLES for testing
+  const mouseCoords = new THREE.Vector2();
+  const raycaster = new THREE.Raycaster();
+  const pos = new THREE.Vector3();
+  const quat = new THREE.Quaternion();
+
+  // PHYSICS VARIABLES
+  const gravityConstant = -9.8;
+  let physicsWorld, transformAux1, softBodyHelpers;
+  const rigidBodies = [];
+  const softBodies = [];
+  const margin = 0.05;
+  const FLAGS = { CF_KINEMATIC_OBJECT: 2 };
+  const STATE = { DISABLE_DEACTIVATION : 4 }
+
+  // MATERIALS
+  let M_invisible, M_skirt_fabric, M_skirt_fresnel;
+
+  Ammo().then( function ( AmmoLib ) {
+
+    Ammo = AmmoLib;
+
+    init();
+    // animate(); // normally this would be where we want to start our animate() loop, but we are loading in a custom model
+
+  } );
+
+  ////////////////////
+  // Initialization //
+  ////////////////////
+      //#region 
+  function init() {
+
+    params = {
+      opacity: 0,
+      showVertexColors: false,
+      projectiles: false,
+      simulate: false,
+    };
+
+    r_tmpTransform = new Ammo.btTransform();
+    r_ammoTmpPos = new Ammo.btVector3();
+    r_ammoTmpQuat = new Ammo.btQuaternion();
+
+    initScene(); // setup three camera, renderer, scene, & lights
+
+    initPhysics(); // ammo world physics
+
+    initCreateObjects(); // three and ammo object creation
+
+    initInput();  // user input
+
+    //initGUI(); // testing
+
+    initStats(); // tracking physics elements
+
+  }
+
+  function initScene() {
+
+    // CAMERA
+    camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 0.2, 2000 );
+    camera.position.set( 0, 2, 10 );
+    camera.rotation.set(-0.2, 0, 0);
+
+    // RENDERER
+    renderer = new THREE.WebGLRenderer();
+    renderer.setPixelRatio( window.devicePixelRatio );
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.shadowMap.enabled = true;
+    container = document.getElementById( 'container' );
+    container.oncontextmenu = contextSelect;  
+    function contextSelect(e){e.preventDefault();}
+    container.appendChild( renderer.domElement );
+
+    // SCENE
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xF7A8B8);
+
+    // DEFINE LIGHTS
+    const hemisphereLight = new THREE.HemisphereLight( 0xfceafc, 0x000000, .8 );
+    scene.add( hemisphereLight );
+
+    const dirLight = new THREE.DirectionalLight( 0xffffff, .5 );
+    dirLight.position.set( 150, 75, 150 );
+    scene.add( dirLight );
+
+    const dirLight2 = new THREE.DirectionalLight( 0xffffff, .2 );
+    dirLight2.position.set( - 150, 75, - 150 );
+    scene.add( dirLight2 );
+
+    const dirLight3 = new THREE.DirectionalLight( 0xffffff, .1 );
+    dirLight3.position.set( 125, 125, 0 );
+    scene.add( dirLight3 );
+  }
+
+  function initPhysics() {
+
+    // Physics configuration
+
+    const collisionConfiguration = new Ammo.btSoftBodyRigidBodyCollisionConfiguration();
+    const dispatcher = new Ammo.btCollisionDispatcher( collisionConfiguration );
+    const broadphase = new Ammo.btDbvtBroadphase();
+    const solver = new Ammo.btSequentialImpulseConstraintSolver();
+    const softBodySolver = new Ammo.btDefaultSoftBodySolver();
+    physicsWorld = new Ammo.btSoftRigidDynamicsWorld( dispatcher, broadphase, solver, collisionConfiguration, softBodySolver );
+    physicsWorld.setGravity( new Ammo.btVector3( 0, gravityConstant, 0 ) );
+    physicsWorld.getWorldInfo().set_m_gravity( new Ammo.btVector3( 0, gravityConstant, 0 ) );
+
+    transformAux1 = new Ammo.btTransform();
+    softBodyHelpers = new Ammo.btSoftBodyHelpers();
+
+  }
+
+  function initCreateObjects() {
+
+    // DEFINE TEXTURES
+    let fabricPattern = new THREE.TextureLoader().load( '../models/textures/transPattern.jpg');
+    fabricPattern.wrapS = THREE.RepeatWrapping;
+    fabricPattern.wrapT = THREE.RepeatWrapping;
+    fabricPattern.repeat.set( 1,1);
+
+    const gradientMap = createGradientMap(4,4);
+
+    // DEFINE MATERIALS
+    M_skirt_fabric = new THREE.MeshToonMaterial( {
+      // color: new THREE.Color(0xd3678d),
+      color: new THREE.Color(0xaaaaaa),
+      map: fabricPattern,
+      gradientMap: gradientMap,
+      transparent: true,
+      opacity: 1,
+      side: THREE.DoubleSide,
+      // vertexColors: true, // helpful to visualize your vertex colors
+    } );
+
+    M_skirt_fresnel = new THREE.ShaderMaterial( {
+
+      uniforms: MStylizedFabric.uniforms,
+      vertexShader: MStylizedFabric.vertexShader,
+      fragmentShader: MStylizedFabric.fragmentShader,
+      // side: THREE.DoubleSide,
+
+    } );
+    M_skirt_fresnel.uniforms[ 'baseColor' ].value = fabricPattern;
+
+    M_invisible = new THREE.MeshToonMaterial( {
+      color: new THREE.Color(0xffffff),
+      gradientMap: gradientMap,
+      transparent: true,
+      opacity: params.opacity,
+    } );
+            
+
+    // DEFINE GEOMETRIES
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath( '../examples/js/libs/draco/gltf/' );
+
+    // Ground
+    pos.set( 0, - 2.5, 0 );
+    quat.set( 0, 0, 0, 1 );
+    const ground = createRigidBodyBoxShape( 40, 1, 40, 0, pos, quat, M_invisible);
+    ground.castShadow = true;
+    ground.receiveShadow = true;
+            
+    // Create kinematic rigid body called krbRotator 
+    pos.set( 0, 2.2, 0 );
+    quat.setFromAxisAngle( new THREE.Vector3( 0, 0, 0 ), 0 );
+    krbRotator = createRigidBodyBoxShape( 4, 1, 4, 1, pos, quat, M_invisible, true);
+    krbRotator.castShadow = false;
+    krbRotator.receiveShadow = false;
+
+    // ADD LOADER AND GEO
+    const loader = new GLTFLoader();
+    loader.setDRACOLoader( dracoLoader );
+    loader.load( '../models/skirtgospinnyLP.gltf', function ( gltf ) {
+
+      / / IMPORT THE SCENE
+      const meshScene = gltf.scene;
+      meshScene.position.set( - 5, 25, 0 );
+
+      // ADD SOFTBODIES
+      meshScene.traverse( c =&gt; {
+        if ( c.isMesh ) {
+          let mesh = c;
+          let count = 0;
+          const volumeMass = 15;
+          const volumePressure = 0; // 0 for flat open geometries, 1+ for closed geometries
+                        
+          mesh.translate( - 2, 5, 0 );
+          skirt = createSoftBody( mesh.geometry, volumeMass, volumePressure);
+          skirt.material = M_skirt_fresnel;
+
+          // VERTEX WEIGHTS from Vertex Colors						
+          let anchors = getVertexWeights(mesh.geometry, 0.05, 0.5); // max influence 0.5 for performance
+
+          // Glue the cloth to the arm							
+          count = 0;
+
+          let ammoVertAssociation = skirt.geometry.ammoIndexInOrder;
+          for(let i=0; i &lt; ammoVertAssociation.length; i++) {
+              for(let j=0; j &lt; anchors.length; j++) {                                
+                  if(ammoVertAssociation[i] == anchors[j].index) {
+                      let influence = anchors[j].weight;
+                      count++;
+                      skirt.userData.physicsBody.appendAnchor( ammoVertAssociation[i], krbRotator.userData.physicsBody, false, influence);
+                  }
+              }
+          }                         
+        }
+      });
+        
+      // ANIMATION CLIPS
+      // Add an animation mixer to take care of mesh animations
+      mixer = new THREE.AnimationMixer( meshScene );
+
+      let i;
+      for(i=0; i&lt;gltf.animations.length; i++){
+        const clip = gltf.animations[i];
+
+        if ( clip ) {
+
+          const action = mixer.clipAction( clip );
+          action.play();
+            
+        }
+      }
+
+      // HERE'S THE ANIMTE LOOP!
+      animate();					
+
+    }, function() {
+      console.log('LOADED SKIRT!');
+    }, function ( e ) {
+
+      console.error( e );
+
+    } );
+
+  }
+
+  function initInput() {
+
+    document.getElementById('start').addEventListener('pointerdown', function ( event ) {
+      document.getElementById('start').setAttribute('style','display: none;');
+      document.getElementById('startblur').setAttribute('style','filter: blur(0rem);');
+      params.simulate = true;
+      if(gui){
+        gui.updateDisplay();
+      }
+    });
+    document.getElementById('pause').addEventListener('pointerdown', function ( event ) {
+      document.getElementById('start').setAttribute('style','display: flex;');
+      document.getElementById('startblur').setAttribute('style','filter: blur(1.5rem);');
+      params.simulate = false;
+      if(gui){
+        gui.updateDisplay();
+      }
+    });
+
+    window.addEventListener( 'pointerdown', function ( event ) {
+        if ( ! clickRequest ) {
+          mouseCoords.set(
+              ( event.clientX / window.innerWidth ) * 2 - 1,
+              - ( event.clientY / window.innerHeight ) * 2 + 1
+          );
+          clickRequest = true;
+        }
+    } );    
+    
+    function handleInputDown(e) {
+      // console.log('down');
+                interactDown = true;
+      r_tmp_m_rotY = r_momentum_rotY;
+      setTimeout(function() {
+        if(interactDown){
+          r_momentum_rotY = 0;
+        } 
+      }, 200); 
+      
+
+      if(e.touches) {
+        lastClientX = e.touches[0].clientX;
+      } else {
+        lastClientX = e.clientX;
+      }
+      
+    }
+
+    function handleInputMove(e) {
+
+      if(interactDown) {
+        let maxX = 0;
+        let maxY = 0;
+        
+        if (mTimestamp === null) {
+          mTimestamp = Date.now();
+          if(e.touches) {
+            lastMouseX = e.touches[0].screenX;
+            lastMouseY = e.touches[0].screenY;
+          } else {
+            lastMouseX = e.screenX;
+            lastMouseY = e.screenY;
+          }
+          return;
+        }
+
+        let now = Date.now();
+        let dt =  now - mTimestamp;
+        let dx = 0;
+        let dy = 0;
+        if(e.touches) {
+          maxX = 120;
+          maxY = maxX;
+          // console.log('touch moving!');
+          dx = e.touches[0].screenX - lastMouseX;
+          dy = e.touches[0].screenY - lastMouseY;
+          mSpeedX = Math.round( dx / dt * 100 );
+          mSpeedY = Math.round( dy / dt * 100 );
+
+          distanceX = ((Math.abs((e.touches[0].clientX - lastClientX)/dt) + 1)/100);
+        } else {
+          maxX = 100;
+          maxY = maxX;
+          dx = e.screenX - lastMouseX;
+          dy = e.screenY - lastMouseY;
+          mSpeedX = Math.round( dx / dt * 100 );
+          mSpeedY = Math.round( dy / dt * 100 );
+
+          distanceX = (Math.abs((e.clientX - lastClientX)/dt) + 1)/100;
+        }
+        
+        // console.log(distanceX);
+        
+        let tmpCenterX = Math.abs((1-(Math.abs(distanceX*100))));
+        tmpCenterX = tmpCenterX&lt;=1?1:tmpCenterX;
+        mSpeedX = mSpeedX * tmpCenterX;
+        
+        if(Math.abs(mSpeedX) &gt;= maxX || Math.abs(mSpeedX) === Infinity) {
+          mSpeedX = Math.sign(mSpeedX)*maxX;
+        }
+        if(Math.abs(mSpeedY) &gt;= maxY || Math.abs(mSpeedY) === Infinity) {
+          mSpeedY = Math.sign(mSpeedY)*maxY;
+        }
+        if(isNaN(mSpeedX)) {
+          mSpeedX = 0;
+        }
+        if(isNaN(mSpeedY)) {
+          mSpeedY = 0;
+        }
+
+        // console.log(mSpeedX);
+        mTimestamp = now;
+        if(e.touches) {
+          lastMouseX = e.touches[0].screenX;
+          lastMouseY = e.touches[0].screenY;
+        } else {
+          lastMouseX = e.screenX;
+          lastMouseY = e.screenY;
+        }
+
+        let angularMomentumY = krbRotator.userData.physicsBody.getAngularVelocity().y();
+        r_momentum_rotY = (Math.abs(angularMomentumY)+(r_tmp_m_rotY));
+        r_momentum_rotY_dir = Math.sign(angularMomentumY);
+      }
+
+                // mouseX = ( event.clientX / window.innerWidth ) * 2 - 1;
+                // mouseY =  - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+      // console.log('Screen X: '+e.screenX+'\nClient X: '+e.clientX);
+    }
+
+    function handleInputUp(e) {
+      // console.log('up')
+      interactDown = false;
+      mSpeedX = 0;
+      mSpeedY = 0;
+    }
+
+    window.addEventListener( 'mousedown', handleInputDown);
+            window.addEventListener( 'mousemove', handleInputMove);
+    window.addEventListener( 'mouseup', handleInputUp);
+    window.addEventListener( 'touchstart', function ( e ) { e.preventDefault(); handleInputDown(e);},false );
+            window.addEventListener( 'touchmove', function ( e ) { e.preventDefault(); handleInputMove(e);},false );
+    window.addEventListener( 'touchend', function ( e ) { e.preventDefault(); handleInputUp(e);},false );
+    
+
+    window.addEventListener( 'resize', onWindowResize );
+
+  }
+
+  function initGUI() {
+    gui = new GUI();
+
+    // GEO OUTLINE GUI
+    gui.add( params, 'opacity' ).min( 0.0 ).max( 1.0 ).step( 0.1 ).onChange( function(value)
+    {
+      M_invisible.opacity = value;
+    });	
+    gui.add( params, 'projectiles');	
+    gui.add( params, 'simulate' );
+  }
+
+  function initStats() {
+    statSpins = document.getElementById('stat-spins');
+    statSpeed = document.getElementById('stat-speed');
+  }
+      //#endregion
+
+  ////////////////////////////
+  // Utility Ammo Functions //
+  ////////////////////////////
+      //#region 
+  function processGeometry( bufGeometry ) {
+
+    // Ony consider the position values when merging the vertices
+    const posOnlyBufGeometry = new THREE.BufferGeometry();
+    posOnlyBufGeometry.setAttribute( 'position', bufGeometry.getAttribute( 'position' ) );
+    posOnlyBufGeometry.setIndex( bufGeometry.getIndex() );
+
+    // Merge the vertices so the triangle soup is converted to indexed triangles
+    const indexedBufferGeom = BufferGeometryUtils.mergeVertices( posOnlyBufGeometry );
+
+    // Create index arrays mapping the indexed vertices to bufGeometry vertices
+    mapIndices( bufGeometry, indexedBufferGeom );
+
+  }
+        
+  function mapIndices( bufGeometry, indexedBufferGeom ) {
+
+    // Creates ammoVertices, ammoIndices and ammoIndexAssociation in bufGeometry
+
+    const vertices = bufGeometry.attributes.position.array;
+    const idxVertices = indexedBufferGeom.attributes.position.array;
+    const indices = indexedBufferGeom.index.array;
+
+    const numIdxVertices = idxVertices.length / 3;
+    const numVertices = vertices.length / 3;
+
+    bufGeometry.ammoVertices = idxVertices;
+    bufGeometry.ammoIndices = indices;
+    bufGeometry.ammoIndexAssociation = [];
+            bufGeometry.ammoIndexInOrder = [];
+
+    for ( let i = 0; i &lt; numIdxVertices; i ++ ) {
+
+      const association = [];
+      bufGeometry.ammoIndexAssociation.push( association );
+
+      const i3 = i * 3;
+
+      for ( let j = 0; j &lt; numVertices; j ++ ) {
+
+        const j3 = j * 3;
+        if ( isEqual( idxVertices[ i3 ], idxVertices[ i3 + 1 ], idxVertices[ i3 + 2 ],
+          vertices[ j3 ], vertices[ j3 + 1 ], vertices[ j3 + 2 ] ) ) {
+
+          association.push( j3 );
+                        bufGeometry.ammoIndexInOrder.push(j);
+        }
+
+      }
+
+    }
+
+    for( let i = 0; i &lt; bufGeometry.ammoIndexInOrder.length; i++) {
+      if(bufGeometry.ammoIndexInOrder[i] &gt;= numIdxVertices) {
+        // console.log(bufGeometry.ammoIndexInOrder[i] +' compare to '+ numIdxVertices);
+        bufGeometry.ammoIndexInOrder.splice(i,1);
+        i--;
+      }
+    }
+
+  }
+        
+  function isEqual( x1, y1, z1, x2, y2, z2 ) {
+
+    const delta = 0.000001;
+    return Math.abs( x2 - x1 ) &lt; delta &&
+        Math.abs( y2 - y1 ) &lt; delta &&
+        Math.abs( z2 - z1 ) &lt; delta;
+
+  }
+
+  function createSoftBody( bufferGeom, mass, pressure ) {
+
+    processGeometry( bufferGeom );
+
+    const sbMesh = new THREE.Mesh( bufferGeom, new THREE.MeshPhongMaterial( { color: 0xFFFFFF } ) );
+    sbMesh.castShadow = true;
+    sbMesh.receiveShadow = true;
+    sbMesh.frustumCulled = false;
+    scene.add( sbMesh );
+
+    // sbMesh physics object
+    const volumeSoftBody = softBodyHelpers.CreateFromTriMesh(
+    physicsWorld.getWorldInfo(),
+    bufferGeom.ammoVertices,
+    bufferGeom.ammoIndices,
+    bufferGeom.ammoIndices.length / 3, true );
+
+    const sbConfig = volumeSoftBody.get_m_cfg();
+    sbConfig.set_viterations( 40 );
+    sbConfig.set_piterations( 40 );
+
+    // Soft-soft and soft-rigid collisions
+    sbConfig.set_collisions( 0x11 );
+
+    // Friction
+    sbConfig.set_kDF( 0.1 );
+    // Damping
+    sbConfig.set_kDP( 0.01 );
+    // Pressure
+    sbConfig.set_kPR( pressure );
+    // Stiffness
+    volumeSoftBody.get_m_materials().at( 0 ).set_m_kLST( 0.9 );
+    volumeSoftBody.get_m_materials().at( 0 ).set_m_kAST( 0.9 );
+
+    volumeSoftBody.setTotalMass( mass, false );
+    Ammo.castObject( volumeSoftBody, Ammo.btCollisionObject ).getCollisionShape().setMargin( margin );
+    physicsWorld.addSoftBody( volumeSoftBody, 1, - 1 );
+    sbMesh.userData.physicsBody = volumeSoftBody;
+    // Disable deactivation
+    volumeSoftBody.setActivationState( 4 );
+
+    softBodies.push( sbMesh );
+
+    return sbMesh;
+  }
+
+  function createRigidBody( threeObject, physicsShape, mass, pos, quat, isKinematic=false ) {
+    
+    threeObject.position.copy( pos );
+    threeObject.quaternion.copy( quat );
+
+    const transform = new Ammo.btTransform();
+    transform.setIdentity();
+    transform.setOrigin( new Ammo.btVector3( pos.x, pos.y, pos.z ) );
+    transform.setRotation( new Ammo.btQuaternion( quat.x, quat.y, quat.z, quat.w ) );
+    const motionState = new Ammo.btDefaultMotionState( transform );
+
+    const localInertia = new Ammo.btVector3( 0, 0, 0 );
+    physicsShape.calculateLocalInertia( mass, localInertia );
+
+    const rbInfo = new Ammo.btRigidBodyConstructionInfo( mass, motionState, physicsShape, localInertia );
+    const body = new Ammo.btRigidBody( rbInfo );
+
+    threeObject.userData.physicsBody = body;
+
+    scene.add( threeObject );
+
+    if ( mass &gt; 0 ) {
+
+      rigidBodies.push( threeObject );
+
+      // Disable deactivation
+      body.setActivationState( 4 );
+
+    }
+    
+    if(isKinematic){
+      body.setActivationState( STATE.DISABLE_DEACTIVATION );
+      body.setCollisionFlags( FLAGS.CF_KINEMATIC_OBJECT );				
+    }
+
+    physicsWorld.addRigidBody( body );
+
+    return threeObject;
+
+  }
+            
+  function getVertexWeights( bufferGeom, toleranceMin = 0.0, toleranceMax = 1.0) {
+    const m = new THREE.BufferGeometry();
+    m.setAttribute( 'position', bufferGeom.getAttribute( 'position' ) );
+    m.setAttribute( 'color', bufferGeom.getAttribute( 'color' ) );
+    m.setIndex(bufferGeom.getIndex());
+    const indexedMesh = BufferGeometryUtils.mergeVertices( m );
+
+    let vertColors = indexedMesh.attributes.color.array
+    let weights = [];
+    let wCount = 0;
+    for(let i=0; i&lt;(vertColors.length/4); i++) {                                
+      if((vertColors[i*4]/65535) &gt;= toleranceMin && (vertColors[i*4]/65535) &lt;= toleranceMax){
+        // Divide by 65535 (max allowed verts) to get a normalied vertex weight [0.0 - 1.0]
+        // console.log(vertColors[i*4]/65535);
+        wCount++;
+        weights.push({
+          index: i,
+          weight: (vertColors[i*4]/65535)
+        });
+      }
+    }
+    console.log('You painted '+wCount+' weights with more than '+toleranceMin+' and less than '+toleranceMax);  
+    return weights;
+  }
+    //#endregion
+        
+  ///////////////////////////////////
+  // Scene Specific Ammo Functions //
+  ///////////////////////////////////
+      //#region 
+  function createRigidBodyBoxShape( sx, sy, sz, mass, pos, quat, material, isKinematic=false) {
+
+    const threeObject = new THREE.Mesh( new THREE.BoxGeometry( sx, sy, sz, 1, 1, 1 ), material );
+    const shape = new Ammo.btBoxShape( new Ammo.btVector3( sx * 0.5, sy * 0.5, sz * 0.5 ) );
+    shape.setMargin( margin );
+
+    createRigidBody( threeObject, shape, mass, pos, quat, isKinematic );
+
+    return threeObject;
+
+  }
+      //#endregion
+
+  /////////////////////////////
+  // Utility Three Functions //
+  /////////////////////////////
+      //#region 
+  function createGradientMap(grad_width = 4, grad_height = 4, grad_color = new THREE.Color( 0xffffff )) {
+
+    const grad_size = grad_width * grad_height;
+    const grad_data = new Uint8Array(grad_size);
+
+    const grad_r = Math.floor( grad_color.r * 255 );
+    const grad_g = Math.floor( grad_color.g * 255 );
+    const grad_b = Math.floor( grad_color.b * 255 );
+
+    for ( let i = 0; i &lt; grad_size; i ++ ) {
+
+      const grad_stride = i * 3;
+
+      grad_data[ grad_stride ] = grad_r;
+      grad_data[ grad_stride + 1 ] = grad_g;
+      grad_data[ grad_stride + 2 ] = grad_b;
+
+    }
+
+    let gradientMap = new THREE.DataTexture(grad_data, grad_width, grad_height, THREE.LuminanceFormat );
+    gradientMap.minFilter = THREE.NearestFilter;
+    gradientMap.magFilter = THREE.NearestFilter;
+    gradientMap.generateMipmaps = false;
+            
+    return gradientMap;
+  }
+      //#endregion
+
+  /////////////////
+  // Interaction //
+  /////////////////
+      //#region 
+  function testingBall() {
+
+    if ( clickRequest ) {
+
+      // Cast a ray from the camera to where the mouse is
+      raycaster.setFromCamera( mouseCoords, camera );
+
+      // Create a ball
+      const ballMass = 3;
+      const ballRadius = 0.4;
+
+      const ball = new THREE.Mesh(
+        new THREE.SphereGeometry( ballRadius, 18, 16 ), 
+        new THREE.MeshPhongMaterial( { color: 0x55CDFC })
+      );
+      ball.castShadow = true;
+      ball.receiveShadow = true;
+
+      // Ammo physics shape to apply physics to
+      const ballShape = new Ammo.btSphereShape( ballRadius );
+      ballShape.setMargin( margin );
+      pos.copy( raycaster.ray.direction );
+      pos.add( raycaster.ray.origin );
+      quat.set( 0, 0, 0, 1 );
+      const ballBody = createRigidBody( ball, ballShape, ballMass, pos, quat ).userData.physicsBody;
+      ballBody.setFriction( 0.5 );
+
+      // Apply a vector in the direction of a the ray we casted at the start here
+      pos.copy( raycaster.ray.direction );
+      pos.multiplyScalar( 14 );
+      ballBody.setLinearVelocity( new Ammo.btVector3( pos.x, pos.y, pos.z ) );
+
+      clickRequest = false;
+    }
+
+  }
+            
+  function onWindowResize() {
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize( window.innerWidth, window.innerHeight );
+
+  }
+      //#endregion
+
+  //////////////////
+  // UPDATE LOOPS //
+  //////////////////
+      //#region 
+  function animate() {
+
+    requestAnimationFrame( animate );
+
+    render();
+    if(stats)
+      stats.update();
+
+  }
+
+  function render() {
+
+    if(params.simulate){
+      const deltaTime = clock.getDelta();
+      updatePhysics( deltaTime );
+      updateRotatorPhysics( deltaTime );
+      mixer.update( deltaTime );
+    }
+
+    if(params.projectiles){
+        testingBall();                    
+    }
+
+    renderer.render( scene, camera );
+
+  }
+
+  function updatePhysics( deltaTime ) {
+
+    // Step world
+    physicsWorld.stepSimulation( deltaTime, 10 );
+
+    // Update soft volumes
+    for ( let i = 0, il = softBodies.length; i &lt; il; i ++ ) {
+
+      const sbMesh = softBodies[ i ];
+      const geometry = sbMesh.geometry;
+      const softBody = sbMesh.userData.physicsBody;
+      const volumePositions = geometry.attributes.position.array;
+      const volumeNormals = geometry.attributes.normal.array;
+      const association = geometry.ammoIndexAssociation;
+      const numVerts = association.length;
+      const nodes = softBody.get_m_nodes();
+      for ( let j = 0; j &lt; numVerts; j ++ ) {
+
+        const node = nodes.at( j );
+        const nodePos = node.get_m_x();
+        const x = nodePos.x();
+        const y = nodePos.y();
+        const z = nodePos.z();
+        const nodeNormal = node.get_m_n();
+        const nx = nodeNormal.x();
+        const ny = nodeNormal.y();
+        const nz = nodeNormal.z();
+
+        const assocVertex = association[ j ];
+
+        for ( let k = 0, kl = assocVertex.length; k &lt; kl; k ++ ) {
+
+          let indexVertex = assocVertex[ k ];
+          volumePositions[ indexVertex ] = x;
+          volumeNormals[ indexVertex ] = nx;
+          indexVertex ++;
+          volumePositions[ indexVertex ] = y;
+          volumeNormals[ indexVertex ] = ny;
+          indexVertex ++;
+          volumePositions[ indexVertex ] = z;
+          volumeNormals[ indexVertex ] = nz;
+
+        }
+
+      }
+
+      geometry.attributes.position.needsUpdate = true;
+      geometry.attributes.normal.needsUpdate = true;
+
+    }
+
+    // Update rigid bodies
+    for ( let i = 0, il = rigidBodies.length; i &lt; il; i ++ ) {
+
+      const objThree = rigidBodies[ i ];
+      const objPhys = objThree.userData.physicsBody;
+      const ms = objPhys.getMotionState();
+      if ( ms ) {
+
+        ms.getWorldTransform( transformAux1 );
+        const p = transformAux1.getOrigin();
+        const q = transformAux1.getRotation();
+        objThree.position.set( p.x(), p.y(), p.z() );
+        objThree.quaternion.set( q.x(), q.y(), q.z(), q.w() );
+
+      }
+
+    }
+
+  }
+        
+  // Calculate the physics for Kinematic Rigid Body called krbRotator
+  function updateRotatorPhysics(deltaTime){
+
+    // console.log(r_momentum_rotY)
+    if(interactDown || r_momentum_rotY &gt;=0)
+    {
+      let scalingFactor = 0.0005;
+
+      spins += ((Math.abs(mSpeedX)*scalingFactor)+(r_momentum_rotY)*(0.01))/(2*Math.PI);
+      r_current_rotY += (mSpeedX*scalingFactor)+(r_momentum_rotY*r_momentum_rotY_dir)*(0.01);
+
+      if(krbRotator && !isNaN(r_current_rotY)) {
+
+        r_tmpPos.set(krbRotator.position.x,krbRotator.position.y,krbRotator.position.z);
+        let tmpEuler = new THREE.Euler( 0, r_current_rotY, 0, 'XYZ' );
+
+        r_tmpQuat.setFromEuler(tmpEuler);
+
+        let physicsBody = krbRotator.userData.physicsBody;					
+        let ms = physicsBody.getMotionState();
+        if(ms) {
+
+            r_ammoTmpPos.setValue(r_tmpPos.x, r_tmpPos.y, r_tmpPos.z);
+            r_ammoTmpQuat.setValue( r_tmpQuat.x, r_tmpQuat.y, r_tmpQuat.z, r_tmpQuat.w);
+
+            r_tmpTransform.setIdentity();
+            r_tmpTransform.setOrigin( r_ammoTmpPos ); 
+            r_tmpTransform.setRotation( r_ammoTmpQuat ); 
+
+            ms.setWorldTransform(r_tmpTransform);							
+        }
+
+      }
+      
+      mSpeedX = 0;
+      mSpeedY = 0;
+      
+    }
+    
+    // Prevent momentum from going beyond the max
+    if(r_momentum_rotY &gt; r_momentum_rotY_max) {
+      r_momentum_rotY = r_momentum_rotY_max;
+    }
+
+    // Decrease the momentum over time
+    if(r_momentum_rotY &gt;=0) {
+      r_momentum_rotY-=Math.sqrt(deltaTime);
+    }
+
+
+    // If momentum is less than 0.2, set the tmp momentum to 0 to stop spinning
+    if(Math.abs(krbRotator.userData.physicsBody.getAngularVelocity().y()) &lt;= 0.2 && interactDown) {
+      r_tmp_m_rotY = 0;
+    }
+
+    statSpeed.innerHTML = (Math.abs(Math.round(krbRotator.userData.physicsBody.getAngularVelocity().y()*10)/10)) + '&lt;span class='statsLabel'&gt; twirls/s&lt;/span&gt;';
+
+    statSpins.innerHTML = Math.trunc(spins) + '&lt;span class='statsLabel'&gt; spinnies&lt;/span&gt;';
+  }
+&lt;/script&gt;
 </code></pre></div>
 
-  <p>Thanks for stopping by friend!</p>
+  <br>
+
+  <h2>Code Breakdown:</h2>
+  <br>
+  <h3>import</h3>
+  <p class='caption'>// First, at the end of the 'body' tag, we need to import Ammo.js <span class='emphasize'>first</span> as a separate script tag then everything else.<br>// Then as a new <span class='emphasize'><a href='https://javascript.info/modules-intro' target='_blank' title='what is a script module?'>script module</a></span>, start the import process of:</p>
+  <ul class='caption quoteblock list'>
+    <li><span class='emphasize'>Three.js</span>,</li>
+    <li><span class='emphasize'>Stats & GUI</span>,</li>
+    <li><span class='emphasize'>Controls</span> <span class='demphasize'>(we dont need these, but I like to have it for testing)</span>,</li>
+    <li><span class='emphasize'>BufferGeometryUtils</span> <span class='demphasize'>(for geometry modification)</span>,</li>
+    <li><span class='emphasize'>GLTFLoader & DRACOLoader</span> <span class='demphasize'>(to load in a Draco compressed Blender GLTF)</span>,</li>
+    <li><span class='emphasize'>Custom Materials</span></li>
+  </ul>
+<div class='pastebin'><pre><code>
+&lt;script src='../examples/js/libs/ammo.wasm.js'&gt;&lt;/script&gt;
+
+&lt;script type='module'&gt;
+  import * as THREE from '../build/three.module.js';
+
+  import Stats from '../examples/jsm/libs/stats.module.js';
+  import { GUI } from '../examples/jsm/libs/dat.gui.module.js';
+
+  import { OrbitControls } from '../examples/jsm/controls/OrbitControls.js';
+  import { BufferGeometryUtils } from '../examples/jsm/utils/BufferGeometryUtils.js';
+        
+  import { GLTFLoader } from '../examples/jsm/loaders/GLTFLoader.js';
+  import { DRACOLoader } from '../examples/jsm/loaders/DRACOLoader.js';
+
+  import { MStylizedFabric } from '../materials/MStylizedFabric.js';
+</code></pre></div>
+<br>
+
+  <h3>variables</h3>
+  <p class='caption'>// Then following the variables <span class='emphasize'>continuing inside the same script tag</span> we need to setup all the variables we'll use:</p>
+  <ul class='caption quoteblock list'>
+    <li><span class='emphasize'>SCENE</span>,</li>
+    <li><span class='emphasize'>STATS</span>,</li>
+    <li><span class='emphasize'>MOUSE</span>,</li>
+    <li><span class='emphasize'>KINEMATIC RIGID BODY</span> <span class='demphasize'>(called krbRotator here)</span>,</li>
+    <li><span class='emphasize'>TESTING</span>,</li>
+    <li><span class='emphasize'>PHYSICS</span>,</li>
+    <li><span class='emphasize'>MATERIALS</span></li>
+  </ul>
+<div class='pastebin'><pre><code>
+  //...imports..
+  
+  // SCENE VARIABLES
+  let container, gui, stats, params, camera, controls, scene, renderer, mixer, meshScene, skirt, krbRotator;
+  const clock = new THREE.Clock();
+
+  // STAT COUNTERS
+  let spins = 0;
+  let statSpins = 0;
+  let statSpeed = 0;
+
+  // MOUSE VARIABLES
+  let clickRequest = false;
+  let interactDown = false;
+  let mouseX, mouseY;
+  let mTimestamp = null;
+  let lastMouseX = null;
+  let lastMouseY = null;
+  let mSpeedX = 0;
+  let mSpeedY = 0;
+  let lastClientX = 0;
+  let distanceX = 0;
+
+  // krbRotator VARIABLES
+  let r_current_rotY = 0;
+  let r_momentum_rotY = 0;
+  let r_momentum_rotY_dir = 0;
+  let r_momentum_rotY_max = 100.1;
+  let r_tmp_m_rotY;
+
+  let r_tmpTransform, r_ammoTmpPos, r_ammoTmpQuat;
+  let r_tmpPos = new THREE.Vector3()
+  let r_tmpQuat = new THREE.Quaternion();
+
+
+  // BALL VARIABLES for testing
+  const mouseCoords = new THREE.Vector2();
+  const raycaster = new THREE.Raycaster();
+  const pos = new THREE.Vector3();
+  const quat = new THREE.Quaternion();
+
+  // PHYSICS VARIABLES
+  const gravityConstant = -9.8;
+  let physicsWorld, transformAux1, softBodyHelpers;
+  const rigidBodies = [];
+  const softBodies = [];
+  const margin = 0.05;
+  const FLAGS = { CF_KINEMATIC_OBJECT: 2 };
+  const STATE = { DISABLE_DEACTIVATION : 4 }
+
+  // MATERIALS
+  let M_invisible, M_skirt_fresnel, M_skirt_fabric;
+</code></pre></div>
+<br>
+
+  <h3>Ammo()</h3>
+  <p class='caption'>
+    // Next after all that, setup Ammo.js
+    <br>
+    // Normally the animate() is started here, but we are importing a custom object, so animate() happens at the end of the object loading
+  </p>
+<div class='pastebin'><pre><code>
+  //...variables...
+  
+  Ammo().then( function ( AmmoLib ) {
+
+    Ammo = AmmoLib;
+
+    init();
+    // animate();
+
+  } );
+</code></pre></div> 
+<br>
+
+  <h3>init()</h3>
+  <p class='caption'>// Initialize init functions</p>
+<div class='pastebin'><pre><code>
+  //...Ammo()...
+  
+  function init() {
+
+    params = {
+      opacity: 0,
+      showVertexColors: false,
+      projectiles: false,
+      simulate: false,
+    };
+
+    r_tmpTransform = new Ammo.btTransform();
+    r_ammoTmpPos = new Ammo.btVector3();
+    r_ammoTmpQuat = new Ammo.btQuaternion();
+
+    initScene(); // setup three camera, renderer, scene, & lights
+
+    initPhysics(); // ammo world physics
+
+    initCreateObjects(); // three and ammo object creation
+
+    initInput();  // user input
+
+    //initGUI(); // testing
+
+    initStats(); // tracking physics elements
+
+  }
+</code></pre></div>
+<br>
+
+  <h3>initScene()</h3>
+  <p class='caption'>// Initialize the Three.js environment:</p>
+  <ul class='caption quoteblock list'>
+    <li><span class='emphasize'>CAMERA</span>,</li>
+    <li><span class='emphasize'>RENDERER</span>,</li>
+    <li><span class='emphasize'>SCENE</span>,</li>
+    <li><span class='emphasize'>LIGHTS</span></li>
+  </ul>
+<div class='pastebin'><pre><code>
+  //...init...
+
+  function initScene() {
+
+    // CAMERA
+    camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 0.2, 2000 );
+    camera.position.set( 0, 2, 10 );
+    camera.rotation.set(-0.2, 0, 0);
+
+    // RENDERER
+    renderer = new THREE.WebGLRenderer();
+    renderer.setPixelRatio( window.devicePixelRatio );
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.shadowMap.enabled = true;
+    container = document.getElementById( 'container' );
+    container.oncontextmenu = contextSelect;  
+    function contextSelect(e){e.preventDefault();}
+    container.appendChild( renderer.domElement );
+
+    // SCENE
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xF7A8B8);
+
+    // DEFINE LIGHTS
+    const hemisphereLight = new THREE.HemisphereLight( 0xfceafc, 0x000000, .8 );
+    scene.add( hemisphereLight );
+
+    const dirLight = new THREE.DirectionalLight( 0xffffff, .5 );
+    dirLight.position.set( 150, 75, 150 );
+    scene.add( dirLight );
+
+    const dirLight2 = new THREE.DirectionalLight( 0xffffff, .2 );
+    dirLight2.position.set( - 150, 75, - 150 );
+    scene.add( dirLight2 );
+
+    const dirLight3 = new THREE.DirectionalLight( 0xffffff, .1 );
+    dirLight3.position.set( 125, 125, 0 );
+    scene.add( dirLight3 );
+  }
+</code></pre></div>
+<br>
+
+  <h3>initPhysics()</h3>
+  <p class='caption'>// Init Physics, these was copied from <a href='https://threejs.org/examples/?q=ammo' target='_blank' title='take me to the demos!'>other ThreeJS Ammo demos</a>.<br>// You won't really need to understand how this works. I don't ¯ \_ (ツ)_/¯</p>
+  <p class='caption'>// However, these two are useful during the updatePhysics() loop to modify object transformations on the fly.</p>
+  <p class='caption quoteblock'>transformAux1 = new Ammo.btTransform();<br>softBodyHelpers = new Ammo.btSoftBodyHelpers();</p>
+<div class='pastebin'><pre><code>
+  //...initScene...
+
+  function initPhysics() {
+
+    // Physics configuration
+    const collisionConfiguration = new Ammo.btSoftBodyRigidBodyCollisionConfiguration();
+    const dispatcher = new Ammo.btCollisionDispatcher( collisionConfiguration );
+    const broadphase = new Ammo.btDbvtBroadphase();
+    const solver = new Ammo.btSequentialImpulseConstraintSolver();
+    const softBodySolver = new Ammo.btDefaultSoftBodySolver();
+
+    physicsWorld = new Ammo.btSoftRigidDynamicsWorld( dispatcher, broadphase, solver, collisionConfiguration, softBodySolver );
+    physicsWorld.setGravity( new Ammo.btVector3( 0, gravityConstant, 0 ) );
+    physicsWorld.getWorldInfo().set_m_gravity( new Ammo.btVector3( 0, gravityConstant, 0 ) );
+
+    transformAux1 = new Ammo.btTransform();
+    softBodyHelpers = new Ammo.btSoftBodyHelpers();
+
+  }
+</code></pre></div>
+<br>
+
+  <h3>initCreateObjects()</h3>
+  <p class='caption'>// Define:</p>
+  <ul class='caption quoteblock list'>
+    <li><span class='emphasize'>TEXTURES</span>,</li>
+    <li><span class='emphasize'>MATERIALS</span>,</li>
+    <li><span class='emphasize'>GEOMETRIES</span>,</li>
+    <li><span class='emphasize'>GEOMETRIES CONVERTED into Ammo rigid & soft bodies</span></li>
+  </ul>
+<p class='caption'>// After the imported model is loaded, start the animate() loop</p>
+<div class='pastebin'><pre><code>
+  //...initPhysics...
+
+  function initCreateObjects() {
+
+    // DEFINE TEXTURES
+    let fabricPattern = new THREE.TextureLoader().load( '../models/textures/transPattern.jpg');
+    fabricPattern.wrapS = THREE.RepeatWrapping;
+    fabricPattern.wrapT = THREE.RepeatWrapping;
+    fabricPattern.repeat.set( 1,1);
+
+    const gradientMap = createGradientMap(4,4);
+
+    // DEFINE MATERIALS
+    M_skirt_fabric = new THREE.MeshToonMaterial( {
+      color: new THREE.Color(0xaaaaaa),
+      map: fabricPattern,
+      gradientMap: gradientMap,
+      transparent: true,
+      opacity: 1,
+      side: THREE.DoubleSide,
+      vertexColors: true, // helpful to visualize your vertex colors
+    } );
+
+    M_skirt_fresnel = new THREE.ShaderMaterial( {
+
+      uniforms: MStylizedFabric.uniforms,
+      vertexShader: MStylizedFabric.vertexShader,
+      fragmentShader: MStylizedFabric.fragmentShader,
+      // side: THREE.DoubleSide,
+
+    } );
+    M_skirt_fresnel.uniforms[ 'baseColor' ].value = fabricPattern;
+
+    M_invisible = new THREE.MeshToonMaterial( {
+      color: new THREE.Color(0xffffff),
+      gradientMap: gradientMap,
+      transparent: true,
+      opacity: params.opacity,
+    } );
+            
+
+    // DEFINE GEOMETRIES
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath( '../examples/js/libs/draco/gltf/' );
+
+    // Ground
+    pos.set( 0, - 2.5, 0 );
+    quat.set( 0, 0, 0, 1 );
+    const ground = createRigidBodyBoxShape( 40, 1, 40, 0, pos, quat, M_invisible);
+    ground.castShadow = true;
+    ground.receiveShadow = true;
+            
+    // Create kinematic rigid body called krbRotator 
+    pos.set( 0, 2.2, 0 );
+    quat.setFromAxisAngle( new THREE.Vector3( 0, 0, 0 ), 0 );
+    krbRotator = createRigidBodyBoxShape( 4, 1, 4, 1, pos, quat, M_invisible, true);
+    krbRotator.castShadow = false;
+    krbRotator.receiveShadow = false;
+
+    // ADD LOADER AND GEO
+    const loader = new GLTFLoader();
+    loader.setDRACOLoader( dracoLoader );
+    loader.load( '../models/skirtgospinnyLP.gltf', function ( gltf ) {
+
+      // IMPORT THE SCENE
+      const meshScene = gltf.scene;
+      meshScene.position.set( - 5, 25, 0 );
+
+      // ADD SOFTBODIES
+      meshScene.traverse( c =&gt; {
+        if ( c.isMesh ) {
+          let mesh = c;
+          let count = 0;
+          const volumeMass = 15;
+          const volumePressure = 0; // 0 for flat open geometries, 1+ for closed geometries
+                        
+          mesh.translate( - 2, 5, 0 );
+          skirt = createSoftBody( mesh.geometry, volumeMass, volumePressure);
+          if(params.showVertexColors) {
+            skirt.material = M_skirt_fabric;								
+          }
+          else {
+            skirt.material = M_skirt_fresnel;
+          }
+
+          // VERTEX WEIGHTS from Vertex Colors						
+          let anchors = getVertexWeights(mesh.geometry, 0.05, 0.5); // max influence 0.5 for performance
+
+          // Glue the cloth to the arm							
+          count = 0;
+
+          let ammoVertAssociation = skirt.geometry.ammoIndexInOrder;
+          for(let i=0; i &lt; ammoVertAssociation.length; i++) {
+              for(let j=0; j &lt; anchors.length; j++) {                                
+                  if(ammoVertAssociation[i] == anchors[j].index) {
+                      let influence = anchors[j].weight;
+                      count++;
+                      skirt.userData.physicsBody.appendAnchor( ammoVertAssociation[i], krbRotator.userData.physicsBody, false, influence);
+                  }
+              }
+          }                         
+        }
+      });
+        
+      // ANIMATION CLIPS
+      // Add an animation mixer to take care of mesh animations
+      mixer = new THREE.AnimationMixer( meshScene );
+
+      let i;
+      for(i=0; i&lt;gltf.animations.length; i++){
+        const clip = gltf.animations[i];
+
+        if ( clip ) {
+
+          const action = mixer.clipAction( clip );
+          action.play();
+            
+        }
+      }
+
+      // HERE'S THE ANIMATE LOOP! 
+      animate();
+
+    }, function() {
+      console.log('LOADED SKIRT!');
+    }, function ( e ) {
+
+      console.error( e );
+
+    } );
+
+  }
+</code></pre></div>
+<br>
+
+  <h3>initInput()</h3>
+  <p class='caption'>// Initialize input, this is where the mouse/touch input speeds are calculated</p>
+  <p class='caption'>// We are mainly using these:</p>
+  <ul class='caption quoteblock list'>
+    <li><span class='emphasize'>handleInputDown</span>, <span class='demphasize'>(sets & resets momentum)</span></li>
+    <li><span class='emphasize'>handleInputMove</span>, <span class='demphasize'>(calculates mouse/touch speed to apply to momentum)</span></li>
+    <li><span class='emphasize'>handleInputUp</span>, <span class='demphasize'>(resets mouse/touch speed)</span></li>
+  </ul>
+<div class='pastebin'><pre><code>
+  //...initCreateObjects...
+
+  function initInput() {
+
+    document.getElementById('start').addEventListener('pointerdown', function ( event ) {
+      document.getElementById('start').setAttribute('style','display: none;');
+      document.getElementById('startblur').setAttribute('style','filter: blur(0rem);');
+      params.simulate = true;
+      if(gui){
+        gui.updateDisplay();
+      }
+    });
+    document.getElementById('pause').addEventListener('pointerdown', function ( event ) {
+      document.getElementById('start').setAttribute('style','display: flex;');
+      document.getElementById('startblur').setAttribute('style','filter: blur(1.5rem);');
+      params.simulate = false;
+      if(gui){
+        gui.updateDisplay();
+      }
+    });
+
+    window.addEventListener( 'pointerdown', function ( event ) {
+        if ( ! clickRequest ) {
+          mouseCoords.set(
+              ( event.clientX / window.innerWidth ) * 2 - 1,
+              - ( event.clientY / window.innerHeight ) * 2 + 1
+          );
+          clickRequest = true;
+        }
+    } );
+    
+    // user starts interating, setup/reset momentum and mouse/touch location
+    function handleInputDown(e) {
+      interactDown = true;
+
+      // if our mouse/touch is still down for 200ms, stop momentum
+      r_tmp_m_rotY = r_momentum_rotY;
+      setTimeout(function() {
+        if(interactDown){
+          r_momentum_rotY = 0;
+        } 
+      }, 200);     
+
+      if(e.touches) {
+        lastClientX = e.touches[0].clientX;
+      } else {
+        lastClientX = e.clientX;
+      }
+      
+    }
+
+    // user moves interation, calculate mouse/touch speed & momentum
+    function handleInputMove(e) {
+
+      if(interactDown) {
+        let maxX = 0;
+        let maxY = 0;
+        
+        if (mTimestamp === null) {
+          mTimestamp = Date.now();
+          if(e.touches) {
+            lastMouseX = e.touches[0].screenX;
+            lastMouseY = e.touches[0].screenY;
+          } else {
+            lastMouseX = e.screenX;
+            lastMouseY = e.screenY;
+          }
+          return;
+        }
+
+        let now = Date.now();
+        let dt =  now - mTimestamp;
+        let dx = 0;
+        let dy = 0;
+        if(e.touches) {
+          maxX = 120;
+          maxY = maxX;
+          // console.log('touch moving!');
+          dx = e.touches[0].screenX - lastMouseX;
+          dy = e.touches[0].screenY - lastMouseY;
+          mSpeedX = Math.round( dx / dt * 100 );
+          mSpeedY = Math.round( dy / dt * 100 );
+
+          distanceX = ((Math.abs((e.touches[0].clientX - lastClientX)/dt) + 1)/100);
+        } else {
+          maxX = 100;
+          maxY = maxX;
+          dx = e.screenX - lastMouseX;
+          dy = e.screenY - lastMouseY;
+          mSpeedX = Math.round( dx / dt * 100 );
+          mSpeedY = Math.round( dy / dt * 100 );
+
+          distanceX = (Math.abs((e.clientX - lastClientX)/dt) + 1)/100;
+        }
+        
+        // console.log(distanceX);
+        
+        let tmpCenterX = Math.abs((1-(Math.abs(distanceX*100))));
+        tmpCenterX = tmpCenterX&lt;=1?1:tmpCenterX;
+        mSpeedX = mSpeedX * tmpCenterX;
+        
+        if(Math.abs(mSpeedX) &gt;= maxX || Math.abs(mSpeedX) === Infinity) {
+          mSpeedX = Math.sign(mSpeedX)*maxX;
+        }
+        if(Math.abs(mSpeedY) &gt;= maxY || Math.abs(mSpeedY) === Infinity) {
+          mSpeedY = Math.sign(mSpeedY)*maxY;
+        }
+        if(isNaN(mSpeedX)) {
+          mSpeedX = 0;
+        }
+        if(isNaN(mSpeedY)) {
+          mSpeedY = 0;
+        }
+
+        // console.log(mSpeedX);
+        mTimestamp = now;
+        if(e.touches) {
+          lastMouseX = e.touches[0].screenX;
+          lastMouseY = e.touches[0].screenY;
+        } else {
+          lastMouseX = e.screenX;
+          lastMouseY = e.screenY;
+        }
+
+        let angularMomentumY = krbRotator.userData.physicsBody.getAngularVelocity().y();
+        r_momentum_rotY = (Math.abs(angularMomentumY)+(r_tmp_m_rotY));
+        r_momentum_rotY_dir = Math.sign(angularMomentumY);
+      }
+    }
+
+    // user is done interacting, reset mouse/touch speed
+    function handleInputUp(e) {
+      // console.log('up')
+      interactDown = false;
+      mSpeedX = 0;
+      mSpeedY = 0;
+    }
+
+    // add these functions as events to the web document window
+    window.addEventListener( 'mousedown', handleInputDown);
+    window.addEventListener( 'mousemove', handleInputMove);
+    window.addEventListener( 'mouseup', handleInputUp);
+    window.addEventListener( 'touchstart', function ( e ) { e.preventDefault(); handleInputDown(e);},false );
+    window.addEventListener( 'touchmove', function ( e ) { e.preventDefault(); handleInputMove(e);},false );
+    window.addEventListener( 'touchend', function ( e ) { e.preventDefault(); handleInputUp(e);},false );
+    
+    // window resize event binding of function onWindowResize()
+    window.addEventListener( 'resize', onWindowResize );
+
+  }
+</code></pre></div>
+<br>
+
+  <h3>initGUI()</h3>
+  <p class='caption'>// Initialize GUI, which is the neat little thing in the corner that helps show variables we can change and update.<br>// And also initialize Stats, the live trackers for spinnies & twirls per second</p>
+<div class='pastebin'><pre><code>
+  //...initInput...
+
+  function initGUI() {
+    gui = new GUI();
+
+    // GEO OUTLINE GUI
+    gui.add( params, 'opacity' ).min( 0.0 ).max( 1.0 ).step( 0.1 ).onChange( function(value)
+    {
+      M_invisible.opacity = value;
+    });	
+    gui.add( params, 'showVertexColors' ).onChange( function(value)
+    {
+      skirt.material = value?M_skirt_fabric:M_skirt_fresnel;
+    });	
+    gui.add( params, 'projectiles');	
+    gui.add( params, 'simulate' );
+
+    gui.domElement.setAttribute('style','margin-top: 35px; margin-right: -15px;')
+  }
+
+  function initStats() {
+    statSpins = document.getElementById('stat-spins');
+    statSpeed = document.getElementById('stat-speed');
+  }
+</code></pre></div>
+<br>
+
+  <h3>utility functions</h3>
+  <p class='caption'>// Here are all the utilies that <span class='emphasize'>handle do</span> tedious code</p>
+  <p class='caption'>// Ammo's utility functions are as follows:</p>
+  <ul class='caption quoteblock list'>
+    <li><span class='emphasize'>processGeometry</span> <span class='demphasize'>used in createSoftBody to <a href='https://threejs.org/docs/index.html?q=inde#examples/en/utils/BufferGeometryUtils.mergeVertices' title='how do i merge geometry in threejs?'>merge</a> and <a href='https://threejs.org/docs/index.html?q=inde#api/en/core/BufferGeometry.index' title='what are indexed vertices?'>index vertices</a></span>,</li>
+    <li><span class='emphasize'>mapIndices</span> <span class='demphasize'>for that geometry</span>,</li>
+    <li><span class='emphasize'>isEqual</span> <span class='demphasize'>to compare vertices used in mapIndices</span>,</li>
+    <li><span class='emphasize'>createSoftBody</span>, <span class='demphasize'>creates a Ammo soft body from geometry</span></li>
+    <li><span class='emphasize'>createRigidBody</span>, <span class='demphasize'>creates a Ammo rigid body from geometry</span></li>
+    <li><span class='emphasize'>createRigidBodyBoxShape</span> <span class='demphasize'>to easily make a rigid body cube</span>,</li>
+  </ul>
+  <p class='caption'>// Three's utility functions are as follows:</p>
+  <ul class='caption quoteblock list'>
+    <li><span class='emphasize'>createGradientMap</span> <span class='demphasize'>used for the toon material</span>,</li>
+    <li><span class='emphasize'>getVertexWeights</span> <span class='demphasize'>which returns vertex colors as normalized weights</span>,</li>
+  </ul>
+<div class='pastebin'><pre><code>
+  //...initGUI...
+
+  ////////////////////////////
+  // Utility Ammo Functions //
+  ////////////////////////////
+
+  function processGeometry( bufGeometry ) {
+
+    // Ony consider the position values when merging the vertices
+    const posOnlyBufGeometry = new THREE.BufferGeometry();
+    posOnlyBufGeometry.setAttribute( 'position', bufGeometry.getAttribute( 'position' ) );
+    posOnlyBufGeometry.setIndex( bufGeometry.getIndex() );
+
+    // Merge the vertices so the triangle soup is converted to indexed triangles
+    const indexedBufferGeom = BufferGeometryUtils.mergeVertices( posOnlyBufGeometry );
+
+    // Create index arrays mapping the indexed vertices to bufGeometry vertices
+    mapIndices( bufGeometry, indexedBufferGeom );
+
+  }
+        
+  function mapIndices( bufGeometry, indexedBufferGeom ) {
+
+    // Creates ammoVertices, ammoIndices and ammoIndexAssociation in bufGeometry
+
+    const vertices = bufGeometry.attributes.position.array;
+    const idxVertices = indexedBufferGeom.attributes.position.array;
+    const indices = indexedBufferGeom.index.array;
+
+    const numIdxVertices = idxVertices.length / 3;
+    const numVertices = vertices.length / 3;
+
+    bufGeometry.ammoVertices = idxVertices;
+    bufGeometry.ammoIndices = indices;
+    bufGeometry.ammoIndexAssociation = [];
+            bufGeometry.ammoIndexInOrder = [];
+
+    for ( let i = 0; i &lt; numIdxVertices; i ++ ) {
+
+      const association = [];
+      bufGeometry.ammoIndexAssociation.push( association );
+
+      const i3 = i * 3;
+
+      for ( let j = 0; j &lt; numVertices; j ++ ) {
+
+        const j3 = j * 3;
+        if ( isEqual( idxVertices[ i3 ], idxVertices[ i3 + 1 ], idxVertices[ i3 + 2 ],
+          vertices[ j3 ], vertices[ j3 + 1 ], vertices[ j3 + 2 ] ) ) {
+
+          association.push( j3 );
+                        bufGeometry.ammoIndexInOrder.push(j);
+        }
+
+      }
+
+    }
+
+    for( let i = 0; i &lt; bufGeometry.ammoIndexInOrder.length; i++) {
+      if(bufGeometry.ammoIndexInOrder[i] &gt;= numIdxVertices) {
+        // console.log(bufGeometry.ammoIndexInOrder[i] +' compare to '+ numIdxVertices);
+        bufGeometry.ammoIndexInOrder.splice(i,1);
+        i--;
+      }
+    }
+
+  }
+        
+  function isEqual( x1, y1, z1, x2, y2, z2 ) {
+
+    const delta = 0.000001;
+    return Math.abs( x2 - x1 ) &lt; delta &&
+          Math.abs( y2 - y1 ) &lt; delta &&
+          Math.abs( z2 - z1 ) &lt; delta;
+
+  }
+
+  function createSoftBody( bufferGeom, mass, pressure ) {
+
+    processGeometry( bufferGeom );
+
+    const sbMesh = new THREE.Mesh( bufferGeom, new THREE.MeshPhongMaterial( { color: 0xFFFFFF } ) );
+    sbMesh.castShadow = true;
+    sbMesh.receiveShadow = true;
+    sbMesh.frustumCulled = false;
+    scene.add( sbMesh );
+
+    // sbMesh physics object
+    const volumeSoftBody = softBodyHelpers.CreateFromTriMesh(
+    physicsWorld.getWorldInfo(),
+    bufferGeom.ammoVertices,
+    bufferGeom.ammoIndices,
+    bufferGeom.ammoIndices.length / 3, true );
+
+    const sbConfig = volumeSoftBody.get_m_cfg();
+    sbConfig.set_viterations( 40 );
+    sbConfig.set_piterations( 40 );
+
+    // Soft-soft and soft-rigid collisions
+    sbConfig.set_collisions( 0x11 );
+
+    // Friction
+    sbConfig.set_kDF( 0.1 );
+    // Damping
+    sbConfig.set_kDP( 0.01 );
+    // Pressure
+    sbConfig.set_kPR( pressure );
+    // Stiffness
+    volumeSoftBody.get_m_materials().at( 0 ).set_m_kLST( 0.9 );
+    volumeSoftBody.get_m_materials().at( 0 ).set_m_kAST( 0.9 );
+
+    volumeSoftBody.setTotalMass( mass, false );
+    Ammo.castObject( volumeSoftBody, Ammo.btCollisionObject ).getCollisionShape().setMargin( margin );
+    physicsWorld.addSoftBody( volumeSoftBody, 1, - 1 );
+    sbMesh.userData.physicsBody = volumeSoftBody;
+    // Disable deactivation
+    volumeSoftBody.setActivationState( 4 );
+
+    softBodies.push( sbMesh );
+
+    return sbMesh;
+  }
+
+  function createRigidBody( threeObject, physicsShape, mass, pos, quat, isKinematic=false ) {
+    
+    threeObject.position.copy( pos );
+    threeObject.quaternion.copy( quat );
+
+    const transform = new Ammo.btTransform();
+    transform.setIdentity();
+    transform.setOrigin( new Ammo.btVector3( pos.x, pos.y, pos.z ) );
+    transform.setRotation( new Ammo.btQuaternion( quat.x, quat.y, quat.z, quat.w ) );
+    const motionState = new Ammo.btDefaultMotionState( transform );
+
+    const localInertia = new Ammo.btVector3( 0, 0, 0 );
+    physicsShape.calculateLocalInertia( mass, localInertia );
+
+    const rbInfo = new Ammo.btRigidBodyConstructionInfo( mass, motionState, physicsShape, localInertia );
+    const body = new Ammo.btRigidBody( rbInfo );
+
+    threeObject.userData.physicsBody = body;
+
+    scene.add( threeObject );
+
+    if ( mass &gt; 0 ) {
+
+      rigidBodies.push( threeObject );
+
+      // Disable deactivation
+      body.setActivationState( 4 );
+
+    }
+    
+    if(isKinematic){
+      body.setActivationState( STATE.DISABLE_DEACTIVATION );
+      body.setCollisionFlags( FLAGS.CF_KINEMATIC_OBJECT );				
+    }
+
+    physicsWorld.addRigidBody( body );
+
+    return threeObject;
+
+  }
+        
+  ///////////////////////////////////
+  // Scene Specific Ammo Functions //
+  ///////////////////////////////////
+
+  function createRigidBodyBoxShape( sx, sy, sz, mass, pos, quat, material, isKinematic=false) {
+
+    const threeObject = new THREE.Mesh( new THREE.BoxGeometry( sx, sy, sz, 1, 1, 1 ), material );
+    const shape = new Ammo.btBoxShape( new Ammo.btVector3( sx * 0.5, sy * 0.5, sz * 0.5 ) );
+    shape.setMargin( margin );
+
+    createRigidBody( threeObject, shape, mass, pos, quat, isKinematic );
+
+    return threeObject;
+
+  }
+
+  /////////////////////////////
+  // Utility Three Functions //
+  /////////////////////////////
+
+  function createGradientMap(grad_width = 4, grad_height = 4, grad_color = new THREE.Color( 0xffffff )) {
+
+    const grad_size = grad_width * grad_height;
+    const grad_data = new Uint8Array(grad_size);
+
+    const grad_r = Math.floor( grad_color.r * 255 );
+    const grad_g = Math.floor( grad_color.g * 255 );
+    const grad_b = Math.floor( grad_color.b * 255 );
+
+    for ( let i = 0; i &lt; grad_size; i ++ ) {
+
+      const grad_stride = i * 3;
+
+      grad_data[ grad_stride ] = grad_r;
+      grad_data[ grad_stride + 1 ] = grad_g;
+      grad_data[ grad_stride + 2 ] = grad_b;
+
+    }
+
+    let gradientMap = new THREE.DataTexture(grad_data, grad_width, grad_height, THREE.LuminanceFormat );
+    gradientMap.minFilter = THREE.NearestFilter;
+    gradientMap.magFilter = THREE.NearestFilter;
+    gradientMap.generateMipmaps = false;
+            
+    return gradientMap;
+  }
+
+  function getVertexWeights( bufferGeom, toleranceMin = 0.0, toleranceMax = 1.0) {
+    const m = new THREE.BufferGeometry();
+    m.setAttribute( 'position', bufferGeom.getAttribute( 'position' ) );
+    m.setAttribute( 'color', bufferGeom.getAttribute( 'color' ) );
+    m.setIndex(bufferGeom.getIndex());
+    const indexedMesh = BufferGeometryUtils.mergeVertices( m );
+
+    let vertColors = indexedMesh.attributes.color.array
+    let weights = [];
+    let wCount = 0;
+    for(let i=0; i&lt;(vertColors.length/4); i++) {                                
+      if((vertColors[i*4]/65535) &gt;= toleranceMin && (vertColors[i*4]/65535) &lt;= toleranceMax){
+        // Divide by 65535 (max allowed verts) to get a normalied vertex weight [0.0 - 1.0]
+        // console.log(vertColors[i*4]/65535);
+        wCount++;
+        weights.push({
+          index: i,
+          weight: (vertColors[i*4]/65535)
+        });
+      }
+    }
+    console.log('You painted '+wCount+' weights with more than '+toleranceMin+' and less than '+toleranceMax);  
+    return weights;
+  }
+
+</code></pre></div>
+<br>
+  
+  <h3>interaction</h3>
+  <p class='caption'>// Very simple and straigh forward here. Just some functions that handle a projectile 'ball' if we are testing and another for when the window is resized.</p>
+  <ul class='caption quoteblock list'>
+    <li><span class='emphasize'>testingBall</span> <span class='demphasize'></span>,</li>
+    <li><span class='emphasize'>onWindowResize</span> <span class='demphasize'></span>,</li>
+  </ul>
+<div class='pastebin'><pre><code>
+  //...utility functions...
+
+  /////////////////
+  // Interaction //
+  /////////////////
+  
+  function testingBall() {
+
+    if ( clickRequest ) {
+
+      // Cast a ray from the camera to where the mouse is
+      raycaster.setFromCamera( mouseCoords, camera );
+
+      // Create a ball
+      const ballMass = 3;
+      const ballRadius = 0.4;
+
+      const ball = new THREE.Mesh(
+        new THREE.SphereGeometry( ballRadius, 18, 16 ), 
+        new THREE.MeshPhongMaterial( { color: 0x55CDFC })
+      );
+      ball.castShadow = true;
+      ball.receiveShadow = true;
+
+      // Ammo physics shape to apply physics to
+      const ballShape = new Ammo.btSphereShape( ballRadius );
+      ballShape.setMargin( margin );
+      pos.copy( raycaster.ray.direction );
+      pos.add( raycaster.ray.origin );
+      quat.set( 0, 0, 0, 1 );
+      const ballBody = createRigidBody( ball, ballShape, ballMass, pos, quat ).userData.physicsBody;
+      ballBody.setFriction( 0.5 );
+
+      // Apply a vector in the direction of a the ray we casted at the start here
+      pos.copy( raycaster.ray.direction );
+      pos.multiplyScalar( 14 );
+      ballBody.setLinearVelocity( new Ammo.btVector3( pos.x, pos.y, pos.z ) );
+
+      clickRequest = false;
+    }
+
+  }
+            
+  function onWindowResize() {
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize( window.innerWidth, window.innerHeight );
+
+  }
+</code></pre></div>
+<br>
+
+  <h3>update loops</h3>
+  <p class='caption'>// Finally, to end this script, we have a few loops that handle animation, rendering, and Ammo.js physics.</p>
+  <ul class='caption quoteblock list'>
+    <li><span class='emphasize'>animate</span> <span class='demphasize'>calls requestAnimationFrame(animate) so it can loop every frame a web browser tab is in focus and can draw. This is useful for optimization because if the web browser tab isn't in focus, it won't animate. This also calls render()</span>,</li>
+    <li><span class='emphasize'>render</span> <span class='demphasize'>updates the ThreeJS renderer and calls updatePhysics() & updateRotatorPhysics()</span>,</li>
+    <li><span class='emphasize'>updatePhysics</span> <span class='demphasize'>updates the Ammo.js simulation for rigid & soft bodies.</span>,</li>
+    <li><span class='emphasize'>updateRotatorPhysics</span> <span class='demphasize'>updates and calculates the physics for our varible <span class='bold'> Kinematic Rigid Body</span> called 'krbRotator',</span>,</li>
+  </ul>
+<div class='pastebin'><pre><code>
+  //...interaction code...
+
+  //////////////////
+  // UPDATE LOOPS //
+  //////////////////
+      //#region 
+  function animate() {
+
+    requestAnimationFrame( animate );
+
+    render();
+    if(stats)
+      stats.update();
+
+  }
+
+  function render() {
+
+    if(params.simulate){
+      const deltaTime = clock.getDelta();
+      updatePhysics( deltaTime );
+      updateRotatorPhysics( deltaTime );
+      mixer.update( deltaTime );
+    }
+
+    if(params.projectiles){
+        testingBall();                    
+    }
+
+    renderer.render( scene, camera );
+
+  }
+
+  function updatePhysics( deltaTime ) {
+
+    // Step world
+    physicsWorld.stepSimulation( deltaTime, 10 );
+
+    // Update soft volumes
+    for ( let i = 0, il = softBodies.length; i &lt; il; i ++ ) {
+
+      const sbMesh = softBodies[ i ];
+      const geometry = sbMesh.geometry;
+      const softBody = sbMesh.userData.physicsBody;
+      const volumePositions = geometry.attributes.position.array;
+      const volumeNormals = geometry.attributes.normal.array;
+      const association = geometry.ammoIndexAssociation;
+      const numVerts = association.length;
+      const nodes = softBody.get_m_nodes();
+      for ( let j = 0; j &lt; numVerts; j ++ ) {
+
+        const node = nodes.at( j );
+        const nodePos = node.get_m_x();
+        const x = nodePos.x();
+        const y = nodePos.y();
+        const z = nodePos.z();
+        const nodeNormal = node.get_m_n();
+        const nx = nodeNormal.x();
+        const ny = nodeNormal.y();
+        const nz = nodeNormal.z();
+
+        const assocVertex = association[ j ];
+
+        for ( let k = 0, kl = assocVertex.length; k &lt; kl; k ++ ) {
+
+          let indexVertex = assocVertex[ k ];
+          volumePositions[ indexVertex ] = x;
+          volumeNormals[ indexVertex ] = nx;
+          indexVertex ++;
+          volumePositions[ indexVertex ] = y;
+          volumeNormals[ indexVertex ] = ny;
+          indexVertex ++;
+          volumePositions[ indexVertex ] = z;
+          volumeNormals[ indexVertex ] = nz;
+
+        }
+
+      }
+
+      geometry.attributes.position.needsUpdate = true;
+      geometry.attributes.normal.needsUpdate = true;
+
+    }
+
+    // Update rigid bodies
+    for ( let i = 0, il = rigidBodies.length; i &lt; il; i ++ ) {
+
+      const objThree = rigidBodies[ i ];
+      const objPhys = objThree.userData.physicsBody;
+      const ms = objPhys.getMotionState();
+      if ( ms ) {
+
+        ms.getWorldTransform( transformAux1 );
+        const p = transformAux1.getOrigin();
+        const q = transformAux1.getRotation();
+        objThree.position.set( p.x(), p.y(), p.z() );
+        objThree.quaternion.set( q.x(), q.y(), q.z(), q.w() );
+
+      }
+
+    }
+
+  }
+        
+  // Calculate the physics for Kinematic Rigid Body called krbRotator
+  function updateRotatorPhysics(deltaTime){
+
+    // console.log(r_momentum_rotY)
+    if(interactDown || r_momentum_rotY &gt;=0)
+    {
+      let scalingFactor = 0.0005;
+
+      spins += ((Math.abs(mSpeedX)*scalingFactor)+(r_momentum_rotY)*(0.01))/(2*Math.PI);
+      r_current_rotY += (mSpeedX*scalingFactor)+(r_momentum_rotY*r_momentum_rotY_dir)*(0.01);
+
+      if(krbRotator && !isNaN(r_current_rotY)) {
+
+        r_tmpPos.set(krbRotator.position.x,krbRotator.position.y,krbRotator.position.z);
+        let tmpEuler = new THREE.Euler( 0, r_current_rotY, 0, 'XYZ' );
+
+        r_tmpQuat.setFromEuler(tmpEuler);
+
+        let physicsBody = krbRotator.userData.physicsBody;					
+        let ms = physicsBody.getMotionState();
+        if(ms) {
+
+            r_ammoTmpPos.setValue(r_tmpPos.x, r_tmpPos.y, r_tmpPos.z);
+            r_ammoTmpQuat.setValue( r_tmpQuat.x, r_tmpQuat.y, r_tmpQuat.z, r_tmpQuat.w);
+
+            r_tmpTransform.setIdentity();
+            r_tmpTransform.setOrigin( r_ammoTmpPos ); 
+            r_tmpTransform.setRotation( r_ammoTmpQuat ); 
+
+            ms.setWorldTransform(r_tmpTransform);							
+        }
+
+      }
+      
+      mSpeedX = 0;
+      mSpeedY = 0;
+      
+    }
+    
+    // Prevent momentum from going beyond the max
+    if(r_momentum_rotY &gt; r_momentum_rotY_max) {
+      r_momentum_rotY = r_momentum_rotY_max;
+    }
+
+    // Decrease the momentum over time
+    if(r_momentum_rotY &gt;=0) {
+      r_momentum_rotY-=Math.sqrt(deltaTime);
+    }
+
+
+    // If momentum is less than 0.2, set the tmp momentum to 0 to stop spinning
+    if(Math.abs(krbRotator.userData.physicsBody.getAngularVelocity().y()) &lt;= 0.2 && interactDown) {
+      r_tmp_m_rotY = 0;
+    }
+
+    // Update the innerHTML for our stats
+    statSpeed.innerHTML = (Math.abs(Math.round(krbRotator.userData.physicsBody.getAngularVelocity().y()*10)/10)) + '&lt;span class='statsLabel'&gt; twirls/s&lt;/span&gt;';
+    statSpins.innerHTML = Math.trunc(spins) + '&lt;span class='statsLabel'&gt; spinnies&lt;/span&gt;';
+  }
+&lt;/script&gt;
+</code></pre></div>
+
+  <p>Yikes, that was a lot. But you made it! Or you scrolled all the way to the bottom hoping for find an easier way to make skirt go spinny. But it doesn't seem I can be of any further help. Making cloth physics for the web browser isn't that easy yet! Some of us don't have 3080RTXMILLION cards to handle this junk so why not make everything work on the web? Oh because reasons, my bad, I forgot. Anyway, I hope this somewhatofa tutorial helped you in some way or taught you something! Check out my <a href='https://github.com/aprilonian/artsite/' target='_blank'>github</a> for more complete code and <a href='http://www.twitter.com/aprilonian'>DM or @me on tweeter</a> if you have any questions about this, if something is broke, or you want more skirts to go spinny</p>
+
+  <p>Thanks for stopping by friend! Happy Pride!! &lt;3</p>
   
   <p>With love,</p>
   <h2>April Jane</h2>
@@ -22,4 +2051,4 @@
   
 </div>
 
-<script src="../js/redirect.js"></script>
+<script src='../js/redirect.js'></script>

@@ -96,9 +96,19 @@ img {
   font-size: 0.9em;
   font-style: italic;
 }
-.emphasize {
-  margin-top: 0;
+.bold {
   font-weight: bold;
+}
+.italic {
+  font-style: italic;
+}
+.emphasize {
+  font-weight: bold;
+  font-style: italic;
+}
+.demphasize {
+  color: #72d000;
+  font-size: 0.8em;
   font-style: italic;
 }
 .featured {
@@ -133,12 +143,12 @@ img {
   scrollbar-width: thin;
   background-color: #1d0d17;
   border-radius: 4px;
-  padding: 0px 5%;
+  padding: 0px 2%;
   color: rgb(225, 65, 158);
   white-space: nowrap;
   margin-bottom: 1.2em;
   cursor:text;
-  padding-bottom: 10px;
+  padding-bottom: 12px;
 }
 .pastebin pre {
   margin: 0px;
@@ -227,7 +237,7 @@ h1, h2, h3, h4, h5, label {
 #recentpostlistdiv, #pinnedpostlistdiv {
   padding-left: 2%;
 }
-#postlistdiv ul, #experimentslistdiv ul, #recentpostlistdiv ul, #pinnedpostlistdiv ul {
+#postlistdiv ul, #experimentslistdiv ul, #recentpostlistdiv ul, #pinnedpostlistdiv ul, .list li {
   font-size: 1.2em;
   font-style: italic;
   padding: 0;
