@@ -158,5 +158,15 @@ a, button, input, select {
 	align-items: center;
 	height: 5vh;
 	width: 100vw;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+#aboutlink a {
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 
