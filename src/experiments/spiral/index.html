@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            background-color: rgb(26, 8, 26);
+            background-image: radial-gradient(rgb(255, 0, 128), rgb(54, 21, 41), rgb(30, 26, 31));
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: 100%;
+            height: 100vh;
+            width: 100vw;
+            overflow:hidden;
+            padding: 0px;
+            margin: 0px;
+        }
+        canvas{
+            /* background-color: rgb(240, 0, 240); */
+            width: 100vw !important;
+            height: 100vh !important;
+            padding: 0px;
+            mix-blend-mode: add;
+            background-blend-mode: add;
+        }
+        #spiral-overlay {
+            background-image: radial-gradient(rgb(159, 0, 122), rgb(184, 49, 130), rgb(254, 226, 243));
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: 100%;
+            mix-blend-mode: overlay;
+            height: 100vh;
+            width: 100vw;
+            position:absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id=spiral-overlay></div>
+    <canvas id="sprial"></canvas>
+</body>
+<script type='text/javascript'>
+    window.onload=function(){
+        let newY = 0;
+        let newX = 0;
+        let ctx_lw = 0.5;
+        let spiralSpacing = 1.15;        
+        let offset = 350;
+        let counter = 0;
+
+        function DrawSpiral(mod) {
+            var canvas = document.getElementById("sprial");
+
+            setDPI(canvas, 300);
+            var ctx = canvas.getContext("2d");
+
+            var centerX = window.innerWidth/9.5;
+            var centerY = window.innerHeight/9.5;
+
+            ctx.save();
+
+            ctx.scale(canvas.width/(window.innerWidth)*1.5, canvas.height/(window.innerHeight)*1.5);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.beginPath();
+            ctx.strokeStyle = "#EE00AF99";
+            ctx.lineCap = "round";
+            ctx.lineWidth = 2;
+            ctx.moveTo(centerX, centerY);
+            var STEPS_PER_ROTATION = 60;
+            var increment = 2 * Math.PI / STEPS_PER_ROTATION;
+            var theta = increment;
+            while (theta < 90 * Math.PI) {
+                var newXa = centerX + theta * Math.cos(theta - mod)*spiralSpacing;
+                var newYa = centerY + theta * Math.sin(theta - mod)*spiralSpacing;
+                ctx.lineTo(newXa, newYa);
+                theta = theta + increment;
+            }
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.strokeStyle = "#ffddfe";
+            ctx.lineCap = "round";
+            ctx.lineWidth = ctx_lw;
+
+            var STEPS_PER_ROTATION = 50;
+            var increment = 2 * Math.PI / STEPS_PER_ROTATION;
+            var theta = increment;
+            while (theta < 90 * Math.PI) {
+                
+                // every odd theta around the spiral, make a new line and increase the width
+                if((Math.trunc(theta) % 2) == 1)
+                {
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.lineWidth = Math.LN2*((((ctx_lw * theta/10))*(((ctx_lw * theta/10))/10))/(theta/200)) + ctx_lw;
+                                   
+                    ctx.moveTo(newX, newY);
+                }
+                
+                newX = centerX + theta * Math.cos(offset+ theta - mod)*spiralSpacing;
+                newY = centerY + theta * Math.sin(offset+ theta - mod)*spiralSpacing;
+                
+                ctx.lineTo(newX, newY);
+                
+                theta = theta + increment;
+            }
+            ctx.stroke();
+            ctx.restore();
+        }
+        
+        function update() {
+            DrawSpiral(counter);
+            counter += 0.075;
+            requestAnimationFrame(update);
+        }
+        update();
+    }
+
+    function setDPI(canvas, dpi) {
+        // Set up CSS size.
+        canvas.style.width = canvas.style.width || canvas.width + 'px';
+        canvas.style.height = canvas.style.height || canvas.height + 'px';
+
+        // Get size information.
+        var scaleFactor = dpi / 96;
+        var width = parseFloat(canvas.style.width);
+        var height = parseFloat(canvas.style.height);
+
+        // Backup the canvas contents.
+        var oldScale = canvas.width / width;
+        var backupScale = scaleFactor / oldScale;
+        var backup = canvas.cloneNode(false);
+        backup.getContext('2d').drawImage(canvas, 0, 0);
+
+        // Resize the canvas.
+        var ctx = canvas.getContext('2d');
+        canvas.width = Math.ceil(width * scaleFactor);
+        canvas.height = Math.ceil(height * scaleFactor);
+
+        // Redraw the canvas image and scale future draws.
+        ctx.setTransform(backupScale, 0, 0, backupScale, 0, 0);
+        ctx.drawImage(backup, 0, 0);
+        ctx.setTransform(scaleFactor, 0, 0, scaleFactor, 0, 0);
+    }
+    </script>
+</html>

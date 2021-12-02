@@ -5,7 +5,7 @@
   "main": "index.html",
   "scripts": {
     "i-path": "export PATH=./node_modules/.bin:$PATH",
-    "i-reload": "npm install -g reload",
+    "i-reload": "npm install reload",
     "server": "reload -d ./src",
     "server-n": "reload -b -d ./src",
     "server-l": "reload -b -v -d ./src",
@@ -29,5 +29,8 @@
   "bugs": {
     "url": "https://github.com/aprilonian/artsite/issues"
   },
-  "homepage": "https://github.com/aprilonian/artsite#readme"
+  "homepage": "https://github.com/aprilonian/artsite#readme",
+  "dependencies": {
+    "reload": "^3.2.0"
+  }
 }
