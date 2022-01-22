@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        @font-face {
+            font-family: 'Courier Prime';
+            src: url('./CourierPrime-Regular.ttf');
+        }
         body {
             background-color: rgb(26, 8, 26);
             background-image: radial-gradient(rgb(255, 0, 128), rgb(54, 21, 41), rgb(30, 26, 31));
@@ -34,11 +39,46 @@
             top: 0;
             left: 0;
         }
+        .spiral-words {
+            height: 100vh;
+            width: 100vw;
+            position: absolute;
+            top: 0;
+            left: 0;
+            text-align: center;
+            line-height: 100vh;
+        }
+        .spiral-words h1 {            
+            font-size: 4em;
+            font-family: 'Courier Prime';
+            margin-top: -0.5vw;
+        }
+        #spiral-words-0 {
+            color:rgb(3, 15, 27);
+            mix-blend-mode: difference;
+            filter: blur(1.1px);
+            z-index: 2;
+        }
+        #spiral-words-1 {
+            color:rgb(221, 0, 255);
+            mix-blend-mode: overlay;
+            filter: blur(1.2px);
+            z-index: 1;
+        }
+        #spiral-words-2 {
+            color:rgb(0, 251, 255);
+            mix-blend-mode:hard-light;    
+            filter: blur(1.2px);  
+        }
     </style>
 </head>
 <body>
-    <div id=spiral-overlay></div>
-    <canvas id="sprial"></canvas>
+    <div id='spiral-overlay'></div>
+    <div class='spiral-words' id='spiral-words-0'><h1 id='spiral-word0'>obey</h1></div>
+    <div class='spiral-words' id='spiral-words-1'><h1 id='spiral-word1'>obey</h1></div>
+    <div class='spiral-words' id='spiral-words-2'><h1 id='spiral-word2'>obey</h1></div>
+
+    <canvas id='sprial'></canvas>
 </body>
 <script type='text/javascript'>
     window.onload=function(){
@@ -111,11 +151,59 @@
             ctx.restore();
         }
         
+        let spiralWordList = [
+            'drone',
+            'obey',
+            '',
+            'submit',
+            '',
+            '',
+            'good drone',
+            '',
+            'convert',
+        ]
+        let spiralWord0 = '';
+        let spiralWord1 = '';
+        let spiralWord2 = '';
+        let swl_index = 0;
+        
+        function hypnotize() {
+            let ri = getRandomInt(0,spiralWordList.length-1);
+            let rDeg = getRandomInt(-20,20);
+            spiralWord0 = document.getElementById('spiral-word0');
+            spiralWord0.innerHTML = spiralWordList[ri];
+            spiralWord0.style.transform = 'rotate('+(rDeg+getRandomInt(-5,5))+'deg)'; 
+            spiralWord1 = document.getElementById('spiral-word1');
+            spiralWord1.innerHTML = spiralWordList[ri];
+            spiralWord1.style.transform = 'rotate('+(rDeg+getRandomInt(-10,10))+'deg)'; 
+            spiralWord2 = document.getElementById('spiral-word2');
+            spiralWord2.innerHTML = spiralWordList[ri];
+            spiralWord2.style.transform = 'rotate('+rDeg+'deg)'; 
+
+            setTimeout(clearText,getRandomInt(100,300));
+            setTimeout(hypnotize,getRandomInt(100,1000))
+        }
+        function clearText() {
+            document.getElementById('spiral-word1').innerHTML = '';
+            document.getElementById('spiral-word2').innerHTML = '';
+            
+            setTimeout(function(){
+                document.getElementById('spiral-word1').innerHTML = '';
+            },getRandomInt(0,200));
+        }
+
+        function start() {
+            hypnotize();
+            // setInterval(hypnotize,500)
+        }
+        
         function update() {
             DrawSpiral(counter);
             counter += 0.075;
             requestAnimationFrame(update);
         }
+
+        start();
         update();
     }
 
@@ -144,6 +232,12 @@
         ctx.setTransform(backupScale, 0, 0, backupScale, 0, 0);
         ctx.drawImage(backup, 0, 0);
         ctx.setTransform(scaleFactor, 0, 0, scaleFactor, 0, 0);
+    }
+
+    function getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
     </script>
 </html>
